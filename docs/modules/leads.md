@@ -70,8 +70,3 @@ Customers, Contacts, Opportunities, Integrations (optional)
 - [ ] UI or API adapters implemented only where needed.
 - [ ] Unit and integration tests cover success, negative permissions and concurrency/idempotency where relevant.
 - [ ] Audit/observability/docs updated; acceptance verified.
-
-
-## Delivery reference
-
-See R1-14 in the [R1 task plan](../../plan-r1-task.md). Review remaining action and field grants before implementation.

@@ -1,7 +1,5 @@
 # Module Catalog — 32 Proposed CRM Modules
 
-See the [R1 task plan](../../plan-r1-task.md) for delivery order and completion criteria.
-
 > **Planning inventory, not implemented features.** The 32-module decomposition is a project design proposal spanning **R1 Core CRM**, **R2 Export Execution**, **R3 Supply & Financial Control**. Dependencies in later releases are not required to complete R1.
 
 | ID | Area | Module | Release | Implementation status |

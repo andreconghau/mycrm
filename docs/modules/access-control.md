@@ -21,7 +21,3 @@ Manage identity, role membership, team ownership and action-level policies.
 
 - `CreateUser`, `DisableUser`, `GrantRole`, `RevokeRole`, `GetEffectivePermissions`, `AuthorizeRecordAction`.
 - `GET/POST /api/v1/admin/users`; `POST /api/v1/admin/users/:id/roles`; `GET /api/v1/me/permissions` (safe projection).
-
-## Delivery reference
-
-See R1-01 in the [R1 task plan](../../plan-r1-task.md). Review remaining action and field grants before implementation.

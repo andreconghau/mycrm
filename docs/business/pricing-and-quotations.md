@@ -1,6 +1,6 @@
 # BUS-03 — Product Specifications, Price Lists and Quotations
 
-R1 pricing and approval policy. [R1 task plan](../../plan-r1-task.md).
+R1 pricing and approval policy.
 
 ### Price Lists
 

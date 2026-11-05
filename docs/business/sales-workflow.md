@@ -1,6 +1,6 @@
 # BUS-02 — Sales Workflow: Inquiry, RFQ, Quotation and Sales Order
 
-R1 commercial workflow. [R1 task plan](../../plan-r1-task.md).
+R1 commercial workflow.
 
 ### RFQs
 

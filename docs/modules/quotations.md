@@ -22,7 +22,3 @@ Create, approve and issue immutable commercial offer versions.
 
 - `CreateQuoteDraft`, `RecalculateQuote`, `RequestApproval`, `ApproveQuote`, `IssueQuoteVersion`, `RecordBuyerAcceptance`, `ConvertQuoteToOrder`.
 - `GET/POST /api/v1/quotations`; `POST /api/v1/quotations/:id/revisions`; `POST /api/v1/quotation-versions/:id/issue`; `POST /api/v1/quotation-versions/:id/accept`.
-
-## Delivery reference
-
-See R1-09, R1-10, R1-11 in the [R1 task plan](../../plan-r1-task.md). Review remaining action and field grants before implementation.

@@ -21,7 +21,3 @@ Represent buyer commitment and immutable agreed commercial terms.
 
 - `CreateOrderFromQuote`, `ConfirmOrder`, `AmendOrder`, `CancelOrder`, `GetOpenOrderQuantity`.
 - `GET/POST /api/v1/sales-orders`; `POST /api/v1/sales-orders/:id/confirm`; `POST /api/v1/sales-orders/:id/amend`.
-
-## Delivery reference
-
-See R1-12, R1-13 in the [R1 task plan](../../plan-r1-task.md). Review remaining action and field grants before implementation.

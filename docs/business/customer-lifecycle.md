@@ -113,7 +113,7 @@ Evidence includes source payload reference, activity timestamp, conversion linka
 - [ ] Definition of a *qualified buyer* and required verification evidence.
 - [ ] Customer classification and `ON_HOLD`/credit restriction policy.
 - [ ] Lead SLA and stale-opportunity reminder intervals.
-- Handover grants the new owner full history. The former owner retains only their records as of transfer. See [R1 task plan](../../plan-r1-task.md).
+- Handover grants the new owner full history. The former owner retains only their records as of transfer.
 - [ ] Legal retention and outbound communication/consent policy by jurisdiction.
 - [ ] Customer merge permissions and correction/reversal workflow.
 

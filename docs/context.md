@@ -1,6 +1,6 @@
 # Project Context — Seafood Export CRM
 
-> **Status: documentation baseline for a clean rebuild; all CRM modules planned.** [R1 task plan](../plan-r1-task.md).
+> **Status: documentation baseline for a clean rebuild; all CRM modules planned.**
 > Owner of scope: project team. Updated: **2026-11-04**. Start here; consult linked specs for detail.
 
 ## 1. Product vision
@@ -41,7 +41,7 @@ Invite-only employee login uses email/password and JWT in HttpOnly cookies. Use 
 
 ## 6. R1 execution
 
-Use the [task plan](../plan-r1-task.md) for the 15 modules, priorities, approved business rules and measurable completion criteria. Nimbalyst holds live status.
+Nimbalyst holds live task status.
 
 ## 8. Shared invariants
 - **No destructive overwrite of accepted commercial terms**: quote/order line snapshots preserve price, pack, grade, currency, incoterm and version.

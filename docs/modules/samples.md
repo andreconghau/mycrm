@@ -20,7 +20,3 @@ Track buyer sample requests and outcomes before mass production.
 
 - `CreateSampleRequest`, `DispatchSample`, `RecordSampleFeedback`, `CloseSample`.
 - `GET/POST /api/v1/samples`; `POST /api/v1/samples/:id/dispatch`; `POST /api/v1/samples/:id/feedback`.
-
-## Delivery reference
-
-See R1-17 in the [R1 task plan](../../plan-r1-task.md). Review remaining action and field grants before implementation.

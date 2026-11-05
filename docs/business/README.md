@@ -1,7 +1,5 @@
 # Seafood Export CRM — Business Knowledge Index
 
-See the [R1 task plan](../../plan-r1-task.md) for delivery order and completion criteria.
-
 **Project:** Seafood Export CRM  
 **Document Type:** Business Knowledge Index  
 **Status:** Initial Specification  

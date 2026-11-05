@@ -1,7 +1,5 @@
 # Release Map
 
-See the [R1 task plan](../../plan-r1-task.md) for delivery order and completion criteria.
-
 - **R1 — Core CRM:** inquiry → quotation → confirmed order, ownership and audit.
 - **R2 — Export Execution:** booked shipment → event timeline → document control → alert/feedback.
 - **R3 — Supply & Finance:** supplier/lot/QC → inventory sync → payment and costs.
