@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Employee sign-in mockup for Seafood CRM">
+  <title>Sign in · Seafood CRM</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --canvas: #f6f5f4;
+      --surface: #ffffff;
+      --ink: #171717;
+      --secondary: #31302e;
+      --muted: #615d59;
+      --faint: #a39e98;
+      --line: #e6e6e6;
+      --blue: #0075de;
+      --blue-active: #005bab;
+      --indigo: #213183;
+      --error-bg: #fceeed;
+      --error-ink: #80342e;
+      --info-bg: #eef6fd;
+      --info-ink: #174f7b;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font: 15px/1.5 Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, input { font: inherit; }
+    button, a, input { -webkit-tap-highlight-color: transparent; }
+    a { color: var(--blue); text-underline-offset: 3px; }
+
+    ::selection { background: #cfe6f8; color: #172a3a; }
+    :focus-visible { outline: 3px solid #0075de55; outline-offset: 2px; }
+
+    .page {
+      display: grid;
+      min-height: 100vh;
+      grid-template-rows: auto 1fr auto;
+      padding: 26px 24px 20px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      width: fit-content;
+      color: var(--ink);
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border-radius: 10px;
+      background: var(--indigo);
+    }
+
+    .brand-mark svg { width: 21px; height: 21px; }
+
+    .main {
+      display: grid;
+      place-items: center;
+      padding: 38px 0 48px;
+    }
+
+    .signin {
+      width: min(100%, 444px);
+      padding: 34px 36px 30px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--surface);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 29px;
+      line-height: 1.2;
+      letter-spacing: -0.7px;
+    }
+
+    .intro {
+      margin: 9px 0 27px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .notice {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      margin: 0 0 18px;
+      padding: 11px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+
+    .notice[hidden] { display: none; }
+    .notice svg { flex: 0 0 17px; margin-top: 1px; }
+    .notice.error { background: var(--error-bg); color: var(--error-ink); }
+    .notice.info { background: var(--info-bg); color: var(--info-ink); }
+
+    .field { margin-top: 18px; }
+
+    label.field-label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--secondary);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .input-wrap { position: relative; }
+
+    input[type="email"], input[type="password"], input[type="text"] {
+      width: 100%;
+      height: 46px;
+      padding: 0 13px;
+      border: 1px solid #c9c6c2;
+      border-radius: 5px;
+      background: #fff;
+      color: var(--ink);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 140ms ease, box-shadow 140ms ease;
+    }
+
+    input::placeholder { color: #706b66; opacity: 1; }
+    input:hover { border-color: #85817c; }
+    input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px #0075de20; }
+    input[aria-invalid="true"] { border-color: var(--error-ink); }
+
+    .password-input { padding-right: 74px !important; }
+
+    .reveal {
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      display: inline-flex;
+      min-width: 62px;
+      min-height: 40px;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 0 7px;
+      border: 0;
+      border-radius: 4px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .reveal:hover { background: #f6f5f4; color: var(--ink); }
+    .reveal svg { width: 15px; height: 15px; }
+
+    .field-error {
+      display: block;
+      min-height: 0;
+      margin-top: 4px;
+      color: var(--error-ink);
+      font-size: 12px;
+    }
+
+    .field-error:empty { display: none; }
+
+    .options {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      margin: 17px 0 21px;
+    }
+
+    .options input {
+      width: 17px;
+      height: 17px;
+      flex: 0 0 17px;
+      margin: 2px 0 0;
+      accent-color: var(--blue);
+    }
+
+    .options label {
+      color: var(--secondary);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .options small {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 400;
+    }
+
+    .submit {
+      display: flex;
+      width: 100%;
+      min-height: 46px;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--blue);
+      border-radius: 999px;
+      background: var(--blue);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 140ms ease, border-color 140ms ease;
+    }
+
+    .submit:hover { border-color: var(--blue-active); background: var(--blue-active); }
+    .submit:active { transform: translateY(1px); }
+
+    .help {
+      margin: 22px 0 0;
+      padding-top: 17px;
+      border-top: 1px solid #efeeed;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .help a { font-weight: 600; }
+
+    .page-footer {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 8px 18px;
+      color: var(--muted);
+      font-size: 11px;
+      text-align: center;
+    }
+
+    .page-footer a { color: var(--muted); }
+    .page-footer a:hover { color: var(--blue); }
+
+    .prototype-tools {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 6px 12px;
+      margin-top: 8px;
+      font-size: 10px;
+    }
+
+    @media (max-width: 560px) {
+      .page { padding: 16px 15px 14px; }
+      .main { padding: 28px 0 34px; }
+      .signin { padding: 27px 22px 24px; border-radius: 14px; }
+      h1 { font-size: 26px; }
+      .intro { margin-bottom: 22px; }
+      .page-footer { gap: 6px 12px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <a class="brand" href="index.html" aria-label="Seafood CRM mockup library">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M17.8 6.2c-1.3-1.1-3-1.7-5.1-1.7-3.1 0-5.2 1.5-5.2 3.8 0 2.1 1.6 3.1 5.1 3.7l1.3.2c2.5.4 3.5 1.1 3.5 2.6 0 2-1.9 3.5-5 3.5-2.3 0-4.3-.8-5.9-2.2" stroke="#fff" stroke-width="2.1" stroke-linecap="round"/>
+            <path d="M7.1 9.2c.6-2 2.5-3.3 5.2-3.3" stroke="#9bd0f3" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span>Seafood CRM</span>
+      </a>
+    </header>
+
+    <main class="main">
+      <section class="signin" aria-labelledby="signin-title">
+        <h1 id="signin-title">Sign in</h1>
+        <p class="intro">Use your invited work account to continue.</p>
+
+        <div id="session-notice" class="notice info" role="status" aria-live="polite" hidden>
+          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="7.5" stroke="currentColor"/><path d="M10 9v4M10 6.5v.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span>Your session has expired. Sign in to continue.</span>
+        </div>
+
+        <div id="form-notice" class="notice error" role="alert" aria-live="assertive" tabindex="-1" hidden>
+          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="7.5" stroke="currentColor"/><path d="M10 6v4.5M10 13.2v.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span>We couldn’t sign you in. Check your email and password, then try again. If you need access help, contact your CRM administrator.</span>
+        </div>
+
+        <form id="signin-form" novalidate>
+          <div class="field">
+            <label class="field-label" for="email">Work email</label>
+            <input id="email" name="email" type="email" autocomplete="username" inputmode="email" placeholder="you@company.com" required aria-describedby="email-error">
+            <span class="field-error" id="email-error"></span>
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="password">Password</label>
+            <div class="input-wrap">
+              <input class="password-input" id="password" name="password" type="password" autocomplete="current-password" required aria-describedby="password-error">
+              <button class="reveal" id="reveal-password" type="button" aria-label="Show password" aria-pressed="false">
+                <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M2.5 10s2.6-4.3 7.5-4.3 7.5 4.3 7.5 4.3-2.6 4.3-7.5 4.3S2.5 10 2.5 10Z" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="10" r="1.9" stroke="currentColor" stroke-width="1.4"/></svg>
+                <span>Show</span>
+              </button>
+            </div>
+            <span class="field-error" id="password-error"></span>
+          </div>
+
+          <div class="options">
+            <input id="remember" name="remember" type="checkbox">
+            <label for="remember">Remember me<small>Keep your session when you reopen this browser. Session limits still apply.</small></label>
+          </div>
+
+          <button class="submit" type="submit">Sign in</button>
+        </form>
+
+        <p class="help">Need access? Contact your CRM administrator.</p>
+      </section>
+    </main>
+
+    <footer class="page-footer">
+      <span>Employee access · Invitation required</span>
+      <span aria-hidden="true">·</span>
+      <span>Prototype only — no credentials are sent or stored.</span>
+      <nav class="prototype-tools" aria-label="Prototype preview states">
+        <a href="login.mockup.html">Default</a>
+        <a href="login.mockup.html?state=expired">Expired session</a>
+        <a href="login.mockup.html?state=disabled">Access issue</a>
+        <a href="index.html">Mockup library</a>
+      </nav>
+    </footer>
+  </div>
+
+  <script>
+    const form = document.getElementById("signin-form");
+    const email = document.getElementById("email");
+    const password = document.getElementById("password");
+    const formNotice = document.getElementById("form-notice");
+    const sessionNotice = document.getElementById("session-notice");
+    const reveal = document.getElementById("reveal-password");
+
+    function setFieldError(input, message) {
+      const error = document.getElementById(`${input.id}-error`);
+      error.textContent = message;
+      input.setAttribute("aria-invalid", message ? "true" : "false");
+    }
+
+    function clearErrors() {
+      setFieldError(email, "");
+      setFieldError(password, "");
+      formNotice.hidden = true;
+    }
+
+    email.addEventListener("input", () => setFieldError(email, ""));
+    password.addEventListener("input", () => setFieldError(password, ""));
+
+    reveal.addEventListener("click", () => {
+      const showing = password.type === "password";
+      password.type = showing ? "text" : "password";
+      reveal.setAttribute("aria-pressed", String(showing));
+      reveal.setAttribute("aria-label", showing ? "Hide password" : "Show password");
+      reveal.querySelector("span").textContent = showing ? "Hide" : "Show";
+      password.focus();
+    });
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      clearErrors();
+
+      if (!email.value.trim()) {
+        setFieldError(email, "Enter your work email address.");
+        email.focus();
+        return;
+      }
+
+      if (!email.validity.valid) {
+        setFieldError(email, "Enter a valid email address.");
+        email.focus();
+        return;
+      }
+
+      if (!password.value) {
+        setFieldError(password, "Enter your password.");
+        password.focus();
+        return;
+      }
+
+      // This prototype never sends or stores credentials. A valid-looking
+      // submission demonstrates the generic authentication error state.
+      formNotice.hidden = false;
+      formNotice.focus?.();
+    });
+
+    const previewState = new URLSearchParams(window.location.search).get("state");
+    if (previewState === "expired") {
+      sessionNotice.hidden = false;
+    } else if (previewState === "disabled") {
+      formNotice.hidden = false;
+    }
+  </script>
+</body>
+</html>
