@@ -21,32 +21,28 @@ Prefer existing repository patterns and minimal, scoped changes.
 
 ## Skill Usage
 
-- Discover available skills before executing tasks.
-- Identify relevant skills based on task requirements.
-- Read skill metadata (`name`, `description`) to determine relevance.
-- **Do not activate or execute any skill without explicit user approval.**
-- Before starting the task, present:
-  - **Skill:** Name of the proposed skill.
-  - **Purpose:** Why this skill is relevant.
-  - **Benefit:** What the skill will contribute to the task.
-- Ask the user to confirm whether to use the proposed skill(s).
-- If multiple skills are relevant, present them together for approval.
-- Wait for explicit user confirmation before reading the full `SKILL.md` or applying its workflow.
-- If approved, read the selected `SKILL.md` and follow its instructions.
-- If rejected, proceed without the rejected skill using standard Codex capabilities.
-- Do not repeatedly request approval for skills already approved within the same task.
-- If additional skills become necessary during execution, request approval before using them.
-- Prefer project-specific skills over generic skills when appropriate.
-- Do not force unrelated skills.
-- Report which skills were used and why in the final task summary.
+### Project skill registry and standing approval
 
-### Skill Approval Gate
+The owner explicitly authorized the following project skills on 2026-11-06. Use them when their scope applies; announce the selected skill and purpose briefly, but do not ask for skill-use approval again. Approval to use a skill does not approve unresolved business decisions, a new implementation scope, production migrations or deployment.
 
-**Mandatory:** Never invoke a skill implicitly, even if it is an obvious match, without first obtaining explicit user approval.
+| Skill | Authoritative project entry point | Approved use |
+| --- | --- | --- |
+| `grill-me` (`/grill-me`, `$grill-me`) | [.agents/skills/grill-me/SKILL.md](.agents/skills/grill-me/SKILL.md) | Planning, requirements interviews and material decisions needing owner confirmation |
+| `frontend-patterns` | [.agents/skills/frontend-patterns/SKILL.md](.agents/skills/frontend-patterns/SKILL.md) | Frontend and backend coding; apply the project backend supplement and existing architecture for server work |
+| `database-migrations` | [.agents/skills/database-migrations/SKILL.md](.agents/skills/database-migrations/SKILL.md) | Database/table analysis, schema design, relationships, constraints, indexes and migration planning/implementation |
 
-Skill discovery and metadata inspection are permitted without approval. Reading full skill instructions and executing skill workflows require approval.
+### Discovery and invocation
 
-This approval requirement applies to every new task, unless the user has already explicitly authorized specific skills for that task.
+1. Resolve the project root from the active checkout, then consult this registry and the runtime skill catalog. An absent catalog entry does not prove a skill is absent on disk.
+2. Prefer the project-local `.agents/skills/<name>/SKILL.md`; check `.codex/skills/<name>/SKILL.md` next. If neither exists, inspect the runtime catalog's exact user/plugin path. Use `rg --files --hidden .agents .codex -g SKILL.md` for a local inventory, following the graphify query rule below first when applicable.
+3. Read the selected entry point before applying it. Slash commands and `$skill` names are aliases for that skill, not a requirement for a separate dispatcher tool.
+4. A skill must contain an executable workflow or resolvable references. If a dependency or tool is unavailable, report that specific limitation rather than saying the skill itself is missing. Do not silently replace the project copy with a same-named global copy.
+5. `grill-me` is self-contained. Use the available interactive question tool (Nimbalyst preferred), with grouped questions, recommended choices and explicit confirmation for material decisions. No `Skill` tool or separate `grilling` package is required.
+6. A runtime catalog already injected into a session may remain stale. Read the registered local file directly in that session; verify catalog visibility in a fresh session before claiming automatic discovery is fixed end to end.
+
+### Other skills
+
+Discovery and metadata inspection are allowed. For skills outside the standing approval above, briefly explain name, purpose and benefit and obtain approval before reading full instructions or applying them. Preserve existing approvals within a task, prefer project-specific copies, avoid unrelated skills, and report which skills were used.
 
 ## 4. Requirement Understanding & Approval
 

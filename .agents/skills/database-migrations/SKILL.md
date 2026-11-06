@@ -4,7 +4,7 @@ description: >
   Database migration best practices for schema changes, data migrations, rollbacks,
   and zero-downtime deployments across PostgreSQL, MySQL, and common ORMs (Prisma,
   Drizzle, Django, TypeORM, golang-migrate). Use when planning or implementing
-  database schema changes.
+  database schema changes, analyzing tables, or designing relational data models.
 metadata:
   origin: ECC
 ---
@@ -12,6 +12,18 @@ metadata:
 # Database Migration Patterns
 
 Safe, reversible database schema changes for production systems.
+
+## Project analysis and design workflow
+
+Use this skill before migration code when the task is to analyze or design tables:
+
+1. Inspect confirmed business rules and existing schema/fixtures. Distinguish proposed UI contracts from implemented database structures.
+2. Resolve entity identity, ownership/market scope, cardinality, lifecycle, duplicate rules and deletion/retention policy with `grill-me` when uncertain.
+3. Propose tables, explicit types/nullability, primary/foreign keys, unique/check constraints, exact money representation and timestamps. Identify same-market relationship constraints where required.
+4. Explain expected queries, indexes, transaction boundaries and application authorization. Include trade-offs and open questions; do not invent business rules.
+5. Produce an English schema proposal, Mermaid ER diagram where useful, and a dictionary with meaningful table/column comments. Use the project's approved PostgreSQL, Drizzle and Postgres.js conventions.
+6. Separate fresh-schema creation from changes to populated databases. For existing data, plan compatibility, backfill, locking, rollout and rollback explicitly. Do not assume production data access or run migrations merely because design was requested.
+7. After schema approval, use one versioned SQL migration history and validate in an isolated development database. Synchronize the physical ERD/dictionary from that database when implemented.
 
 ## When to Activate
 

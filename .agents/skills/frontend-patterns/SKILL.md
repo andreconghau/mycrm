@@ -1,11 +1,24 @@
 ---
 name: frontend-patterns
-description: Frontend development patterns for React, Next.js, state management, performance optimization, and UI best practices.
+description: Project frontend and backend coding patterns for React and Next.js, including UI composition, thin server entry points, application use cases, validation and scoped data access.
 ---
 
 # Frontend Development Patterns
 
 Modern frontend patterns for React, Next.js, and performant user interfaces.
+
+## Project backend supplement
+
+The owner authorizes this skill for both frontend and backend coding in this project. The React examples below apply to UI work; use these server rules for backend work:
+
+- Follow current project architecture and module conventions. Read relevant installed Next.js documentation before changing routes, Server Actions or rendering boundaries.
+- Keep HTTP handlers and Server Actions thin: boundary validation, application use case invocation and consistent response mapping.
+- Keep domain rules and resource/action/record authorization in shared application services. Compose scoped repository adapters at the infrastructure boundary; do not import UI or HTTP responses into database connection modules.
+- Preserve explicit DTO/API contracts, pagination/filter/sort behavior, transaction boundaries and data integrity. Consider idempotency and retries only where the operation requires them.
+- Validate permissions for reads, mutations, aggregates, exports and downloads. Never rely on client state, hidden buttons or market selectors for authorization.
+- Use structured logs without secrets or sensitive payloads. Respect process boundaries, pool limits and existing cache/queue infrastructure; do not introduce new infrastructure or dependencies without approval.
+- For database/table analysis, schema changes or migrations, also read the approved project `database-migrations` skill.
+- For unresolved business decisions, use the approved project `grill-me` skill. Follow project verification requirements and report actual results separately from unverified runtime/deployment behavior.
 
 ## When to Activate
 
