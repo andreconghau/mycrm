@@ -1,0 +1,110 @@
+[
+  {
+    "id": "smp-2026-011",
+    "customer_id": "cus-2026-001",
+    "contact_id": "con-2026-001",
+    "opportunity_id": "opp-2026-001",
+    "requested_at": "2026-11-03T03:00:00Z",
+    "requested_by": "usr-linh",
+    "status": "preparing",
+    "shipment_address_snapshot": {
+      "country_code": "KR",
+      "city": "Busan",
+      "address_lines": [
+        "Fictional buyer sample address"
+      ]
+    },
+    "cost_budget": "150.00",
+    "currency": "USD",
+    "items": [
+      {
+        "sample_request_id": "smp-2026-011",
+        "product_id": "prod-squid",
+        "spec_id": "spec-2026-001",
+        "quantity": "2.00",
+        "unit": "kg",
+        "packaging_notes": "Sample pack"
+      }
+    ],
+    "dispatch": {
+      "carrier": null,
+      "tracking_ref": null,
+      "dispatched_at": null,
+      "received_at": null,
+      "dispatch_cost": null
+    },
+    "market_id": "market-kr"
+  },
+  {
+    "id": "smp-2026-010",
+    "customer_id": "cus-2026-002",
+    "contact_id": "con-2026-002",
+    "opportunity_id": "opp-2026-002",
+    "requested_at": "2026-10-30T03:00:00Z",
+    "requested_by": "usr-minh",
+    "status": "dispatched",
+    "shipment_address_snapshot": {
+      "country_code": "JP",
+      "city": "Yokohama",
+      "address_lines": [
+        "Fictional buyer sample address"
+      ]
+    },
+    "cost_budget": "120.00",
+    "currency": "USD",
+    "items": [
+      {
+        "sample_request_id": "smp-2026-010",
+        "product_id": "prod-octopus",
+        "spec_id": "spec-2026-002",
+        "quantity": "1.00",
+        "unit": "kg",
+        "packaging_notes": "Sample pack"
+      }
+    ],
+    "dispatch": {
+      "carrier": "Example Courier",
+      "tracking_ref": "TRACK-DEMO-010",
+      "dispatched_at": "2026-11-02T04:00:00Z",
+      "received_at": null,
+      "dispatch_cost": "45.00"
+    },
+    "market_id": "market-jp"
+  },
+  {
+    "id": "smp-2026-008",
+    "customer_id": "cus-2026-003",
+    "contact_id": "con-2026-003",
+    "opportunity_id": "opp-2026-003",
+    "requested_at": "2026-10-24T03:00:00Z",
+    "requested_by": "usr-lan",
+    "status": "delivered",
+    "shipment_address_snapshot": {
+      "country_code": "DE",
+      "city": "Hamburg",
+      "address_lines": [
+        "Fictional buyer sample address"
+      ]
+    },
+    "cost_budget": "180.00",
+    "currency": "EUR",
+    "items": [
+      {
+        "sample_request_id": "smp-2026-008",
+        "product_id": "prod-shrimp",
+        "spec_id": "spec-2026-003",
+        "quantity": "2.00",
+        "unit": "kg",
+        "packaging_notes": "Sample pack"
+      }
+    ],
+    "dispatch": {
+      "carrier": "Example Courier",
+      "tracking_ref": "TRACK-DEMO-008",
+      "dispatched_at": "2026-10-27T04:00:00Z",
+      "received_at": "2026-10-30T04:00:00Z",
+      "dispatch_cost": "52.00"
+    },
+    "market_id": "market-us"
+  }
+]

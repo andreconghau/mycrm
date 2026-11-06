@@ -1,0 +1,112 @@
+[
+  {
+    "id": "rfq-2026-018",
+    "rfq_number": "RFQ-2026-018",
+    "customer_id": "cus-2026-001",
+    "contact_id": "con-2026-001",
+    "source": "email",
+    "external_message_ref": "MSG-DEMO-018",
+    "received_at": "2026-11-04T02:00:00Z",
+    "response_due_at": "2026-11-08T09:00:00Z",
+    "owner_id": "usr-linh",
+    "status": "in_review",
+    "destination_country": "KR",
+    "port_of_destination": "Busan",
+    "notes": "Buyer requests a frozen squid offer.",
+    "lines": [
+      {
+        "id": "rfql-018-01",
+        "rfq_id": "rfq-2026-018",
+        "product_id": "prod-squid",
+        "free_text_request": null,
+        "spec_requirements_json": {
+          "size_band": "10-20",
+          "size_unit": "cm"
+        },
+        "requested_quantity": "12000.00",
+        "quantity_unit": "kg",
+        "target_price": null,
+        "currency": "USD"
+      },
+      {
+        "id": "rfql-018-02",
+        "rfq_id": "rfq-2026-018",
+        "product_id": "prod-octopus",
+        "free_text_request": null,
+        "spec_requirements_json": {
+          "size_band": "40-60",
+          "size_unit": "pcs/kg"
+        },
+        "requested_quantity": "3000.00",
+        "quantity_unit": "kg",
+        "target_price": null,
+        "currency": "USD"
+      }
+    ],
+    "market_id": "market-kr"
+  },
+  {
+    "id": "rfq-2026-017",
+    "rfq_number": "RFQ-2026-017",
+    "customer_id": "cus-2026-002",
+    "contact_id": "con-2026-002",
+    "source": "email",
+    "external_message_ref": "MSG-DEMO-017",
+    "received_at": "2026-11-03T03:00:00Z",
+    "response_due_at": "2026-11-09T09:00:00Z",
+    "owner_id": "usr-minh",
+    "status": "quoted",
+    "destination_country": "JP",
+    "port_of_destination": "Yokohama",
+    "notes": "Quote preparation in progress.",
+    "lines": [
+      {
+        "id": "rfql-017-01",
+        "rfq_id": "rfq-2026-017",
+        "product_id": "prod-octopus",
+        "free_text_request": null,
+        "spec_requirements_json": {
+          "size_band": "40-60",
+          "size_unit": "pcs/kg"
+        },
+        "requested_quantity": "5000.00",
+        "quantity_unit": "kg",
+        "target_price": null,
+        "currency": "USD"
+      }
+    ],
+    "market_id": "market-jp"
+  },
+  {
+    "id": "rfq-2026-015",
+    "rfq_number": "RFQ-2026-015",
+    "customer_id": "cus-2026-003",
+    "contact_id": "con-2026-003",
+    "source": "portal_forward",
+    "external_message_ref": "MSG-DEMO-015",
+    "received_at": "2026-10-31T03:00:00Z",
+    "response_due_at": "2026-11-10T09:00:00Z",
+    "owner_id": "usr-lan",
+    "status": "new",
+    "destination_country": "DE",
+    "port_of_destination": "Hamburg",
+    "notes": "Buyer asks for seafood assortment.",
+    "lines": [
+      {
+        "id": "rfql-015-01",
+        "rfq_id": "rfq-2026-015",
+        "product_id": "prod-shrimp",
+        "free_text_request": null,
+        "spec_requirements_json": {
+          "size_band": "21/25",
+          "size_unit": "count/lb"
+        },
+        "requested_quantity": "6000.00",
+        "quantity_unit": "kg",
+        "target_price": null,
+        "currency": "EUR"
+      }
+    ],
+    "market_id": "market-us"
+  }
+]

@@ -1,0 +1,74 @@
+[
+  {
+    "id": "spec-2026-001",
+    "product_id": "prod-squid",
+    "version": 3,
+    "grade": "A",
+    "size_band": "10-20",
+    "size_unit": "cm",
+    "net_weight_per_pack": "10.00",
+    "gross_weight_per_pack": "10.30",
+    "glazing_percent": "0.00",
+    "packs_per_carton": 1,
+    "carton_net_weight": "10.00",
+    "storage_temp_c": "-18.00",
+    "shelf_life": "24 months",
+    "origin_country": "VN",
+    "packaging_material": "PE bag / carton",
+    "label_language": [
+      "en",
+      "ko"
+    ],
+    "status": "approved",
+    "approved_at": "2026-10-20T08:00:00Z",
+    "market_id": "market-kr"
+  },
+  {
+    "id": "spec-2026-002",
+    "product_id": "prod-octopus",
+    "version": 2,
+    "grade": "A",
+    "size_band": "40-60",
+    "size_unit": "pcs/kg",
+    "net_weight_per_pack": "1.00",
+    "gross_weight_per_pack": "1.08",
+    "glazing_percent": "10.00",
+    "packs_per_carton": 10,
+    "carton_net_weight": "10.00",
+    "storage_temp_c": "-18.00",
+    "shelf_life": "24 months",
+    "origin_country": "VN",
+    "packaging_material": "PE bag / carton",
+    "label_language": [
+      "en",
+      "ja"
+    ],
+    "status": "approved",
+    "approved_at": "2026-10-18T08:00:00Z",
+    "market_id": "market-jp"
+  },
+  {
+    "id": "spec-2026-003",
+    "product_id": "prod-shrimp",
+    "version": 1,
+    "grade": "A",
+    "size_band": "21/25",
+    "size_unit": "count/lb",
+    "net_weight_per_pack": "1.00",
+    "gross_weight_per_pack": "1.08",
+    "glazing_percent": "10.00",
+    "packs_per_carton": 10,
+    "carton_net_weight": "10.00",
+    "storage_temp_c": "-18.00",
+    "shelf_life": "24 months",
+    "origin_country": "VN",
+    "packaging_material": "PE bag / carton",
+    "label_language": [
+      "en",
+      "vi"
+    ],
+    "status": "draft",
+    "approved_at": null,
+    "market_id": "market-us"
+  }
+]

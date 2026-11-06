@@ -1,0 +1,53 @@
+[
+  {
+    "id": "cus-2026-001",
+    "code": "CUS-001",
+    "legal_name": "Han River Foods",
+    "trade_name": "Han River Foods",
+    "country_code": "KR",
+    "preferred_language": "ko",
+    "preferred_currency": "USD",
+    "website": "https://example.test/han-river",
+    "status": "active",
+    "owner_user_id": "usr-linh",
+    "team_id": "team-korea",
+    "created_at": "2026-09-08T08:00:00Z",
+    "updated_at": "2026-11-04T07:00:00Z",
+    "version": 3,
+    "market_id": "market-kr"
+  },
+  {
+    "id": "cus-2026-002",
+    "code": "CUS-002",
+    "legal_name": "Pacific Blue Trading",
+    "trade_name": "Pacific Blue Trading",
+    "country_code": "JP",
+    "preferred_language": "en",
+    "preferred_currency": "USD",
+    "website": "https://example.test/pacific-blue",
+    "status": "active",
+    "owner_user_id": "usr-minh",
+    "team_id": "team-international",
+    "created_at": "2026-09-10T08:00:00Z",
+    "updated_at": "2026-11-03T05:00:00Z",
+    "version": 2,
+    "market_id": "market-jp"
+  },
+  {
+    "id": "cus-2026-003",
+    "code": "CUS-003",
+    "legal_name": "Nordic Catch GmbH",
+    "trade_name": "Nordic Catch",
+    "country_code": "DE",
+    "preferred_language": "en",
+    "preferred_currency": "EUR",
+    "website": "https://example.test/nordic-catch",
+    "status": "active",
+    "owner_user_id": "usr-lan",
+    "team_id": "team-international",
+    "created_at": "2026-09-12T08:00:00Z",
+    "updated_at": "2026-10-28T05:00:00Z",
+    "version": 1,
+    "market_id": "market-us"
+  }
+]

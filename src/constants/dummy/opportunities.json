@@ -1,0 +1,47 @@
+[
+  {
+    "id": "opp-2026-001",
+    "customer_id": "cus-2026-001",
+    "name": "Q1 squid program",
+    "stage": "proposal",
+    "probability": 60,
+    "expected_amount": "84000.00",
+    "currency": "USD",
+    "expected_close_date": "2026-11-24",
+    "owner_id": "usr-linh",
+    "team_id": "team-korea",
+    "created_at": "2026-09-18T08:00:00Z",
+    "updated_at": "2026-11-04T07:00:00Z",
+    "market_id": "market-kr"
+  },
+  {
+    "id": "opp-2026-002",
+    "customer_id": "cus-2026-002",
+    "name": "Winter octopus range",
+    "stage": "qualified",
+    "probability": 40,
+    "expected_amount": "52500.00",
+    "currency": "USD",
+    "expected_close_date": "2026-12-02",
+    "owner_id": "usr-minh",
+    "team_id": "team-international",
+    "created_at": "2026-09-20T08:00:00Z",
+    "updated_at": "2026-11-03T05:00:00Z",
+    "market_id": "market-jp"
+  },
+  {
+    "id": "opp-2026-003",
+    "customer_id": "cus-2026-003",
+    "name": "Private label shrimp",
+    "stage": "negotiation",
+    "probability": 75,
+    "expected_amount": "96000.00",
+    "currency": "EUR",
+    "expected_close_date": "2026-12-16",
+    "owner_id": "usr-lan",
+    "team_id": "team-international",
+    "created_at": "2026-09-22T08:00:00Z",
+    "updated_at": "2026-10-28T05:00:00Z",
+    "market_id": "market-us"
+  }
+]

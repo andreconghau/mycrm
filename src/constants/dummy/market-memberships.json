@@ -1,0 +1,27 @@
+[
+  {
+    "user_id": "usr-linh",
+    "market_id": "market-kr",
+    "status": "active"
+  },
+  {
+    "user_id": "usr-linh",
+    "market_id": "market-jp",
+    "status": "active"
+  },
+  {
+    "user_id": "usr-linh",
+    "market_id": "market-us",
+    "status": "active"
+  },
+  {
+    "user_id": "usr-minh",
+    "market_id": "market-kr",
+    "status": "active"
+  },
+  {
+    "user_id": "usr-lan",
+    "market_id": "market-us",
+    "status": "active"
+  }
+]

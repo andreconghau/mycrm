@@ -1,0 +1,29 @@
+[
+  {
+    "id": "usr-linh",
+    "display_name": "Linh Nguyen",
+    "email": "linh.nguyen@example.test",
+    "role": "sale",
+    "team": "Korea team",
+    "manager_id": "usr-minh",
+    "status": "active"
+  },
+  {
+    "id": "usr-minh",
+    "display_name": "Minh Tran",
+    "email": "minh.tran@example.test",
+    "role": "manager",
+    "team": "Sales",
+    "manager_id": null,
+    "status": "active"
+  },
+  {
+    "id": "usr-lan",
+    "display_name": "Lan Pham",
+    "email": "lan.pham@example.test",
+    "role": "sale",
+    "team": "International",
+    "manager_id": "usr-minh",
+    "status": "active"
+  }
+]

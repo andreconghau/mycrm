@@ -10,7 +10,7 @@ export default function NotFound() {
       </p>
       <Link
         className="text-primary w-fit underline underline-offset-4"
-        href="/login"
+        href="/vi/login"
       >
         Return to sign in
       </Link>

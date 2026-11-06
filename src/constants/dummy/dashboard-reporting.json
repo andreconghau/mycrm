@@ -1,0 +1,30 @@
+{
+  "fixture_notice": "Synthetic UI data. Metrics derive from canonical market-scoped records; no FX conversion.",
+  "views": [
+    {
+      "key": "overview",
+      "label_en": "Overview",
+      "label_vi": "Tổng quan"
+    },
+    {
+      "key": "orders",
+      "label_en": "By order",
+      "label_vi": "Theo đơn hàng"
+    },
+    {
+      "key": "products",
+      "label_en": "By product",
+      "label_vi": "Theo sản phẩm"
+    },
+    {
+      "key": "customers",
+      "label_en": "By customer",
+      "label_vi": "Theo khách hàng"
+    },
+    {
+      "key": "sales",
+      "label_en": "By sales owner",
+      "label_vi": "Theo nhân viên"
+    }
+  ]
+}

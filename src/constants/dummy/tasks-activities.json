@@ -1,0 +1,47 @@
+[
+  {
+    "id": "task-2026-001",
+    "subject": "Confirm squid grade",
+    "description": "Confirm target grade with the buyer.",
+    "assignee_id": "usr-linh",
+    "created_by": "usr-minh",
+    "priority": "high",
+    "due_at": "2026-11-06T07:00:00Z",
+    "status": "open",
+    "related_type": "rfq",
+    "related_id": "rfq-2026-018",
+    "created_at": "2026-11-04T08:00:00Z",
+    "updated_at": "2026-11-04T08:00:00Z",
+    "market_id": "market-kr"
+  },
+  {
+    "id": "task-2026-002",
+    "subject": "Send revised quote",
+    "description": "Send the reviewed quotation version.",
+    "assignee_id": "usr-minh",
+    "created_by": "usr-linh",
+    "priority": "normal",
+    "due_at": "2026-11-06T09:30:00Z",
+    "status": "in_progress",
+    "related_type": "quotation",
+    "related_id": "quo-2026-041",
+    "created_at": "2026-11-03T08:00:00Z",
+    "updated_at": "2026-11-04T08:00:00Z",
+    "market_id": "market-jp"
+  },
+  {
+    "id": "task-2026-003",
+    "subject": "Log buyer call",
+    "description": "Record the customer conversation.",
+    "assignee_id": "usr-lan",
+    "created_by": "usr-minh",
+    "priority": "normal",
+    "due_at": "2026-11-07T03:00:00Z",
+    "status": "open",
+    "related_type": "customer",
+    "related_id": "cus-2026-003",
+    "created_at": "2026-11-04T08:00:00Z",
+    "updated_at": "2026-11-04T08:00:00Z",
+    "market_id": "market-us"
+  }
+]

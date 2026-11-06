@@ -1,0 +1,26 @@
+[
+  {
+    "id": "market-kr",
+    "code": "KR",
+    "name_en": "South Korea",
+    "name_vi": "Hàn Quốc",
+    "default_currency": "KRW",
+    "status": "active"
+  },
+  {
+    "id": "market-jp",
+    "code": "JP",
+    "name_en": "Japan",
+    "name_vi": "Nhật Bản",
+    "default_currency": "JPY",
+    "status": "active"
+  },
+  {
+    "id": "market-us",
+    "code": "US",
+    "name_en": "United States",
+    "name_vi": "Mỹ",
+    "default_currency": "USD",
+    "status": "active"
+  }
+]

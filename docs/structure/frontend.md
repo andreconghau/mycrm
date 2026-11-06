@@ -225,6 +225,20 @@ No deployment in this task. The context document targets Vercel, but production 
 
 ## Sources checked 2026-11-06
 
+## 18. RP-03 UI shell, localization, and fixture update
+
+- The approved prototype routes now use `/en` and `/vi` prefixes; `/` redirects to `/vi/login`. The locale root sets the document language and statically generates both supported locales.
+- Added English and Vietnamese message dictionaries, a locale switcher, translated workspace navigation and list-screen controls, and translated dashboard headings/report tabs.
+- Added the shared top search field and `/[locale]/search` results route. Search uses illustrative list fixtures and excludes email and currency-valued cells from its matching index.
+- Added a local-storage desktop sidebar collapse preference, mobile off-canvas navigation, a profile drawer with editable display name and preferred locale, read-only email/role/team, static help guidance, and notifications from fixture JSON. These controls do not persist to a server or perform authentication/authorization.
+- Synthetic module and shell records are stored in `src/constants/dummy/*.json`; the route-list UI fixtures are in `r1-route-data.json`. Localization strings are in `src/constants/messages/{en,vi}.json`. These are illustrative UI contracts and are not approved API/database schemas.
+- The workspace badge remains a single static Export workspace context, consistent with the single-company R1 documentation.
+- PASS: `npm run lint`, `npm run typecheck`, and `npm run build -- --webpack` after the update. The build emits both locale variants for all static routes and dynamic dashboard/search routes.
+- BLOCKED: approved Playwright desktop/mobile checks could not launch because the configured Chromium executable is absent from the local Playwright cache. The sandbox initially also denied the local server bind; the rerun with loopback access started the server but browser launch failed before any page-level assertions ran. No browser workflow is reported as passed.
+- NOT RUN: default Turbopack build or API/auth/database integration checks. This remains a UI-only prototype.
+
+## Sources checked 2026-11-06
+
 - [Next.js 16 upgrade guide](https://nextjs.org/docs/app/guides/upgrading/version-16) — Node 20.9 minimum, TypeScript minimum, Turbopack defaults, and Next.js 16 migration changes.
 - [Next.js installation guide](https://nextjs.org/docs/app/getting-started/installation) — App Router and manual installation guidance; lint is separate from build.
 - [Next.js 16.4 release](https://nextjs.org/blog/next-16-4) and [Next.js npm package](https://www.npmjs.com/package/next) — stable patch observed as 16.4.5.
@@ -232,3 +246,7 @@ No deployment in this task. The context document targets Vercel, but production 
 - [shadcn/ui Tailwind v4 guide](https://ui.shadcn.com/docs/tailwind-v4) — `new-york` style, Tailwind v4 and React 19 support.
 - [Node.js release status](https://nodejs.org/en/about/previous-releases) — Node.js 26 LTS status.
 - [Tailwind CSS with Next.js](https://tailwindcss.com/docs/installation/framework-guides/nextjs) and [shadcn/ui Tailwind v4 setup](https://ui.shadcn.com/docs/tailwind-v4) — current integration approach.
+
+## 19. Market context extension — owner approved 2026-11-06
+
+See [market UI plan and backend contract inputs](market-ui-plan.md) for the confirmed KR/JP/US decisions, scope, implementation plan, future schema constraints and acceptance criteria. Market is a sales responsibility unit independent of country and UI locale. The shell, search, lists, notifications and reports share one selected market. Canonical module JSON supplies business rows; route JSON supplies presentation metadata. Browser persistence and fixture memberships are UI-only and must be replaced with server preferences and application authorization before real data is enabled. This section supersedes earlier hardcoded dashboard fixtures and unscoped search behavior.

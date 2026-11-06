@@ -1,0 +1,124 @@
+[
+  {
+    "id": "so-2026-026",
+    "order_number": "SO-2026-026",
+    "customer_id": "cus-2026-001",
+    "accepted_quote_version_id": "quov-2026-042-2",
+    "buyer_po_ref": "PO-BUYER-DEMO-026",
+    "status": "confirmed",
+    "currency": "USD",
+    "incoterm": "FOB",
+    "named_place": "Ho Chi Minh City",
+    "payment_terms": "T/T 30/70",
+    "confirmed_at": "2026-11-04T07:00:00Z",
+    "owner_id": "usr-linh",
+    "version": 1,
+    "lines": [
+      {
+        "id": "sol-026-01",
+        "sales_order_id": "so-2026-026",
+        "line_no": 1,
+        "product_snapshot": {
+          "name": "Frozen squid tubes"
+        },
+        "spec_snapshot": {
+          "code": "SQ-TUBE-10/20",
+          "version": 3
+        },
+        "quantity_decimal": "8000.00",
+        "unit": "kg",
+        "unit_price_decimal": "4.80",
+        "total_decimal": "38400.00",
+        "allocated_qty_decimal": "0.00"
+      },
+      {
+        "id": "sol-026-02",
+        "sales_order_id": "so-2026-026",
+        "line_no": 2,
+        "product_snapshot": {
+          "name": "Baby octopus"
+        },
+        "spec_snapshot": {
+          "code": "OCT-WHOLE-40/60",
+          "version": 2
+        },
+        "quantity_decimal": "800.00",
+        "unit": "kg",
+        "unit_price_decimal": "5.50",
+        "total_decimal": "4400.00",
+        "allocated_qty_decimal": "0.00"
+      }
+    ],
+    "market_id": "market-kr"
+  },
+  {
+    "id": "so-2026-025",
+    "order_number": "SO-2026-025",
+    "customer_id": "cus-2026-002",
+    "accepted_quote_version_id": "quov-2026-041-1",
+    "buyer_po_ref": "PO-BUYER-DEMO-025",
+    "status": "confirmed",
+    "currency": "USD",
+    "incoterm": "FOB",
+    "named_place": "Ho Chi Minh City",
+    "payment_terms": "T/T 30/70",
+    "confirmed_at": "2026-11-01T07:00:00Z",
+    "owner_id": "usr-minh",
+    "version": 1,
+    "lines": [
+      {
+        "id": "sol-025-01",
+        "sales_order_id": "so-2026-025",
+        "line_no": 1,
+        "product_snapshot": {
+          "name": "Baby octopus"
+        },
+        "spec_snapshot": {
+          "code": "OCT-WHOLE-40/60",
+          "version": 2
+        },
+        "quantity_decimal": "2500.00",
+        "unit": "kg",
+        "unit_price_decimal": "7.30",
+        "total_decimal": "18250.00",
+        "allocated_qty_decimal": "0.00"
+      }
+    ],
+    "market_id": "market-jp"
+  },
+  {
+    "id": "so-2026-023",
+    "order_number": "SO-2026-023",
+    "customer_id": "cus-2026-003",
+    "accepted_quote_version_id": "quov-2026-039-3",
+    "buyer_po_ref": "PO-BUYER-DEMO-023",
+    "status": "preparing",
+    "currency": "EUR",
+    "incoterm": "CIF",
+    "named_place": "Hamburg",
+    "payment_terms": "T/T 30/70",
+    "confirmed_at": "2026-10-28T07:00:00Z",
+    "owner_id": "usr-lan",
+    "version": 1,
+    "lines": [
+      {
+        "id": "sol-023-01",
+        "sales_order_id": "so-2026-023",
+        "line_no": 1,
+        "product_snapshot": {
+          "name": "Whiteleg shrimp"
+        },
+        "spec_snapshot": {
+          "code": "SHR-PD-21/25",
+          "version": 1
+        },
+        "quantity_decimal": "7000.00",
+        "unit": "kg",
+        "unit_price_decimal": "8.60",
+        "total_decimal": "60200.00",
+        "allocated_qty_decimal": "0.00"
+      }
+    ],
+    "market_id": "market-us"
+  }
+]

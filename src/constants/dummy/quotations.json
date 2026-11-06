@@ -1,0 +1,157 @@
+[
+  {
+    "id": "quo-2026-042",
+    "quote_number": "QUO-2026-042",
+    "rfq_id": "rfq-2026-018",
+    "customer_id": "cus-2026-001",
+    "owner_id": "usr-linh",
+    "status": "in_review",
+    "current_version_id": "quov-2026-042-2",
+    "versions": [
+      {
+        "id": "quov-2026-042-2",
+        "quotation_id": "quo-2026-042",
+        "revision_no": 2,
+        "currency": "USD",
+        "incoterm": "FOB",
+        "named_place": "Ho Chi Minh City",
+        "payment_terms": "T/T 30/70",
+        "valid_until": "2026-11-18",
+        "freight_decimal": "0.00",
+        "insurance_decimal": "0.00",
+        "total_decimal": "42800.00",
+        "approval_state": "pending",
+        "issued_at": null,
+        "lines": [
+          {
+            "quotation_version_id": "quov-2026-042-2",
+            "product_snapshot": {
+              "name": "Frozen squid tubes"
+            },
+            "specification_snapshot": {
+              "code": "SQ-TUBE-10/20",
+              "version": 3
+            },
+            "quantity_decimal": "8000.00",
+            "unit": "kg",
+            "unit_price_decimal": "4.80",
+            "line_total_decimal": "38400.00",
+            "packaging_snapshot": {
+              "pack": "10 kg carton"
+            }
+          },
+          {
+            "quotation_version_id": "quov-2026-042-2",
+            "product_snapshot": {
+              "name": "Baby octopus"
+            },
+            "specification_snapshot": {
+              "code": "OCT-WHOLE-40/60",
+              "version": 2
+            },
+            "quantity_decimal": "800.00",
+            "unit": "kg",
+            "unit_price_decimal": "5.50",
+            "line_total_decimal": "4400.00",
+            "packaging_snapshot": {
+              "pack": "1 kg × 10"
+            }
+          }
+        ]
+      }
+    ],
+    "market_id": "market-kr"
+  },
+  {
+    "id": "quo-2026-041",
+    "quote_number": "QUO-2026-041",
+    "rfq_id": "rfq-2026-017",
+    "customer_id": "cus-2026-002",
+    "owner_id": "usr-minh",
+    "status": "sent",
+    "current_version_id": "quov-2026-041-1",
+    "versions": [
+      {
+        "id": "quov-2026-041-1",
+        "quotation_id": "quo-2026-041",
+        "revision_no": 1,
+        "currency": "USD",
+        "incoterm": "FOB",
+        "named_place": "Ho Chi Minh City",
+        "payment_terms": "T/T 30/70",
+        "valid_until": "2026-11-16",
+        "freight_decimal": "0.00",
+        "insurance_decimal": "0.00",
+        "total_decimal": "18250.00",
+        "approval_state": "approved",
+        "issued_at": "2026-11-03T05:00:00Z",
+        "lines": [
+          {
+            "quotation_version_id": "quov-2026-041-1",
+            "product_snapshot": {
+              "name": "Baby octopus"
+            },
+            "specification_snapshot": {
+              "code": "OCT-WHOLE-40/60",
+              "version": 2
+            },
+            "quantity_decimal": "2500.00",
+            "unit": "kg",
+            "unit_price_decimal": "7.30",
+            "line_total_decimal": "18250.00",
+            "packaging_snapshot": {
+              "pack": "1 kg × 10"
+            }
+          }
+        ]
+      }
+    ],
+    "market_id": "market-jp"
+  },
+  {
+    "id": "quo-2026-039",
+    "quote_number": "QUO-2026-039",
+    "rfq_id": "rfq-2026-015",
+    "customer_id": "cus-2026-003",
+    "owner_id": "usr-lan",
+    "status": "accepted",
+    "current_version_id": "quov-2026-039-3",
+    "versions": [
+      {
+        "id": "quov-2026-039-3",
+        "quotation_id": "quo-2026-039",
+        "revision_no": 3,
+        "currency": "EUR",
+        "incoterm": "CIF",
+        "named_place": "Hamburg",
+        "payment_terms": "T/T 30/70",
+        "valid_until": "2026-11-12",
+        "freight_decimal": "2500.00",
+        "insurance_decimal": "350.00",
+        "total_decimal": "63100.00",
+        "approval_state": "approved",
+        "issued_at": "2026-10-28T05:00:00Z",
+        "lines": [
+          {
+            "quotation_version_id": "quov-2026-039-3",
+            "product_snapshot": {
+              "name": "Whiteleg shrimp"
+            },
+            "specification_snapshot": {
+              "code": "SHR-PD-21/25",
+              "version": 1
+            },
+            "quantity_decimal": "7000.00",
+            "unit": "kg",
+            "unit_price_decimal": "8.60",
+            "line_total_decimal": "60200.00",
+            "packaging_snapshot": {
+              "pack": "1 kg × 10"
+            }
+          }
+        ]
+      }
+    ],
+    "market_id": "market-us"
+  }
+]

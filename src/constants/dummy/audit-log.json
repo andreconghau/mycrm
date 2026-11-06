@@ -1,0 +1,22 @@
+[
+  {
+    "id": "aud-001",
+    "actor_id": "usr-linh",
+    "action": "quotation.version_submitted",
+    "resource_type": "quotation",
+    "resource_id": "quo-2026-042",
+    "occurred_at": "2026-11-04T09:42:00Z",
+    "reason": "Updated pack terms",
+    "result": "recorded"
+  },
+  {
+    "id": "aud-002",
+    "actor_id": "usr-minh",
+    "action": "order.confirmed",
+    "resource_type": "sales_order",
+    "resource_id": "so-2026-026",
+    "occurred_at": "2026-11-03T11:26:00Z",
+    "reason": "Buyer acceptance",
+    "result": "recorded"
+  }
+]

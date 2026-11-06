@@ -1,0 +1,56 @@
+[
+  {
+    "market_id": "market-kr",
+    "product_id": "prod-squid",
+    "eligible": true,
+    "availability": "on_request"
+  },
+  {
+    "market_id": "market-kr",
+    "product_id": "prod-octopus",
+    "eligible": true,
+    "availability": "on_request"
+  },
+  {
+    "market_id": "market-kr",
+    "product_id": "prod-shrimp",
+    "eligible": true,
+    "availability": "on_request"
+  },
+  {
+    "market_id": "market-jp",
+    "product_id": "prod-squid",
+    "eligible": true,
+    "availability": "on_request"
+  },
+  {
+    "market_id": "market-jp",
+    "product_id": "prod-octopus",
+    "eligible": true,
+    "availability": "on_request"
+  },
+  {
+    "market_id": "market-jp",
+    "product_id": "prod-shrimp",
+    "eligible": true,
+    "availability": "on_request"
+  },
+  {
+    "market_id": "market-us",
+    "product_id": "prod-squid",
+    "eligible": true,
+    "availability": "on_request"
+  },
+  {
+    "market_id": "market-us",
+    "product_id": "prod-octopus",
+    "eligible": true,
+    "availability": "on_request"
+  },
+  {
+    "market_id": "market-us",
+    "product_id": "prod-shrimp",
+    "eligible": true,
+    "availability": "on_request"
+  }
+]

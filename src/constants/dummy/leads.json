@@ -1,0 +1,59 @@
+[
+  {
+    "id": "lead-2026-001",
+    "source": "trade_fair",
+    "external_ref": "FAIR-2026-011",
+    "company_name": "Seoul Fresh Co.",
+    "contact_name": "Hana Kim",
+    "email": "hana.kim@example.test",
+    "country_code": "KR",
+    "product_interest": [
+      "prod-squid"
+    ],
+    "estimated_volume": "12000",
+    "owner_id": "usr-linh",
+    "status": "new",
+    "next_follow_up_at": "2026-11-10T04:00:00Z",
+    "created_at": "2026-10-20T04:00:00Z",
+    "updated_at": "2026-11-04T04:00:00Z",
+    "market_id": "market-kr"
+  },
+  {
+    "id": "lead-2026-002",
+    "source": "referral",
+    "external_ref": "REF-2026-008",
+    "company_name": "Harborline Foods",
+    "contact_name": "Oliver Chen",
+    "email": "oliver.chen@example.test",
+    "country_code": "SG",
+    "product_interest": [
+      "prod-octopus"
+    ],
+    "estimated_volume": "8000",
+    "owner_id": "usr-minh",
+    "status": "contacted",
+    "next_follow_up_at": "2026-11-12T03:00:00Z",
+    "created_at": "2026-10-22T04:00:00Z",
+    "updated_at": "2026-11-03T05:00:00Z",
+    "market_id": "market-jp"
+  },
+  {
+    "id": "lead-2026-003",
+    "source": "website",
+    "external_ref": "WEB-2026-023",
+    "company_name": "Nami Imports",
+    "contact_name": "Yuki Mori",
+    "email": "yuki.mori@example.test",
+    "country_code": "JP",
+    "product_interest": [
+      "prod-shrimp"
+    ],
+    "estimated_volume": "6000",
+    "owner_id": "usr-lan",
+    "status": "qualified",
+    "next_follow_up_at": "2026-11-14T02:00:00Z",
+    "created_at": "2026-10-24T04:00:00Z",
+    "updated_at": "2026-11-04T02:00:00Z",
+    "market_id": "market-us"
+  }
+]

@@ -1,0 +1,77 @@
+[
+  {
+    "id": "pl-2026-001",
+    "code": "KOREA-FROZEN-Q4-2026",
+    "currency": "USD",
+    "customer_id": null,
+    "valid_from": "2026-10-01",
+    "valid_to": "2026-12-31",
+    "status": "active",
+    "approved_by": "usr-minh",
+    "items": [
+      {
+        "id": "pli-001",
+        "product_id": "prod-squid",
+        "specification_id": "spec-2026-001",
+        "unit": "kg",
+        "unit_price_decimal": "4.80",
+        "min_quantity": "1000",
+        "max_quantity": null,
+        "price_basis": "net",
+        "effective_from": "2026-10-01",
+        "effective_to": "2026-12-31"
+      }
+    ],
+    "market_id": "market-kr"
+  },
+  {
+    "id": "pl-2026-002",
+    "code": "JAPAN-SEASONAL-Q4-2026",
+    "currency": "USD",
+    "customer_id": null,
+    "valid_from": "2026-10-01",
+    "valid_to": "2026-12-15",
+    "status": "active",
+    "approved_by": "usr-minh",
+    "items": [
+      {
+        "id": "pli-002",
+        "product_id": "prod-octopus",
+        "specification_id": "spec-2026-002",
+        "unit": "kg",
+        "unit_price_decimal": "7.25",
+        "min_quantity": "500",
+        "max_quantity": null,
+        "price_basis": "net",
+        "effective_from": "2026-10-01",
+        "effective_to": "2026-12-15"
+      }
+    ],
+    "market_id": "market-jp"
+  },
+  {
+    "id": "pl-2026-003",
+    "code": "US-REFERENCE-2026",
+    "currency": "EUR",
+    "customer_id": null,
+    "valid_from": "2026-01-01",
+    "valid_to": "2026-12-31",
+    "status": "draft",
+    "approved_by": null,
+    "items": [
+      {
+        "id": "pli-003",
+        "product_id": "prod-shrimp",
+        "specification_id": "spec-2026-003",
+        "unit": "kg",
+        "unit_price_decimal": "8.10",
+        "min_quantity": "500",
+        "max_quantity": null,
+        "price_basis": "net",
+        "effective_from": "2026-01-01",
+        "effective_to": "2026-12-31"
+      }
+    ],
+    "market_id": "market-us"
+  }
+]

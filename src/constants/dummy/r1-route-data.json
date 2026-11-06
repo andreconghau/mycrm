@@ -1,0 +1,208 @@
+[
+  {
+    "href": "/customers",
+    "label": "Customers",
+    "code": "M01",
+    "mockup": "customers.mockup.html",
+    "summary": "Buyer companies and account ownership.",
+    "columns": [
+      "Company",
+      "Market",
+      "Owner",
+      "Open RFQs",
+      "Last activity"
+    ]
+  },
+  {
+    "href": "/contacts",
+    "label": "Contacts",
+    "code": "M02",
+    "mockup": "contacts.mockup.html",
+    "summary": "People and communication history linked to buyer accounts.",
+    "columns": [
+      "Contact",
+      "Company",
+      "Role",
+      "Email",
+      "Last touch"
+    ]
+  },
+  {
+    "href": "/leads",
+    "label": "Leads",
+    "code": "M03",
+    "mockup": "leads.mockup.html",
+    "summary": "Qualify new buyer inquiries and assign follow-up.",
+    "columns": [
+      "Lead",
+      "Company",
+      "Source",
+      "Market",
+      "Owner",
+      "Stage"
+    ]
+  },
+  {
+    "href": "/opportunities",
+    "label": "Opportunities",
+    "code": "M04",
+    "mockup": "opportunities.mockup.html",
+    "summary": "Track qualified sales potential through the pipeline.",
+    "columns": [
+      "Opportunity",
+      "Customer",
+      "Target close",
+      "Est. value",
+      "Owner",
+      "Stage"
+    ]
+  },
+  {
+    "href": "/tasks",
+    "label": "Tasks & activities",
+    "code": "M05",
+    "mockup": "tasks-activities.mockup.html",
+    "summary": "Coordinate assigned sales follow-ups and record interactions.",
+    "columns": [
+      "Task",
+      "Related record",
+      "Due",
+      "Owner",
+      "Priority",
+      "Status"
+    ]
+  },
+  {
+    "href": "/products",
+    "label": "Products",
+    "code": "M06",
+    "mockup": "products.mockup.html",
+    "summary": "Maintain the export catalog and product identifiers.",
+    "columns": [
+      "Product",
+      "Category",
+      "Form",
+      "Active specs",
+      "Status"
+    ]
+  },
+  {
+    "href": "/products/specifications",
+    "label": "Product specifications",
+    "code": "M07",
+    "mockup": "product-specifications.mockup.html",
+    "summary": "Compare product form, grade, packaging, origin and storage details.",
+    "columns": [
+      "Specification",
+      "Product",
+      "Grade / size",
+      "Pack",
+      "Version"
+    ]
+  },
+  {
+    "href": "/price-lists",
+    "label": "Price lists",
+    "code": "M08",
+    "mockup": "price-lists.mockup.html",
+    "summary": "Maintain scoped reference prices by market, currency and validity.",
+    "columns": [
+      "List",
+      "Market",
+      "Currency",
+      "Valid through",
+      "Items",
+      "Status"
+    ]
+  },
+  {
+    "href": "/rfqs",
+    "label": "RFQs",
+    "code": "M09",
+    "mockup": "rfqs.mockup.html",
+    "summary": "Review buyer requests and capture requested products and terms.",
+    "columns": [
+      "RFQ",
+      "Customer",
+      "Received",
+      "Requested items",
+      "Owner",
+      "Status"
+    ]
+  },
+  {
+    "href": "/quotations",
+    "label": "Quotations",
+    "code": "M10",
+    "mockup": "quotations.mockup.html",
+    "summary": "Prepare versioned offers with approval and preserved commercial terms.",
+    "columns": [
+      "Quotation",
+      "Customer",
+      "Version",
+      "Total",
+      "Valid until",
+      "Status"
+    ]
+  },
+  {
+    "href": "/samples",
+    "label": "Samples",
+    "code": "M11",
+    "mockup": "samples.mockup.html",
+    "summary": "Coordinate sample requests, dispatch details and follow-up.",
+    "columns": [
+      "Sample",
+      "Customer",
+      "Product",
+      "Requested",
+      "Dispatch",
+      "Status"
+    ]
+  },
+  {
+    "href": "/sales-orders",
+    "label": "Sales orders",
+    "code": "M12",
+    "mockup": "sales-orders.mockup.html",
+    "summary": "Confirm accepted commercial terms as an order snapshot.",
+    "columns": [
+      "Order",
+      "Customer",
+      "Confirmed",
+      "Items",
+      "Order value",
+      "Status"
+    ]
+  },
+  {
+    "href": "/admin/users",
+    "label": "Access control",
+    "code": "M29",
+    "mockup": "access-control.mockup.html",
+    "summary": "Manage employees, confirmed roles, teams and scoped grants.",
+    "columns": [
+      "User",
+      "Role",
+      "Team",
+      "Manager",
+      "Last sign-in",
+      "Status"
+    ]
+  },
+  {
+    "href": "/audit-log",
+    "label": "Audit log",
+    "code": "M31",
+    "mockup": "audit-log.mockup.html",
+    "summary": "Review read-only business events with actor, time and safe diffs.",
+    "columns": [
+      "Event",
+      "Actor",
+      "Resource",
+      "Occurred",
+      "Reason",
+      "Result"
+    ]
+  }
+]
