@@ -101,35 +101,42 @@ src/
 
 Each implemented business module can add `src/modules/<module>/{application,domain,infrastructure,presentation}` following the project dependency direction. App Router files remain adapters, not repositories or business-rule containers. Keep server-only modules out of client component imports.
 
-## 7. Proposed routing inventory
+## 7. R1 routing inventory — approved prototype scope
 
-All business routes below are **proposals** derived from the R1 module list, not currently implemented routes or approved access grants. The route files should be created only if this inventory is approved. Route access labels describe intended authentication boundary, not final module permissions.
+The owner confirmed the complete R1 route inventory for static prototype screens on 2026-11-06. Paths are derived from the R1 module catalog and mapped to the corresponding HTML mockup. This approval does not approve business permissions, data access, or feature behavior. Pages use static fictional examples; action buttons remain disabled and no API, database, sign-in, or authorization behavior is connected.
 
-| URL | Route file | Module | Layout | Access / rendering | Status |
-|---|---|---|---|---|---|
-| `/login` | `src/app/(auth)/login/page.tsx` | Access Control | Auth layout | Public entry; Server Component shell with client form only when needed | Proposed |
-| `/dashboard` | `src/app/(workspace)/dashboard/page.tsx` | Dashboard Reporting | Workspace layout | Authenticated; server-rendered; data grants pending | Proposed |
-| `/customers` | `src/app/(workspace)/customers/page.tsx` | Customers | Workspace layout | Authenticated; server-rendered; grants pending | Proposed |
-| `/contacts` | `src/app/(workspace)/contacts/page.tsx` | Contacts | Workspace layout | Authenticated; server-rendered; grants pending | Proposed |
-| `/leads` | `src/app/(workspace)/leads/page.tsx` | Leads | Workspace layout | Authenticated; server-rendered; grants pending | Proposed |
-| `/opportunities` | `src/app/(workspace)/opportunities/page.tsx` | Opportunities | Workspace layout | Authenticated; server-rendered; grants pending | Proposed |
-| `/tasks` | `src/app/(workspace)/tasks/page.tsx` | Tasks & Activities | Workspace layout | Authenticated; server-rendered; grants pending | Proposed |
-| `/products` | `src/app/(workspace)/products/page.tsx` | Products | Workspace layout | Authenticated; server-rendered; grants pending | Proposed |
-| `/products/specifications` | `src/app/(workspace)/products/specifications/page.tsx` | Product Specifications | Workspace layout | Authenticated; server-rendered; grants pending | Proposed |
-| `/price-lists` | `src/app/(workspace)/price-lists/page.tsx` | Price Lists | Workspace layout | Authenticated; server-rendered; grants pending | Proposed |
-| `/rfqs` | `src/app/(workspace)/rfqs/page.tsx` | RFQs | Workspace layout | Authenticated; server-rendered; grants pending | Proposed |
-| `/quotations` | `src/app/(workspace)/quotations/page.tsx` | Quotations | Workspace layout | Authenticated; server-rendered; grants pending | Proposed |
-| `/samples` | `src/app/(workspace)/samples/page.tsx` | Samples | Workspace layout | Authenticated; server-rendered; grants pending | Proposed |
-| `/sales-orders` | `src/app/(workspace)/sales-orders/page.tsx` | Sales Orders | Workspace layout | Authenticated; server-rendered; grants pending | Proposed |
-| `/admin/users` | `src/app/(workspace)/admin/users/page.tsx` | Access Control | Workspace layout | Authenticated; server-rendered; grants pending | Proposed |
-| `/audit-log` | `src/app/(workspace)/audit-log/page.tsx` | Audit Log | Workspace layout | Authenticated; server-rendered; grants pending | Proposed |
+| URL | Route file | Module | Mockup | Layout / rendering | Access | Status |
+|---|---|---|---|---|---|---|
+| `/login` | `src/app/(auth)/login/page.tsx` | Access Control | `mockup/login.mockup.html` | Auth layout; Server Component | Public visual prototype only; fields disabled | Implemented prototype |
+| `/dashboard` | `src/app/(workspace)/dashboard/page.tsx` | Dashboard Reporting | `mockup/dashboard-reporting.mockup.html` | Workspace layout; Server Component; report view in query string | No auth or grants enforced | Implemented prototype |
+| `/customers` | `src/app/(workspace)/customers/page.tsx` | Customers | `mockup/customers.mockup.html` | Workspace layout; Server Component | No auth or grants enforced | Implemented prototype |
+| `/contacts` | `src/app/(workspace)/contacts/page.tsx` | Contacts | `mockup/contacts.mockup.html` | Workspace layout; Server Component | No auth or grants enforced | Implemented prototype |
+| `/leads` | `src/app/(workspace)/leads/page.tsx` | Leads | `mockup/leads.mockup.html` | Workspace layout; Server Component | No auth or grants enforced | Implemented prototype |
+| `/opportunities` | `src/app/(workspace)/opportunities/page.tsx` | Opportunities | `mockup/opportunities.mockup.html` | Workspace layout; Server Component | No auth or grants enforced | Implemented prototype |
+| `/tasks` | `src/app/(workspace)/tasks/page.tsx` | Tasks & Activities | `mockup/tasks-activities.mockup.html` | Workspace layout; Server Component | No auth or grants enforced | Implemented prototype |
+| `/products` | `src/app/(workspace)/products/page.tsx` | Products | `mockup/products.mockup.html` | Workspace layout; Server Component | No auth or grants enforced | Implemented prototype |
+| `/products/specifications` | `src/app/(workspace)/products/specifications/page.tsx` | Product Specifications | `mockup/product-specifications.mockup.html` | Workspace layout; Server Component | No auth or grants enforced | Implemented prototype |
+| `/price-lists` | `src/app/(workspace)/price-lists/page.tsx` | Price Lists | `mockup/price-lists.mockup.html` | Workspace layout; Server Component | No auth or grants enforced | Implemented prototype |
+| `/rfqs` | `src/app/(workspace)/rfqs/page.tsx` | RFQs | `mockup/rfqs.mockup.html` | Workspace layout; Server Component | No auth or grants enforced | Implemented prototype |
+| `/quotations` | `src/app/(workspace)/quotations/page.tsx` | Quotations | `mockup/quotations.mockup.html` | Workspace layout; Server Component | No auth or grants enforced | Implemented prototype |
+| `/samples` | `src/app/(workspace)/samples/page.tsx` | Samples | `mockup/samples.mockup.html` | Workspace layout; Server Component | No auth or grants enforced | Implemented prototype |
+| `/sales-orders` | `src/app/(workspace)/sales-orders/page.tsx` | Sales Orders | `mockup/sales-orders.mockup.html` | Workspace layout; Server Component | No auth or grants enforced | Implemented prototype |
+| `/admin/users` | `src/app/(workspace)/admin/users/page.tsx` | Access Control | `mockup/access-control.mockup.html` | Workspace layout; Server Component | No auth or grants enforced | Implemented prototype |
+| `/audit-log` | `src/app/(workspace)/audit-log/page.tsx` | Audit Log | `mockup/audit-log.mockup.html` | Workspace layout; Server Component | No auth or grants enforced | Implemented prototype |
 
-Do not add R2/R3 paths in this phase. Add details, nested routes, filters, and mutation routes alongside approved module/API specifications. Use route groups to share layout without adding URL prefixes. Add `loading.tsx`, `error.tsx`, and empty states to feature segments when real data views are implemented.
+### Route and navigation decisions
+
+- Route groups `(auth)` and `(workspace)` provide shared layouts without adding URL prefixes. The `/login` route remains an unauthenticated visual shell. The workspace group is a presentation layout only; it does not authenticate or authorize a request.
+- `/dashboard?view=overview|orders|products|customers|sales` represents the five report categories shown by the dashboard mockup. These are query-state views, not separate routes.
+- The workspace navigation includes all 15 R1 module paths. R2/R3 mockups and paths are out of scope even though matching HTML files exist.
+- There are no record detail, create, edit, API, or mutation routes in this slice. Add those only with approved module and API contracts. The `New` and `Export` controls are disabled in the prototype.
+- List screens use shared table/search presentation and synthetic data aligned to each mockup's columns and example rows. The dashboard provides synthetic summary metrics, report-category navigation and chart illustrations. Search only filters the in-memory example rows.
+- No role or module grant is inferred from the navigation. Production access must be enforced server-side once authentication, business grants and APIs are approved.
 
 ## 8. Layout, components, and design system
 
 - Root layout owns `<html>`, `<body>`, metadata, global CSS, and font loading. It must remain small and server-rendered.
-- Auth and workspace layouts are separate route groups. Workspace navigation is a reusable component, not duplicated across pages.
+- Auth and workspace layouts are separate route groups. Workspace navigation is a reusable component, not duplicated across pages. In the approved prototype it is not an access-control boundary.
 - Add shadcn/ui components on demand. Do not generate the entire registry. Keep components composable and typed; prefer composition over inheritance.
 - Use semantic HTML, visible keyboard focus, labels, accessible names, and responsive behavior. Respect reduced-motion preferences if motion is introduced.
 - `docs/design-system.md` is labelled `alpha`; confirm it is the intended source of palette, typography, spacing, and radius tokens before turning it into CSS variables. If approved, translate it to accessible semantic light/dark tokens and shadcn variables; test contrast rather than copying raw colors without validation.
@@ -205,6 +212,16 @@ No deployment in this task. The context document targets Vercel, but production 
 - Default `npm run build` with Turbopack fails in this environment because its CSS worker cannot bind an internal port (`Operation not permitted`). `npm run build -- --webpack` passed. The production server started from that build and returned HTTP 307 from `/` to `/login`.
 - No application API, database, auth, authorization, production deployment, or full business workflow was verified; those are outside this installation scope.
 - npm warns that ESLint `9.39.5` is no longer supported. It is the newest compatible major accepted by the installed `eslint-config-next` plugin tree; ESLint 10 produced invalid plugin peer dependencies. Revisit when the Next.js lint preset supports a maintained ESLint major. Current npm audit is clean.
+
+## 17. RP-03 routing implementation record
+
+- Owner confirmed all routes in the inventory above, static UI-only screens with synthetic data, and no authentication or authorization behavior. Detail/create/edit routes and R2/R3 mockups remain deferred.
+- Implemented the login visual shell, shared workspace navigation, shared R1 list-screen presentation, the approved R1 list routes and the five dashboard report views. Every list screen identifies its source mockup and labels its data as illustrative; login fields and New/Export controls are disabled.
+- PASS: `npm run lint`, `npm run typecheck`, and `npm run build -- --webpack` on Node.js 26.13.0 / npm 11.20.0. The successful build compiled all routes and ran its TypeScript phase.
+- PASS: compiled route manifest and static output contain all 16 approved routes. The report-view route is server-rendered on demand.
+- PASS: production HTTP smoke check returned 200 with HTML for all 16 approved routes, including `/dashboard` and `/products/specifications`.
+- The default Turbopack build is blocked when its CSS worker binds an internal port (`EPERM`); the webpack production build passed.
+- Formatting: all changed source and this spec pass targeted Prettier checks. The repository-wide `npm run format:check` reports the generated `next-env.d.ts` as unformatted.
 
 ## Sources checked 2026-11-06
 
