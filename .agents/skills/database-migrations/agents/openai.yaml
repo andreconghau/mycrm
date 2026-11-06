@@ -1,0 +1,9 @@
+interface:
+  display_name: "database-migrations"
+  short_description: "Database migration best practices for schema changes, data migrations, rollbacks, and zero-downtime deployments across PostgreSQL, MySQL, and common ORMs (Prisma, Drizzle, Django, TypeORM, golang-migrate). Use when planning or implementing database schema changes."
+  icon_small: "./assets/logo.svg"
+  icon_large: "./assets/logo.svg"
+  brand_color: "#b50404"
+  default_prompt: "Use $database-migrations for database design question"
+policy:
+  allow_implicit_invocation: true
