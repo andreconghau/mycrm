@@ -10,3 +10,7 @@ test-results/
 !.env.example
 *.tsbuildinfo
 *.log
+
+
+graphify-out/cache
+.DS_Store

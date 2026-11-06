@@ -46,17 +46,17 @@ The US sales market deliberately includes a customer physically in Germany, demo
 
 Proposed structures, to be finalized after UI review:
 
-| Structure | Key fields and constraints |
-| --- | --- |
-| markets | stable ID, unique code, localized names, default_currency, active status |
-| user_market_memberships | user_id + market_id unique; grant/revoke actor/time; active status; explicit access-management permission |
-| user_preferences | user_id unique; preferred_locale; last_market_id (revalidate membership on every use) |
-| products | global ID and SKU; shared identity only |
-| market_products | market_id + product_id unique; eligibility and availability |
-| market-owned records | non-null market_id; unique (market_id, id); business identifiers unique within approved market scope |
+| Structure                    | Key fields and constraints                                                                                       |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| markets                      | stable ID, unique code, localized names, default_currency, active status                                         |
+| user_market_memberships      | user_id + market_id unique; grant/revoke actor/time; active status; explicit access-management permission        |
+| user_preferences             | user_id unique; preferred_locale; last_market_id (revalidate membership on every use)                            |
+| products                     | global ID and SKU; shared identity only                                                                          |
+| market_products              | market_id + product_id unique; eligibility and availability                                                      |
+| market-owned records         | non-null market_id; unique (market_id, id); business identifiers unique within approved market scope             |
 | specifications / price lists | market_id plus product relationship; version and explicit currency; no country field used as authorization scope |
 
-Require same-market composite foreign keys for customer/contact, RFQ/quotation, quotation/version/order, sample and related activity references. Child lines inherit the parent's market; enforce consistency for referenced specifications and product eligibility. Polymorphic activity references need an enforceable design, not just an unvalidated resource ID. Snapshot fields preserve historical commercial terms.
+Use same-market logical reference columns for customer/contact, RFQ/quotation/version/order, sample and related activity relationships; do not declare SQL FOREIGN KEY or REFERENCES constraints. Application use cases validate the referenced row, same-market/same-parent consistency, caller scope, lifecycle and product eligibility inside a transaction using the shared parent-lock protocol in the Backend Specification. Child lines carry the parent market and validate every product/specification relation. Activity references use the typed logical-link model; never trust an unvalidated integer ID. Snapshot fields preserve historical commercial terms. Database constraints do not enforce these relationships.
 
 Application services must intersect active membership, resource/action grants and record scope on **every** read, mutation, count, download, export and background job. Membership does not override OWN/TEAM/ASSIGNED constraints. Validate selected `market_id` at the API boundary; never trust a browser preference as evidence. Wrong-market IDs must not disclose record existence. Scope repositories and cache keys by principal/grants and market. Revoke membership promptly and invalidate derived caches.
 

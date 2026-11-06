@@ -292,7 +292,7 @@ An exception may generate a task, alert, escalation, or approval requirement acc
 
 These are logical business relationships.
 
-Actual database cardinality, foreign keys, and relationship constraints must be defined in technical module specifications and database architecture.
+These are logical business relationships. Technical specifications define their intended cardinality and logical reference fields. Per the approved R1 design, SQL foreign-key constraints are not used; application services validate existence, authorization, market/parent consistency, lifecycle, concurrency and delete behavior within transactions.
 
 ---
 

@@ -172,3 +172,31 @@ Rules:
 - Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
 - After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
 - A committed graphify-out/graph.json is rewritten whole on every build, so a large diff to it in a pull request is expected. Do not flag it as churn or suggest skipping the graph rebuild or its hooks.
+
+## Graph-Aware Development Workflow
+
+### Planning
+1. Start every development task in Plan mode.
+2. Read AGENTS.md and relevant architecture documents.
+3. If a fresh Graphify graph is available, query it first
+   to identify relevant modules, symbols and dependencies.
+4. Keep graph queries scoped and token-budgeted.
+5. Verify graph findings against actual source files.
+6. Use /grill-me to resolve requirements and trade-offs.
+7. Present the implementation plan for user approval.
+
+### Implementation
+1. Do not modify application code before plan approval.
+2. Read only the source files relevant to the approved task.
+3. Evaluate affected dependencies before making changes.
+4. Follow existing project architecture and conventions.
+5. Run the required lint, tests and build checks.
+6. Refresh the Graphify code graph after changes.
+7. Update relevant documentation and task records.
+
+### Safety
+- Graphify is an index, not the source of truth.
+- Never treat inferred graph edges as verified behavior.
+- Fall back to targeted source inspection if the graph is
+  missing, stale or incomplete.
+- Preserve existing skills, ADRs and project instructions.
