@@ -31,7 +31,7 @@ Establish a maintainable Next.js 16 App Router foundation for the Seafood Export
 - Runtime: Node.js `26.13.0` LTS. NVM is installed; use `source /Users/andre/.nvm/nvm.sh && nvm use 26` in shells that do not load NVM automatically. The initial shell resolved to v24.13.0; the NVM-selected runtime is v26.13.0 with npm 11.20.0.
 - Framework: Next.js `16.4.5` (stable patch and peer requirements verified against npm on 2026-11-06), pinned exactly in `package.json` and `package-lock.json`. Do not silently cross to Next.js 17.
 - React: React and React DOM `19.3.1`; npm metadata confirms Next.js 16.4.5 accepts React 19.
-- CSS/UI: Tailwind CSS 4 with its PostCSS plugin, and shadcn/ui's `new-york` style with CSS-variable tokens. Map the approved project tokens to shadcn semantic tokens rather than keeping duplicate color definitions.
+- CSS/UI: Tailwind CSS 4 with its PostCSS plugin, and shadcn/ui's `new-york` style configured in `components.json` with CSS-variable tokens. Map the approved project tokens to shadcn semantic tokens rather than keeping duplicate color definitions. Do not retain the registry CLI as an application dependency; generate components from the CLI only when a component is approved.
 - Lint/format/type checks: ESLint CLI, Prettier, and `tsc --noEmit`, each exposed as an npm script. Next.js 16 does not run lint as part of `next build`.
 - Test setup: Vitest and React Testing Library for unit/component tests; Playwright for browser smoke tests. Use RTL for client/shared components; verify Server Components through browser or integration workflows. Initial tests cover only the framework shell, not unapproved CRM behavior.
 - Keep default Next.js caching behavior until a data use case is approved. Private CRM data reads must be explicitly uncached or scoped to the authenticated request; do not add shared caching for private records.
@@ -152,7 +152,7 @@ Run these as the approved implementation:
 | 1. Runtime | Use the installed NVM to select Node 26; add `.nvmrc` with `26` and `"engines": { "node": ">=26 <27" }` | Runtime declaration; no Homebrew/global runtime change | `node --version` shows `v26.x`; `npm --version` recorded |
 | 2. Manifest | Create root `package.json` and install exact stable Next 16 + peer-compatible React/React DOM; commit `package-lock.json` | Reproducible dependency graph | `npm ci`; inspect `npm ls next react react-dom` |
 | 3. Framework | Add scripts: `dev`, `build`, `start`, `lint`, `format:check`, `typecheck`, `test`, `test:e2e` | Next config, strict `tsconfig.json`, ESLint flat config, Prettier config | Run lint, format check, type check |
-| 4. Tailwind/UI | Install Tailwind 4 PostCSS integration and initialize shadcn/ui for Next.js, `src/`, alias `@/*`, `new-york`, CSS variables | `postcss.config.mjs`, `components.json`, `src/app/globals.css`, approved tokens | Build CSS; add only a minimal accessible Button if needed for smoke page |
+| 4. Tailwind/UI | Install Tailwind 4 PostCSS integration and configure shadcn/ui for Next.js, `src/`, alias `@/*`, `new-york`, CSS variables | `postcss.config.mjs`, `components.json`, `src/app/globals.css`, approved tokens | Build CSS; generate components later when a concrete component is approved |
 | 5. App shell | Create root layout, not-found/error boundaries and minimal home smoke page; add only owner-approved route/layout skeleton | `src/app/**`, no business logic or generated R2/R3 modules | Start dev server and verify route returns/rendered UI |
 | 6. Tests | Configure Vitest + React Testing Library and Playwright; test root shell and an accessible navigation/login shell only if approved | Test config, one unit/component test, one browser smoke test | `npm run test`; `npm run test:e2e` |
 | 7. Production check | Install from lockfile and build/start on Node 26 | Production build output | `npm ci`, `npm run lint`, `npm run format:check`, `npm run typecheck`, `npm run test`, `npm run build`, `npm run start` smoke check |
@@ -195,6 +195,16 @@ No deployment in this task. The context document targets Vercel, but production 
 2. **Design tokens:** Approved for provisional use: `docs/design-system.md`; check contrast before applying the token colors.
 3. **Test tooling:** Approved: Vitest/React Testing Library and Playwright, limited to the scaffold.
 4. **Runtime manager:** Owner confirmed NVM is installed and Node 26 is available; do not install Node through Homebrew.
+
+## 16. Implementation and verification record
+
+- Installed and locked Next.js `16.4.5`, React/React DOM `19.3.1`, Tailwind CSS `4.3.4`, TypeScript `5.9.3`, and the approved lint/format/test tooling. `npm ci` passed on Node `26.13.0` / npm `11.20.0`; npm audit reported zero vulnerabilities.
+- Implemented only the approved shell, `/login`, and `/dashboard` routes. The sign-in route is a scaffold; there is no authentication, CRM data, or permission enforcement.
+- `npm run lint`, `npm run format:check`, `npm run typecheck`, and `npm test` passed. The unit suite has one utility test.
+- Playwright passed all six checks across desktop and mobile Chromium, covering root redirect, dashboard shell, horizontal overflow, and keyboard reachability.
+- Default `npm run build` with Turbopack fails in this environment because its CSS worker cannot bind an internal port (`Operation not permitted`). `npm run build -- --webpack` passed. The production server started from that build and returned HTTP 307 from `/` to `/login`.
+- No application API, database, auth, authorization, production deployment, or full business workflow was verified; those are outside this installation scope.
+- npm warns that ESLint `9.39.5` is no longer supported. It is the newest compatible major accepted by the installed `eslint-config-next` plugin tree; ESLint 10 produced invalid plugin peer dependencies. Revisit when the Next.js lint preset supports a maintained ESLint major. Current npm audit is clean.
 
 ## Sources checked 2026-11-06
 
