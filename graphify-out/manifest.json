@@ -1,21 +1,21 @@
 {
   ".agents/skills/database-migrations/agents/openai.yaml": {
-    "mtime": 1793863936.7056925,
-    "seen": 1793935932.4337611,
-    "ast_hash": "f8f9df59eb0c7725b55046c5d0218ca5",
-    "semantic_hash": "f8f9df59eb0c7725b55046c5d0218ca5"
+    "mtime": 1793940069.757144,
+    "seen": 1793953285.204749,
+    "ast_hash": "900095c9bb3451a745ed4f49f3de98fa",
+    "semantic_hash": ""
   },
   ".agents/skills/frontend-patterns/agents/openai.yaml": {
-    "mtime": 1793863936.6976502,
-    "seen": 1793935932.433812,
-    "ast_hash": "4cdf3f294b8dbfa6f5bbc5cca745d37a",
-    "semantic_hash": "4cdf3f294b8dbfa6f5bbc5cca745d37a"
+    "mtime": 1793940069.7564578,
+    "seen": 1793953285.204753,
+    "ast_hash": "6671040a967e2b4e5866a33b83af7050",
+    "semantic_hash": ""
   },
   ".agents/skills/grill-me/agents/openai.yaml": {
-    "mtime": 1793863901.427555,
-    "seen": 1793935932.433847,
-    "ast_hash": "aff7b6f7b10220e3b4537c42a2d08917",
-    "semantic_hash": "aff7b6f7b10220e3b4537c42a2d08917"
+    "mtime": 1793940069.7553947,
+    "seen": 1793953285.2047548,
+    "ast_hash": "8bf1c9af244305ec2f550b895053e372",
+    "semantic_hash": ""
   },
   ".agents/skills/impeccable/agents/openai.yaml": {
     "mtime": 1793863901.4436646,
@@ -117,8 +117,8 @@
     "semantic_hash": "57f62084e0f26746ee29275b50ec8439"
   },
   "next-env.d.ts": {
-    "mtime": 1793934231.6917973,
-    "seen": 1793935932.434216,
+    "mtime": 1793938835.814536,
+    "seen": 1793953285.205248,
     "ast_hash": "aa94238a90e7d04b7a47ecc3145ba6a0",
     "semantic_hash": "aa94238a90e7d04b7a47ecc3145ba6a0"
   },
@@ -486,21 +486,21 @@
     "semantic_hash": "2c271435e60d9aeb6cd3a5e1e122a5c0"
   },
   ".agents/skills/database-migrations/SKILL.md": {
-    "mtime": 1793863936.7049556,
-    "seen": 1793936077.746836,
-    "ast_hash": "0acb80230e33fc25c3235da574d65d81",
+    "mtime": 1793940069.7568736,
+    "seen": 1793953285.2072902,
+    "ast_hash": "0a8c2ca92b3681e8eb9d2e0bdce4785d",
     "semantic_hash": ""
   },
   ".agents/skills/frontend-patterns/SKILL.md": {
-    "mtime": 1793863936.6964982,
-    "seen": 1793936077.746837,
-    "ast_hash": "c065a2f4a2d52a546f4ebc9abd699823",
+    "mtime": 1793940069.7561777,
+    "seen": 1793953285.207291,
+    "ast_hash": "5726f7ba8e1847b5b1403e0f46e780fc",
     "semantic_hash": ""
   },
   ".agents/skills/grill-me/SKILL.md": {
-    "mtime": 1793863901.4267526,
-    "seen": 1793936077.746838,
-    "ast_hash": "51ba9306293963bb76680d5e41525aea",
+    "mtime": 1793940069.7549903,
+    "seen": 1793953285.2072918,
+    "ast_hash": "2de4178361a1d8eb58ec73a6f5cb1fd4",
     "semantic_hash": ""
   },
   ".agents/skills/impeccable/SKILL.md": {
@@ -786,9 +786,9 @@
     "semantic_hash": ""
   },
   "AGENTS.md": {
-    "mtime": 1793935826.114555,
-    "seen": 1793936077.746871,
-    "ast_hash": "19a8aef188e62b286c54b036c67f2dc2",
+    "mtime": 1793947247.1006021,
+    "seen": 1793953285.208791,
+    "ast_hash": "677d2e37362d519ca5ef76b6d43292b2",
     "semantic_hash": ""
   },
   "docker/README.md": {
@@ -798,9 +798,9 @@
     "semantic_hash": ""
   },
   "docs/business/README.md": {
-    "mtime": 1793869064.1177588,
-    "seen": 1793936077.746872,
-    "ast_hash": "6da8a0d291b4919f365e2bfc08a16ea3",
+    "mtime": 1793948844.8234937,
+    "seen": 1793953285.208817,
+    "ast_hash": "81ea524e3d6a27de5d4cddcfca3e8ce2",
     "semantic_hash": ""
   },
   "docs/business/alerts-and-integrations.md": {
@@ -1068,9 +1068,9 @@
     "semantic_hash": ""
   },
   "docs/modules/tasks-activities.md": {
-    "mtime": 1793869073.385692,
-    "seen": 1793936077.746902,
-    "ast_hash": "fa949081ba7e6f2d3e361b3b2213392c",
+    "mtime": 1793949070.8433688,
+    "seen": 1793953285.2100322,
+    "ast_hash": "bdce9dbd8f34b4581764737ed4ab9b37",
     "semantic_hash": ""
   },
   "docs/modules/vessel-tracking.md": {
@@ -1374,9 +1374,21 @@
     "semantic_hash": ""
   },
   "docs/structure/market-ui-plan.md": {
-    "mtime": 1793938682.8032897,
-    "seen": 1793938771.1391602,
-    "ast_hash": "1ef13ee307a55c63d49fd9d237e9a4a0",
+    "mtime": 1793949070.7839136,
+    "seen": 1793953285.210088,
+    "ast_hash": "f92c2a819bb6aeaf16d7e3e4061ae1be",
+    "semantic_hash": ""
+  },
+  "docs/structure/backend.md": {
+    "mtime": 1793949070.4214244,
+    "seen": 1793953285.2100601,
+    "ast_hash": "860f4c7a9c6e19148acacf5e503acf5a",
+    "semantic_hash": ""
+  },
+  "docs/structure/database.md": {
+    "mtime": 1793949718.9502337,
+    "seen": 1793953285.210061,
+    "ast_hash": "7417ff620572edb4312083d4a9ae73be",
     "semantic_hash": ""
   },
   "package-lock.json": {

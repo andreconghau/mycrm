@@ -25,11 +25,11 @@ Prefer existing repository patterns and minimal, scoped changes.
 
 The owner explicitly authorized the following project skills on 2026-11-06. Use them when their scope applies; announce the selected skill and purpose briefly, but do not ask for skill-use approval again. Approval to use a skill does not approve unresolved business decisions, a new implementation scope, production migrations or deployment.
 
-| Skill | Authoritative project entry point | Approved use |
-| --- | --- | --- |
-| `grill-me` (`/grill-me`, `$grill-me`) | [.agents/skills/grill-me/SKILL.md](.agents/skills/grill-me/SKILL.md) | Planning, requirements interviews and material decisions needing owner confirmation |
-| `frontend-patterns` | [.agents/skills/frontend-patterns/SKILL.md](.agents/skills/frontend-patterns/SKILL.md) | Frontend and backend coding; apply the project backend supplement and existing architecture for server work |
-| `database-migrations` | [.agents/skills/database-migrations/SKILL.md](.agents/skills/database-migrations/SKILL.md) | Database/table analysis, schema design, relationships, constraints, indexes and migration planning/implementation |
+| Skill                                 | Authoritative project entry point                                                          | Approved use                                                                                                      |
+| ------------------------------------- | ------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| `grill-me` (`/grill-me`, `$grill-me`) | [.agents/skills/grill-me/SKILL.md](.agents/skills/grill-me/SKILL.md)                       | Planning, requirements interviews and material decisions needing owner confirmation                               |
+| `frontend-patterns`                   | [.agents/skills/frontend-patterns/SKILL.md](.agents/skills/frontend-patterns/SKILL.md)     | Frontend and backend coding; apply the project backend supplement and existing architecture for server work       |
+| `database-migrations`                 | [.agents/skills/database-migrations/SKILL.md](.agents/skills/database-migrations/SKILL.md) | Database/table analysis, schema design, relationships, constraints, indexes and migration planning/implementation |
 
 ### Discovery and invocation
 
@@ -166,6 +166,7 @@ This project has a knowledge graph at graphify-out/ with god nodes, community st
 When the user types `/graphify`, use the installed graphify skill or instructions before doing anything else.
 
 Rules:
+
 - When graphify-out/graph.json exists, run `graphify query "<question>"` before your first grep, search or source-file read for a codebase question, and put this rule in every subagent prompt that explores code. Read raw files only for lines the graph or an earlier read already located. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
 - Dirty graphify-out/ files are expected after hooks or incremental updates; dirty graph files are not a reason to skip graphify. Only skip graphify if the task is about stale or incorrect graph output, or the user explicitly says not to use it.
 - If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
@@ -176,6 +177,7 @@ Rules:
 ## Graph-Aware Development Workflow
 
 ### Planning
+
 1. Start every development task in Plan mode.
 2. Read AGENTS.md and relevant architecture documents.
 3. If a fresh Graphify graph is available, query it first
@@ -186,6 +188,7 @@ Rules:
 7. Present the implementation plan for user approval.
 
 ### Implementation
+
 1. Do not modify application code before plan approval.
 2. Read only the source files relevant to the approved task.
 3. Evaluate affected dependencies before making changes.
@@ -195,8 +198,27 @@ Rules:
 7. Update relevant documentation and task records.
 
 ### Safety
+
 - Graphify is an index, not the source of truth.
 - Never treat inferred graph edges as verified behavior.
 - Fall back to targeted source inspection if the graph is
   missing, stale or incomplete.
 - Preserve existing skills, ADRs and project instructions.
+
+## PostgreSQL MCP
+
+- **Server:** `postgres` (`@microsoft/postgres-mcp`)
+- **Profile:** `dev`
+- **Database:** `seafood_crm` (`localhost:5432`)
+- **User:** `crm_app`
+- **Status:** Registered and enabled; verify connectivity at runtime.
+
+### Usage Rules
+
+- Use PostgreSQL MCP when inspecting schemas, tables, columns, indexes, constraints, data, or SQL performance.
+- Connect using `postgres_mcp_list_connection_profiles` → `postgres_mcp_connect` with profile `dev`.
+- **Default: read-only.** Never modify data, schemas, or execute migrations without explicit user approval.
+- Compare live database state with project documentation and application code.
+- Respect application-managed logical relationships; do not assume SQL foreign keys exist.
+- Follow the existing workflow: **Plan → `/grill-me` → Approval → Implementation**.
+- If MCP is unavailable, report the error. Never fabricate database results.
