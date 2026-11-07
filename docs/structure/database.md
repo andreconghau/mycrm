@@ -4441,6 +4441,12 @@ Acceptance for RP-04 documentation: every R1 requirement has API/entity traceabi
 
 ## 14. Validation record — 2026-11-06
 
+## R1-01 runtime migration — 2026-11-07
+
+`db/migrations/0001_access_control_runtime.sql` adds `auth_rate_limits`, a PostgreSQL-backed fixed-window login throttle keyed by a server HMAC rather than raw email/IP data. `scripts/migrate.ts` fingerprints the existing fresh-schema initializer as baseline version `0000_r1_fresh_schema_20261106`, refuses checksum drift and records incremental migrations in `schema_migrations`.
+
+Validation replayed the fresh initializer plus R1-01 migration in an isolated randomly named schema and confirmed 64 application tables before removing the schema. The approved development database recorded both the baseline and incremental migration; it contained zero active grants and zero active sessions immediately after migration.
+
 - **PASS — Static validation:** 175 unique method/path operations cover all 15 R1 modules and all tracked locale pages; each API entity name resolves to the proposed schema. Classified pending policy entries remain gates, not implemented endpoints.
 - **PASS — Structural consistency:** 63 tables, 667 described/commented columns, 187 logical relationship rows and 204 indexes. Checked logical reference columns/types, referenced PK/UNIQUE keys, same-market composite references and creation order; dictionary/DDL/entity diagrams derive from the same reviewed design. This is static model validation, not PostgreSQL execution.
 - **PASS — Artifact hygiene:** local Markdown link targets, fenced-block balance, absence of destructive SQL/runtime grants, full table/column SQL comments and scoped final file review. Formatting checked explicitly with the repository ignore file bypassed; normal repository formatting ignores these documents.
