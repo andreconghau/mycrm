@@ -6,6 +6,8 @@
 > **Business owner:** Management + Department Heads (to confirm)  
 > **Updated:** 2026-11-04
 
+> **R1-01 implementation note (2026-11-07):** The confirmed application roles are `admin`, `manager`, `sale` and `accountant`. The broader candidate-role matrix below is retained as unapproved historical business-policy input and is not seeded or translated into grants. R1-01 bootstraps only M29 access-administration grants for `admin`; every CRM business resource remains default-deny.
+
 ## 1. Objective
 
 Prevent unauthorized access and unauthorized business state changes across customer relationships, commercial pricing, shipment operations, export documents, supplier costs and finance. Authentication answers **who** the actor is; authorization answers **what action** the actor may perform **on which record and fields**, at the **current business state**.

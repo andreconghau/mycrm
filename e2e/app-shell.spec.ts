@@ -1,10 +1,186 @@
 import { expect, test } from '@playwright/test'
 
+test.beforeEach(async ({ page }, testInfo) => {
+  if (
+    testInfo.title.includes('anonymous') ||
+    testInfo.title.startsWith('root route') ||
+    testInfo.title.startsWith('admin Swagger')
+  )
+    return
+  const email = process.env.E2E_EMAIL
+  const password = process.env.E2E_PASSWORD
+  if (!email || !password) throw new Error('Browser auth fixture is missing')
+  await page.goto('/en/login')
+  await page.getByLabel('Work email').fill(email)
+  await page.getByLabel('Password').fill(password)
+  await page.getByRole('button', { name: 'Sign in' }).click()
+  await expect(page).toHaveURL(/\/en\/dashboard$/)
+})
+
 test('root route opens the Vietnamese sign-in scaffold', async ({ page }) => {
   await page.goto('/')
 
   await expect(page).toHaveURL(/\/vi\/login$/)
   await expect(page.getByRole('heading', { name: 'Đăng nhập' })).toBeVisible()
+})
+
+test('anonymous API and workspace requests fail closed', async ({ page }) => {
+  const response = await page.request.get('/api/v1/me')
+  expect(response.status()).toBe(401)
+  expect((await page.request.get('/api/v1/openapi.json')).status()).toBe(401)
+  expect(
+    (await page.request.get('/api/v1/swagger-assets/swagger-ui.css')).status(),
+  ).toBe(401)
+  await page.goto('/en/dashboard')
+  await expect(page).toHaveURL(/\/en\/login$/)
+})
+
+test('wrong-role access administration fails closed', async ({ page }) => {
+  await page.goto('/en/admin/users')
+  await expect(
+    page.getByRole('heading', { name: 'Access denied' }),
+  ).toBeVisible()
+  const response = await page.request.get('/api/v1/admin/users')
+  expect(response.status()).toBe(403)
+  expect((await page.request.get('/api/v1/openapi.json')).status()).toBe(403)
+  expect(
+    (await page.request.get('/api/v1/swagger-assets/swagger-ui.css')).status(),
+  ).toBe(403)
+  await page.goto('/en/api-docs')
+  await expect(
+    page.getByRole('heading', { name: 'Access denied' }),
+  ).toBeVisible()
+})
+
+test('admin Swagger renders the protected contract and executes a safe request', async ({
+  page,
+}) => {
+  const email = process.env.E2E_ADMIN_EMAIL
+  const password = process.env.E2E_ADMIN_PASSWORD
+  if (!email || !password) throw new Error('Browser admin fixture is missing')
+
+  await page.goto('/en/login')
+  await page.getByLabel('Work email').fill(email)
+  await page.getByLabel('Password').fill(password)
+  await page.getByRole('button', { name: 'Sign in' }).click()
+  await expect(page).toHaveURL(/\/en\/dashboard$/)
+
+  const contract = await page.request.get('/api/v1/openapi.json')
+  expect(contract.status()).toBe(200)
+  expect(contract.headers()['cache-control']).toBe('private, no-store')
+
+  await page.goto('/en/api-docs')
+  await expect(
+    page.getByRole('heading', { name: 'API documentation' }),
+  ).toBeVisible()
+  const operation = page
+    .locator('.opblock')
+    .filter({ hasText: '/api/v1/me' })
+    .first()
+  await expect(operation).toBeVisible()
+  await operation.locator('.opblock-summary').click()
+  await operation.getByRole('button', { name: 'Try it out' }).click()
+  await operation.getByRole('button', { name: 'Execute' }).click()
+  await expect(
+    operation.locator('.live-responses-table').getByRole('cell', {
+      name: '200',
+      exact: true,
+    }),
+  ).toBeVisible()
+})
+
+test('refresh rotates credentials and stale reuse revokes the session', async ({
+  page,
+  context,
+  request,
+}) => {
+  const cookies = await context.cookies()
+  const oldRefresh = cookies.find((cookie) => cookie.name === 'crm_refresh')
+  const oldCsrf = cookies.find((cookie) => cookie.name === 'crm_csrf')
+  expect(oldRefresh).toBeTruthy()
+  expect(oldCsrf).toBeTruthy()
+
+  const rotatedStatus = await page.evaluate(async (csrf) => {
+    const response = await fetch('/api/v1/auth/refresh', {
+      method: 'POST',
+      headers: { 'x-csrf-token': csrf },
+    })
+    return response.status
+  }, oldCsrf!.value)
+  expect(rotatedStatus).toBe(200)
+
+  const stale = await request.post('/api/v1/auth/refresh', {
+    headers: {
+      cookie: `crm_refresh=${oldRefresh!.value}; crm_csrf=${oldCsrf!.value}`,
+      origin: 'http://127.0.0.1:3000',
+      'x-csrf-token': oldCsrf!.value,
+    },
+  })
+  expect(stale.status()).toBe(401)
+  expect((await page.request.get('/api/v1/me')).status()).toBe(401)
+})
+
+test('logout revokes the current session and clears credentials', async ({
+  page,
+  context,
+  request,
+}) => {
+  const origin = process.env.APP_ORIGIN ?? 'http://127.0.0.1:3000'
+  const cookies = await context.cookies()
+  const refresh = cookies.find((cookie) => cookie.name === 'crm_refresh')
+  const csrf = cookies.find((cookie) => cookie.name === 'crm_csrf')
+  expect(refresh).toBeTruthy()
+  expect(csrf).toBeTruthy()
+
+  const invalidCsrf = await page.request.post('/api/v1/auth/logout', {
+    headers: {
+      origin,
+      'x-csrf-token': 'invalid-csrf-token',
+    },
+  })
+  expect(invalidCsrf.status()).toBe(403)
+  expect((await page.request.get('/api/v1/me')).status()).toBe(200)
+
+  const response = await page.request.post('/api/v1/auth/logout', {
+    headers: {
+      origin,
+      'x-csrf-token': csrf!.value,
+    },
+  })
+  expect(response.status()).toBe(204)
+  expect(response.headers()['cache-control']).toBe('private, no-store')
+  expect((await page.request.get('/api/v1/me')).status()).toBe(401)
+
+  const staleRefresh = await request.post('/api/v1/auth/refresh', {
+    headers: {
+      cookie: `crm_refresh=${refresh!.value}; crm_csrf=${csrf!.value}`,
+      origin: 'http://127.0.0.1:3000',
+      'x-csrf-token': csrf!.value,
+    },
+  })
+  expect(staleRefresh.status()).toBe(401)
+  expect(
+    (await context.cookies()).some((cookie) =>
+      ['crm_access', 'crm_refresh', 'crm_csrf'].includes(cookie.name),
+    ),
+  ).toBe(false)
+
+  await page.goto('/en/dashboard')
+  await expect(page).toHaveURL(/\/en\/login$/)
+})
+
+test('logout button redirects after revoking the browser session', async ({
+  page,
+  context,
+}) => {
+  await page.getByRole('button', { name: 'Sign out' }).click()
+  await expect(page).toHaveURL(/\/en\/login$/)
+  expect((await page.request.get('/api/v1/me')).status()).toBe(401)
+  expect(
+    (await context.cookies()).some((cookie) =>
+      ['crm_access', 'crm_refresh', 'crm_csrf'].includes(cookie.name),
+    ),
+  ).toBe(false)
 })
 
 test('locale switch keeps the current workspace route', async ({ page }) => {

@@ -9,6 +9,7 @@ import { r1Routes, searchRoutes } from '@/modules/routing/r1-route-data'
 import enMessages from '@/constants/messages/en.json'
 import viMessages from '@/constants/messages/vi.json'
 import notifications from '@/constants/dummy/notifications.json'
+import { LogoutButton } from '@/modules/access-control/presentation/logout-button'
 
 type Locale = 'en' | 'vi'
 type Messages = typeof import('@/constants/messages/en.json')
@@ -35,7 +36,11 @@ const navNames: Record<string, [string, string]> = {
 }
 
 export function WorkspaceShell(
-  props: Readonly<{ children: React.ReactNode; locale: Locale }>,
+  props: Readonly<{
+    children: React.ReactNode
+    locale: Locale
+    displayName: string
+  }>,
 ) {
   return (
     <MarketProvider>
@@ -47,7 +52,12 @@ export function WorkspaceShell(
 function WorkspaceContent({
   children,
   locale,
-}: Readonly<{ children: React.ReactNode; locale: Locale }>) {
+  displayName: authenticatedDisplayName,
+}: Readonly<{
+  children: React.ReactNode
+  locale: Locale
+  displayName: string
+}>) {
   const { marketId, markets, selectMarket } = useMarket()
   const m = dict[locale]
   const pathname = usePathname()
@@ -56,7 +66,7 @@ function WorkspaceContent({
   const [mobileOpen, setMobileOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
   const [panel, setPanel] = useState<'notifications' | 'help' | null>(null)
-  const [displayName, setDisplayName] = useState(profile.display_name)
+  const [displayName, setDisplayName] = useState(authenticatedDisplayName)
   const [avatarInitials, setAvatarInitials] = useState(profile.avatar_initials)
   const [query, setQuery] = useState('')
   const [saved, setSaved] = useState(false)
@@ -204,6 +214,7 @@ function WorkspaceContent({
           >
             ☰
           </button>
+          <LogoutButton locale={locale} />
           <span className="bg-muted hidden rounded-full px-3 py-1 text-xs sm:inline">
             {m.workspace}
           </span>

@@ -1,5 +1,6 @@
 import en from '@/constants/messages/en.json'
 import vi from '@/constants/messages/vi.json'
+import { LoginForm } from '@/modules/access-control/presentation/login-form'
 
 export default async function LoginPage({
   params,
@@ -27,47 +28,7 @@ export default async function LoginPage({
         {m.loginDescription}
       </p>
 
-      <form className="mt-7 space-y-5">
-        <div className="space-y-2">
-          <label className="text-sm font-medium" htmlFor="email">
-            {m.workEmail}
-          </label>
-          <input
-            autoComplete="off"
-            className="bg-muted/40 text-muted-foreground min-h-11 w-full rounded-md border px-3 text-sm"
-            disabled
-            id="email"
-            placeholder="name@company.com"
-            type="email"
-          />
-        </div>
-        <div className="space-y-2">
-          <label className="text-sm font-medium" htmlFor="password">
-            {m.password}
-          </label>
-          <input
-            autoComplete="off"
-            className="bg-muted/40 text-muted-foreground min-h-11 w-full rounded-md border px-3 text-sm"
-            disabled
-            id="password"
-            placeholder="Enter your password"
-            type="password"
-          />
-        </div>
-        <button
-          className="bg-primary text-primary-foreground min-h-11 w-full rounded-md px-4 text-sm font-semibold opacity-60"
-          disabled
-          type="button"
-        >
-          {m.login}
-        </button>
-      </form>
-      <p
-        className="bg-muted/40 text-muted-foreground mt-6 rounded-md border border-dashed p-3 text-xs leading-5"
-        id="prototype-notice"
-      >
-        {m.loginNotice}
-      </p>
+      <LoginForm locale={locale as 'en' | 'vi'} />
     </section>
   )
 }

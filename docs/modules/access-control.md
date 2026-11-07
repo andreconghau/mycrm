@@ -1,6 +1,6 @@
 # M29 — Access Control
 
-> **Status: PLANNED — NOT IMPLEMENTED**  
+> **Status: R1 FOUNDATION IMPLEMENTED — BUSINESS GRANTS PENDING**
 > **Area:** System · **Release:** R1 · **Reference:** [`docs/context.md`](../context.md)
 
 ## Purpose
@@ -21,3 +21,14 @@ Manage identity, role membership, team ownership and action-level policies.
 
 - `CreateUser`, `DisableUser`, `GrantRole`, `RevokeRole`, `GetEffectivePermissions`, `AuthorizeRecordAction`.
 - `GET/POST /api/v1/admin/users`; `POST /api/v1/admin/users/:id/roles`; `GET /api/v1/me/permissions` (safe projection).
+
+## Implemented R1-01 boundary
+
+- Login, refresh, logout, invitation acceptance, current profile and effective permission endpoints under `/api/v1`.
+- Admin read, disable, role assignment, team membership and market membership endpoints. Mutations require signed CSRF and exact-origin validation.
+- Operator-only first-admin bootstrap and invitation delivery; no raw invitation token is returned by REST or logged.
+- Default-deny application authorization with `NONE`, `OWN`, `TEAM`, `ASSIGNED` and explicit `ALL` scopes plus read/write field allowlists.
+- Database-backed throttling, server-side session revocation, transactional audit events and versioned migration bookkeeping.
+- Admin-only OpenAPI 3.1 JSON and self-hosted Swagger UI for the implemented access-control endpoints. Proposed business endpoints are not published.
+
+Only fixed M29 access-administration grants are bootstrapped. Business resource grants remain inactive until the owning module policy is approved. Password recovery, MFA, email delivery and production deployment are outside this implementation.
