@@ -4310,6 +4310,7 @@ COMMENT ON COLUMN notification_recipients.updated_at IS 'Last successful mutatio
 COMMENT ON COLUMN notification_recipients.version IS 'Optimistic concurrency token; increment atomically on mutation.';
 
 COMMENT ON TABLE audit_events IS 'Append-only safe audit in the business transaction; system events may lack market.';
+-- Migration 0002_audit_events_append_only.sql installs a trigger that rejects application-level UPDATE and DELETE.
 COMMENT ON COLUMN audit_events.id IS 'Generated INTEGER identity primary key; immutable and never recycled.';
 COMMENT ON COLUMN audit_events.market_id IS 'Logical reference; application validates existence, access, scope, lifecycle and concurrency.';
 COMMENT ON COLUMN audit_events.actor_id IS 'Logical reference; application validates existence, access, scope, lifecycle and concurrency.';

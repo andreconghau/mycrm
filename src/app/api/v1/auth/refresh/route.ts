@@ -10,6 +10,7 @@ import {
   setAuthCookies,
 } from '@/modules/access-control/infrastructure/auth-cookies'
 import { decodeRefreshToken } from '@/modules/access-control/infrastructure/tokens'
+import { requestCorrelationId } from '@/modules/access-control/application/request-correlation'
 
 export async function POST(request: Request) {
   try {
@@ -22,7 +23,10 @@ export async function POST(request: Request) {
         { status: 401 },
       )
     await requireCsrf(request, decoded.sessionId)
-    const tokens = await new AuthService().refresh(refreshToken)
+    const tokens = await new AuthService().refresh(
+      refreshToken,
+      requestCorrelationId(request),
+    )
     const response = NextResponse.json({
       data: { accessExpiresAt: tokens.accessExpiresAt },
     })

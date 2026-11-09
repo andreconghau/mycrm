@@ -3,12 +3,16 @@ import { AuthService } from '@/modules/access-control/application/auth-service'
 import { authErrorResponse } from '@/modules/access-control/application/request-auth'
 import { setAuthCookies } from '@/modules/access-control/infrastructure/auth-cookies'
 import { requireTrustedOrigin } from '@/modules/access-control/infrastructure/csrf'
+import { requestCorrelationId } from '@/modules/access-control/application/request-correlation'
 
 export async function POST(request: Request) {
   try {
     requireTrustedOrigin(request)
     const auth = new AuthService()
-    const tokens = await auth.login(await request.json())
+    const tokens = await auth.login(
+      await request.json(),
+      requestCorrelationId(request),
+    )
     const principal = await auth.authenticate(tokens.accessToken)
     const response = NextResponse.json({
       data: {

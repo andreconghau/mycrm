@@ -1,9 +1,7 @@
 # Graph Report - ccc  (2026-11-07)
 
 ## Corpus Check
-- 139 files · ~346,224 words
-- Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 16 file(s) not represented in the graph (top: (none) 8, .toml 4, .example 2)
+- cluster-only mode — file stats not available
 
 ## Summary
 - 1264 nodes · 3328 edges · 68 communities (55 shown, 13 thin omitted)
@@ -11,7 +9,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `6830d5ee`
+- Built from commit: `94f93820`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -86,8 +84,8 @@
 3. `resumeSession()` - 33 edges
 4. `setLiveState()` - 33 edges
 5. `R1RoutePage()` - 33 edges
-6. `authErrorResponse()` - 31 edges
-7. `showToast()` - 31 edges
+6. `showToast()` - 31 edges
+7. `authErrorResponse()` - 31 edges
 8. `initGlobalBar()` - 30 edges
 9. `el()` - 29 edges
 10. `buildInsertConfigureRow()` - 28 edges
@@ -99,10 +97,10 @@
   scripts/access-control.ts → src/modules/access-control/infrastructure/password.ts
 - `enableInlineEdit()` --indirect_call--> `own()`  [INFERRED]
   .agents/skills/impeccable/scripts/live-browser.js → .agents/skills/impeccable/scripts/live-browser-dom.js
-- `POST()` --calls--> `requireCsrf()`  [EXTRACTED]
-  src/app/api/v1/auth/logout/route.ts → src/modules/access-control/application/request-auth.ts
-- `POST()` --calls--> `clearAuthCookies()`  [EXTRACTED]
-  src/app/api/v1/auth/logout/route.ts → src/modules/access-control/infrastructure/auth-cookies.ts
+- `POST()` --calls--> `AuthService`  [EXTRACTED]
+  src/app/api/v1/auth/login/route.ts → src/modules/access-control/application/auth-service.ts
+- `POST()` --calls--> `AuthService`  [EXTRACTED]
+  src/app/api/v1/auth/refresh/route.ts → src/modules/access-control/application/auth-service.ts
 
 ## Import Cycles
 - None detected.
@@ -338,16 +336,16 @@ Nodes (7): checkpointPayload(), enterRecoveryWaitingForAnchor(), noteParamEdited
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `next` connect `request-auth.ts` to `dependencies`, `package.json`, `[locale]/layout.tsx`, `auth-service.ts`, `R1RoutePage`, `swagger-docs.tsx`, `market-dashboard.tsx`, `workspace-shell.tsx`, `react`?**
-  _High betweenness centrality (0.041) - this node is a cross-community bridge._
+  _High betweenness centrality (0.039) - this node is a cross-community bridge._
 - **What connects `@modelcontextprotocol/server-memory`, `@playwright/mcp`, `@upstash/context7-mcp` to the rest of the system?**
   _3 weakly-connected nodes found - possible missing edges._
 - **Should `package.json` be split into smaller, more focused modules?**
   _Cohesion score 0.09523809523809523 - nodes in this community are weakly interconnected._
-- **Why does `AccessRepository` connect `AccessRepository` to `openapi.ts`, `access-repository.ts`, `types.ts`, `auth-service.ts`?**
-  _High betweenness centrality (0.020) - this node is a cross-community bridge._
+- **Why does `createLiveBrowserDomHelpers()` connect `createLiveBrowserDomHelpers` to `connectSSE`?**
+  _High betweenness centrality (0.018) - this node is a cross-community bridge._
 - **Should `modern-screenshot.umd.js` be split into smaller, more focused modules?**
   _Cohesion score 0.08583959899749373 - nodes in this community are weakly interconnected._
-- **Why does `createLiveBrowserDomHelpers()` connect `createLiveBrowserDomHelpers` to `connectSSE`?**
-  _High betweenness centrality (0.013) - this node is a cross-community bridge._
+- **Why does `AccessRepository` connect `AccessRepository` to `openapi.ts`, `access-repository.ts`, `types.ts`, `auth-service.ts`?**
+  _High betweenness centrality (0.011) - this node is a cross-community bridge._
 - **Should `captureElementToBlob` be split into smaller, more focused modules?**
   _Cohesion score 0.10507246376811594 - nodes in this community are weakly interconnected._

@@ -7,12 +7,17 @@ import {
 } from '@/modules/access-control/application/request-auth'
 import { AuthenticationError } from '@/modules/access-control/domain/types'
 import { clearAuthCookies } from '@/modules/access-control/infrastructure/auth-cookies'
+import { requestCorrelationId } from '@/modules/access-control/application/request-correlation'
 
 export async function POST(request: Request) {
   try {
     const principal = await currentPrincipal()
     await requireCsrf(request, principal.sessionId)
-    await new AuthService().logout(principal.sessionId, principal.userId)
+    await new AuthService().logout(
+      principal.sessionId,
+      principal.userId,
+      requestCorrelationId(request),
+    )
     const response = new NextResponse(null, {
       status: 204,
       headers: { 'Cache-Control': 'private, no-store' },

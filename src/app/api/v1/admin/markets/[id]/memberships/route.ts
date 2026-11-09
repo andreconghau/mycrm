@@ -8,6 +8,7 @@ import {
   requirePermission,
 } from '@/modules/access-control/application/request-auth'
 import { AccessRepository } from '@/modules/access-control/infrastructure/access-repository'
+import { requestCorrelationId } from '@/modules/access-control/application/request-correlation'
 
 export async function POST(
   request: Request,
@@ -22,6 +23,7 @@ export async function POST(
       actorId: principal.userId,
       marketId,
       ...body,
+      requestId: requestCorrelationId(request),
     })
     return Response.json({ data: { marketId, ...body } })
   } catch (error) {

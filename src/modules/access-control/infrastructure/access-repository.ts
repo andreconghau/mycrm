@@ -4,6 +4,10 @@ import { and, eq, gt, inArray, isNull, lte, or, sql } from 'drizzle-orm'
 import { getAuthConfig } from './auth-config'
 import { getDatabase } from './database'
 import {
+  projectSafeAuditDiff,
+  projectSafeAuditReason,
+} from '../application/audit-safe-diff'
+import {
   auditEvents,
   authRateLimits,
   invitations,
@@ -103,6 +107,7 @@ export class AccessRepository {
     roleCode: RoleCode
     active: boolean
     reason: string
+    requestId?: string
   }) {
     if (
       input.actorId === input.userId &&
@@ -143,9 +148,12 @@ export class AccessRepository {
         action: input.active ? 'access.role_granted' : 'access.role_revoked',
         resourceType: 'user',
         resourceId: input.userId,
-        requestId: randomUUID(),
-        reason: input.reason,
-        safeDiff: { roleCode: input.roleCode, active: input.active },
+        requestId: input.requestId ?? randomUUID(),
+        reason: projectSafeAuditReason(input.reason),
+        safeDiff: projectSafeAuditDiff({
+          roleCode: input.roleCode,
+          active: input.active,
+        }),
         result: 'SUCCESS',
       })
     })
@@ -155,6 +163,7 @@ export class AccessRepository {
     actorId: number
     userId: number
     reason: string
+    requestId?: string
   }) {
     if (input.actorId === input.userId)
       throw new Error('Administrators cannot disable themselves')
@@ -185,15 +194,22 @@ export class AccessRepository {
         action: 'access.user_disabled',
         resourceType: 'user',
         resourceId: input.userId,
-        requestId: randomUUID(),
-        reason: input.reason,
-        safeDiff: { status: 'DISABLED', sessionsRevoked: true },
+        requestId: input.requestId ?? randomUUID(),
+        reason: projectSafeAuditReason(input.reason),
+        safeDiff: projectSafeAuditDiff({
+          status: 'DISABLED',
+          sessionsRevoked: true,
+        }),
         result: 'SUCCESS',
       })
     })
   }
 
-  async createTeam(input: { actorId: number; name: string }) {
+  async createTeam(input: {
+    actorId: number
+    name: string
+    requestId?: string
+  }) {
     return this.database.transaction(async (transaction) => {
       const [team] = await transaction
         .insert(teams)
@@ -209,15 +225,20 @@ export class AccessRepository {
         action: 'access.team_created',
         resourceType: 'team',
         resourceId: team.id,
-        requestId: randomUUID(),
-        safeDiff: { name: team.name },
+        requestId: input.requestId ?? randomUUID(),
+        safeDiff: projectSafeAuditDiff({}),
         result: 'SUCCESS',
       })
       return team
     })
   }
 
-  async assignTeam(input: { actorId: number; userId: number; teamId: number }) {
+  async assignTeam(input: {
+    actorId: number
+    userId: number
+    teamId: number
+    requestId?: string
+  }) {
     await this.database.transaction(async (transaction) => {
       const [team] = await transaction
         .select({ id: teams.id })
@@ -240,8 +261,8 @@ export class AccessRepository {
         action: 'access.team_member_assigned',
         resourceType: 'team',
         resourceId: input.teamId,
-        requestId: randomUUID(),
-        safeDiff: { userId: input.userId },
+        requestId: input.requestId ?? randomUUID(),
+        safeDiff: projectSafeAuditDiff({ userId: input.userId }),
         result: 'SUCCESS',
       })
     })
@@ -252,6 +273,7 @@ export class AccessRepository {
     userId: number
     marketId: number
     active: boolean
+    requestId?: string
   }) {
     await this.database.transaction(async (transaction) => {
       const [market] = await transaction
@@ -300,14 +322,22 @@ export class AccessRepository {
           : 'access.market_revoked',
         resourceType: 'market',
         resourceId: input.marketId,
-        requestId: randomUUID(),
-        safeDiff: { userId: input.userId, active: input.active },
+        requestId: input.requestId ?? randomUUID(),
+        safeDiff: projectSafeAuditDiff({
+          userId: input.userId,
+          active: input.active,
+        }),
         result: 'SUCCESS',
       })
     })
   }
 
-  async createSession(userId: number, tokenVerifierHash: string, now: Date) {
+  async createSession(
+    userId: number,
+    tokenVerifierHash: string,
+    now: Date,
+    requestId: string = randomUUID(),
+  ) {
     const config = getAuthConfig()
     const absoluteExpiresAt = new Date(
       now.getTime() + config.absoluteTtlSeconds * 1000,
@@ -329,7 +359,7 @@ export class AccessRepository {
         action: 'auth.login',
         resourceType: 'session',
         resourceId: session.id,
-        requestId: randomUUID(),
+        requestId,
         safeDiff: {},
         result: 'SUCCESS',
       })
@@ -485,6 +515,7 @@ export class AccessRepository {
     sessionId: number,
     actorId?: number,
     action = 'auth.logout',
+    requestId: string = randomUUID(),
   ) {
     const now = new Date()
     await this.database.transaction(async (transaction) => {
@@ -503,7 +534,7 @@ export class AccessRepository {
           action,
           resourceType: 'session',
           resourceId: session.id,
-          requestId: randomUUID(),
+          requestId,
           safeDiff: {},
           result: 'SUCCESS',
         })
@@ -606,7 +637,10 @@ export class AccessRepository {
         resourceType: 'user',
         resourceId: user.id,
         requestId: randomUUID(),
-        safeDiff: { roles: ['admin'], grantBoundary: 'M29_ONLY' },
+        safeDiff: projectSafeAuditDiff({
+          roles: ['admin'],
+          grantBoundary: 'M29_ONLY',
+        }),
         result: 'SUCCESS',
       })
       return user.id
@@ -650,7 +684,7 @@ export class AccessRepository {
         resourceType: 'user',
         resourceId: user.id,
         requestId: randomUUID(),
-        safeDiff: { invitationId: invitation.id },
+        safeDiff: projectSafeAuditDiff({}),
         result: 'SUCCESS',
       })
       return { userId: user.id, invitationId: invitation.id }
@@ -661,6 +695,7 @@ export class AccessRepository {
     tokenHash: string,
     passwordHash: string,
     displayName?: string,
+    requestId: string = randomUUID(),
   ) {
     const now = new Date()
     return this.database.transaction(async (transaction) => {
@@ -701,8 +736,8 @@ export class AccessRepository {
         action: 'auth.invitation_accepted',
         resourceType: 'user',
         resourceId: invitation.userId,
-        requestId: randomUUID(),
-        safeDiff: {},
+        requestId,
+        safeDiff: projectSafeAuditDiff({}),
         result: 'SUCCESS',
       })
       return invitation.userId
