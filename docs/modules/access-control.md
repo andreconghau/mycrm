@@ -29,6 +29,8 @@ Manage identity, role membership, team ownership and action-level policies.
 - Operator-only first-admin bootstrap and invitation delivery; no raw invitation token is returned by REST or logged.
 - Default-deny application authorization with `NONE`, `OWN`, `TEAM`, `ASSIGNED` and explicit `ALL` scopes plus read/write field allowlists.
 - Database-backed throttling, server-side session revocation, transactional audit events and versioned migration bookkeeping.
+- Existing auth and access mutations pass a request correlation UUID into the same-transaction audit event. Safe diffs are projected from an allowlist; audit history UPDATE/DELETE is blocked by migration `0002_audit_events_append_only.sql`.
+- R1-02 adds administrator-only audit history reads. No non-admin audit grant or Auditor role is enabled.
 - Admin-only OpenAPI 3.1 JSON and self-hosted Swagger UI for the implemented access-control endpoints. Proposed business endpoints are not published.
 
 Only fixed M29 access-administration grants are bootstrapped. Business resource grants remain inactive until the owning module policy is approved. Password recovery, MFA, email delivery and production deployment are outside this implementation.

@@ -8,6 +8,7 @@ import {
   roleAssignmentRequestSchema,
 } from '@/modules/access-control/application/api-contracts'
 import { recordScopes, roleCodes } from '@/modules/access-control/domain/types'
+import { auditQuerySchema } from '@/modules/access-control/application/audit-contracts'
 import { z, type ZodType } from 'zod'
 
 type Schema = Record<string, unknown>
@@ -62,6 +63,65 @@ const positiveInteger = {
 } as const
 
 const paths = {
+  '/api/v1/audit-events': {
+    get: {
+      operationId: 'listAuditEvents',
+      tags: ['Audit log'],
+      summary: 'List audit events',
+      description:
+        'Administrator role required. Results are read-only and cursor-paginated.',
+      security: cookieSecurity,
+      parameters: [
+        { name: 'actorId', in: 'query', schema: positiveInteger },
+        {
+          name: 'resourceType',
+          in: 'query',
+          schema: { type: 'string', maxLength: 80 },
+        },
+        { name: 'resourceId', in: 'query', schema: positiveInteger },
+        {
+          name: 'action',
+          in: 'query',
+          schema: { type: 'string', maxLength: 120 },
+        },
+        {
+          name: 'from',
+          in: 'query',
+          schema: { type: 'string', format: 'date-time' },
+        },
+        {
+          name: 'to',
+          in: 'query',
+          schema: { type: 'string', format: 'date-time' },
+        },
+        {
+          name: 'limit',
+          in: 'query',
+          schema: { type: 'integer', minimum: 1, maximum: 100, default: 50 },
+        },
+        {
+          name: 'cursor',
+          in: 'query',
+          schema: { type: 'string', maxLength: 512 },
+        },
+      ],
+      responses: {
+        '200': jsonResponse(
+          'Cursor page of safe audit event projections.',
+          dataEnvelope({
+            type: 'object',
+            required: ['items', 'nextCursor'],
+            properties: {
+              items: { type: 'array', items: schemaRef('AuditEvent') },
+              nextCursor: { type: ['string', 'null'] },
+            },
+            additionalProperties: false,
+          }),
+        ),
+        ...commonErrors,
+      },
+    },
+  },
   '/api/v1/auth/login': {
     post: {
       operationId: 'login',
@@ -430,6 +490,37 @@ export const openApiDocument = {
       ),
     },
     schemas: {
+      AuditQuery: fromZod(auditQuerySchema),
+      AuditEvent: {
+        type: 'object',
+        required: [
+          'id',
+          'actorId',
+          'action',
+          'resourceType',
+          'resourceId',
+          'resourceVersion',
+          'requestId',
+          'reason',
+          'safeDiff',
+          'result',
+          'occurredAt',
+        ],
+        properties: {
+          id: positiveInteger,
+          actorId: { type: ['integer', 'null'] },
+          action: { type: 'string' },
+          resourceType: { type: 'string' },
+          resourceId: { type: ['integer', 'null'] },
+          resourceVersion: { type: ['integer', 'null'] },
+          requestId: { type: 'string', format: 'uuid' },
+          reason: { type: ['string', 'null'] },
+          safeDiff: { type: 'object', additionalProperties: true },
+          result: { type: 'string' },
+          occurredAt: { type: 'string', format: 'date-time' },
+        },
+        additionalProperties: false,
+      },
       LoginRequest: fromZod(loginRequestSchema),
       InvitationAcceptanceRequest: fromZod(invitationAcceptanceRequestSchema),
       RoleAssignmentRequest: fromZod(roleAssignmentRequestSchema),

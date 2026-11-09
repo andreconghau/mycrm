@@ -1,6 +1,6 @@
 # M31 — Audit Log
 
-> **Status: PLANNED — NOT IMPLEMENTED**  
+> **Status: R1-02 FOUNDATION IMPLEMENTED LOCALLY — NOT COMMITTED**
 > **Area:** System · **Release:** R1 · **Reference:** [`docs/context.md`](../context.md)
 
 ## Confirmed R1 workflow and acceptance
@@ -29,6 +29,8 @@ AuditEvent: id, actor_id, action, resource_type/id, timestamp, request_id, redac
 ## Authorization and record scope
 Admin/Auditor READ by policy; other roles see scoped history only; no normal UPDATE/DELETE.
 
+R1-02 confirms administrator-role-only history access. Auditor and non-admin record-scoped access remain proposed and are not enabled.
+
 ## Dependencies / integration boundaries
 Access Control
 
@@ -36,9 +38,18 @@ Access Control
 - Quote approval stores actor/version and reason
 - Audit cannot be silently suppressed on permission change
 
-## Detailed Implementation Contract (proposed)
+## Original detailed implementation proposal
 
-> These are proposed use cases, API routes and fields for implementation planning; they are **not implemented**. Confirm database naming and exact API contracts through the relevant task/ADR before coding.
+> This preserves the broader proposal. Only work listed in the R1-02 implementation record below is implemented; other proposed use cases remain unimplemented.
+
+## R1-02 implementation record
+
+- Reuses the existing `audit_events` table and indexes from the R1 schema baseline; no duplicate audit table was added.
+- Existing R1-01 auth/access mutations continue to insert audit rows in their business transaction. HTTP mutation requests propagate a validated `X-Request-ID` UUID or generate a server UUID; audit diff projection uses an explicit allowlist.
+- `GET /api/v1/audit-events` is administrator-role only, validates actor/resource/action/time filters, limits pages to 100 rows, and uses a stable `(occurred_at, id)` cursor. DTOs redact reason email/phone/credential patterns and project only safe diff fields.
+- `/{locale}/audit-log` reads this API's repository directly on the server and renders a read-only localized timeline. No export or retention behavior is implemented.
+- Migration `0002_audit_events_append_only.sql` rejects application-level UPDATE/DELETE. The down migration removes the trigger and function; it does not change event data.
+- Non-admin scoped history, business module writes, retention, export and external tamper-evidence remain out of scope. The reason redaction is pattern-based and is not a substitute for an approved controlled reason vocabulary.
 
 ### Functional workflow
 1. Sensitive command executes with authenticated actor, record identity, change intent and request correlation identifier.
@@ -66,8 +77,10 @@ Access Control
 
 ## Implementation checklist
 - [ ] Domain model, state transitions and failure cases reviewed with business owner.
-- [ ] Persistence contract/schema and safe database indexes approved.
-- [ ] Use cases, server-side Zod validation and scoped authorization implemented.
-- [ ] UI or API adapters implemented only where needed.
+- [x] Existing persistence contract/schema and safe database indexes reused; append-only migration replay validated.
+- [x] Audit list use case, server-side Zod validation, administrator-only authorization and bounded cursor pagination implemented.
+- [x] Read-only UI and API adapters implemented for the approved R1 scope.
 - [ ] Unit and integration tests cover success, negative permissions and concurrency/idempotency where relevant.
-- [ ] Audit/observability/docs updated; acceptance verified.
+- [x] Audit module, backend contract, database notes and access-control boundary updated; local tests and migration checks pass.
+
+Concurrency/idempotency and real authenticated admin HTTP verification remain untested. Business module audit events are deferred until those write flows exist.

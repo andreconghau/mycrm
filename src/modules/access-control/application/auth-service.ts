@@ -23,7 +23,7 @@ import { AuthenticationError, type Principal } from '../domain/types'
 export class AuthService {
   constructor(private readonly repository = new AccessRepository()) {}
 
-  async login(input: unknown) {
+  async login(input: unknown, requestId?: string) {
     const credentials = loginRequestSchema.parse(input)
     const now = new Date()
     const rateLimitKey = this.repository.rateLimitKey(credentials.email)
@@ -50,6 +50,7 @@ export class AuthService {
       user.id,
       hashOpaqueSecret(refreshSecret),
       now,
+      requestId,
     )
     return this.issueTokens(user.id, session.id, refreshSecret)
   }
@@ -71,7 +72,7 @@ export class AuthService {
     }
   }
 
-  async refresh(refreshToken: string | undefined) {
+  async refresh(refreshToken: string | undefined, requestId?: string) {
     const decoded = refreshToken ? decodeRefreshToken(refreshToken) : null
     if (!decoded) throw new AuthenticationError()
     const session = await this.repository.getSessionVerifier(decoded.sessionId)
@@ -88,6 +89,7 @@ export class AuthService {
           decoded.sessionId,
           session.userId,
           'auth.refresh_reuse_detected',
+          requestId,
         )
       }
       throw new AuthenticationError()
@@ -111,17 +113,23 @@ export class AuthService {
     return this.issueTokens(session.userId, decoded.sessionId, refreshSecret)
   }
 
-  async logout(sessionId: number, actorId?: number) {
-    await this.repository.revokeSession(sessionId, actorId)
+  async logout(sessionId: number, actorId?: number, requestId?: string) {
+    await this.repository.revokeSession(
+      sessionId,
+      actorId,
+      'auth.logout',
+      requestId,
+    )
   }
 
-  async acceptInvitation(input: unknown) {
+  async acceptInvitation(input: unknown, requestId?: string) {
     const value = invitationAcceptanceRequestSchema.parse(input)
     const passwordHash = await hashPassword(value.password)
     const userId = await this.repository.acceptInvitation(
       hashOpaqueSecret(value.token),
       passwordHash,
       value.displayName,
+      requestId,
     )
     if (!userId)
       throw new AuthenticationError('Invitation is invalid or expired')

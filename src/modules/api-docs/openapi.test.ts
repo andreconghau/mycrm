@@ -4,6 +4,7 @@ import { openApiDocument } from './openapi'
 const expectedOperations = [
   'get /api/v1/admin/role-grants',
   'get /api/v1/admin/users',
+  'get /api/v1/audit-events',
   'get /api/v1/me',
   'get /api/v1/me/permissions',
   'post /api/v1/admin/markets/{id}/memberships',
@@ -54,6 +55,16 @@ describe('OpenAPI document', () => {
       type: 'object',
       required: ['roleCode', 'active', 'reason'],
     })
+  })
+
+  it('documents the audit filter contract and administrator-only endpoint', () => {
+    expect(openApiDocument.components.schemas.AuditQuery).toMatchObject({
+      type: 'object',
+      properties: { limit: { maximum: 100 } },
+    })
+    expect(
+      openApiDocument.paths['/api/v1/audit-events'].get.description,
+    ).toContain('Administrator role required')
   })
 
   it('documents cookie authentication and signed CSRF proof', () => {

@@ -148,7 +148,7 @@ Every frontend business route is prefixed `/en` or `/vi`; the table omits that l
 | [M12 sales-orders](../modules/sales-orders.md) | `/sales-orders` | Order creation/confirmation, amendments and reviewed cancellation | sales_orders / order_versions / order_amendments / order_cancellation_requests | Confirmed R1 need; Proposed API; grants Pending |
 | [M29 access-control](../modules/access-control.md) | `/admin/users; /login; profile/market shell` | Invite/session, roles, teams, manager and market access | users / sessions / role_grants / user_market_memberships | Confirmed R1 need; Proposed API; grants Pending |
 | [M30 dashboard-reporting](../modules/dashboard-reporting.md) | `/dashboard; /search; shell search` | Scoped KPIs, five dashboard views, shell and page search | Authorized queries; no reporting warehouse | Confirmed R1 need; Proposed API; grants Pending |
-| [M31 audit-log](../modules/audit-log.md) | `/audit-log` | Transactional immutable audit and scoped review | audit_events | Confirmed R1 need; Proposed API; grants Pending |
+| [M31 audit-log](../modules/audit-log.md) | `/audit-log` | Transactional immutable audit and administrator-only review | audit_events | R1-02 API/UI implemented; non-admin grants remain Pending |
 
 Shared shell additions are traced to the [market contract](market-ui-plan.md): granted markets, server preferences, recipient notifications and safe search. Notifications are also required by M11/M12. Files support M07/M09/M10/M11/M12 evidence; they are not an R2 document management implementation. Account 360 sections reuse the same authorized lists; contact pages use `/contacts?customerId=...` rather than duplicating a second contact list API. Quote alternatives are created with `POST /quotations` plus rfqId rather than a second competing creation route under RFQs. Dashboard tabs use a code/filter, not a separate endpoint per visual card.
 
@@ -431,7 +431,7 @@ Frontend: `/audit-log`. Source: [audit-log](../modules/audit-log.md).
 
 | Method | Endpoint                            | Purpose                                              | Request                                                            | Response         | Tables                         | Permission                  | Tx   | Status   |
 | ------ | ----------------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------ | ---------------- | ------------------------------ | --------------------------- | ---- | -------- |
-| GET    | `/api/v1/audit-events`              | Scoped audit list; system scope separately granted   | M? + {actorId?,resourceType?,resourceId?,from?,to?,cursor?,limit?} | Page<AuditEvent> | `audit_events`                 | audit.read                  | Read | Proposed |
+| GET    | `/api/v1/audit-events`              | Administrator-only audit event list                 | {actorId?,resourceType?,resourceId?,action?,from?,to?,cursor?,limit?} | {data:{items,nextCursor}} | `audit_events`                 | `admin` role                 | Read | Implemented |
 | GET    | `/api/v1/records/{type}/{id}/audit` | Entity audit after actual typed parent authorization | I + cursor                                                         | Page<AuditEvent> | `audit_events`, `record_links` | audit.history + parent read | Read | Proposed |
 
 ### Support — Shared support
