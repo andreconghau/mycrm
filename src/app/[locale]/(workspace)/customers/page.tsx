@@ -1,8 +1,15 @@
-import { R1RoutePage } from '@/modules/routing/r1-route-page'
+import { currentPrincipal } from '@/modules/access-control/application/request-auth'
+import { CustomerWorkspace } from '@/modules/customers/presentation/customer-workspace'
 
 export default async function ModulePage({
   params,
 }: Readonly<{ params: Promise<{ locale: string }> }>) {
   const { locale } = await params
-  return <R1RoutePage href="/customers" locale={locale as 'en' | 'vi'} />
+  const principal = await currentPrincipal()
+  return (
+    <CustomerWorkspace
+      locale={locale as 'en' | 'vi'}
+      roles={principal.roles}
+    />
+  )
 }

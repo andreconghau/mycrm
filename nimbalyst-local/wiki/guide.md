@@ -33,6 +33,16 @@ tree . -L 2 -I 'node_modules'
 
 
 
+---
+# Trackers exports
+```javascript
+npm run tracker:backup -- --stdin
+```
+```javascript
+find nimbalyst-local/tracker/tasks -maxdepth 1 -type f -name 'tsk_*.md' | sort
+
+```
+
 
 
 

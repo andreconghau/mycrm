@@ -16,9 +16,11 @@ Acceptance: Draft FX changes recompute VND lines. Sum exact decimals before roun
 
 ### Quotations — approval and issue
 
-Lock each submitted version. Every version requires manager approval. Manager self-approval requires a nonblank comment. Rejection and Sales withdrawal require reasons and immutable history. Copy a withdrawn/rejected version into a new draft. Issue PDF from approved data.
+Lock each submitted version. Every version requires Manager or Admin approval (explicit grant, no amount threshold); Sale cannot approve. Self-approval requires a comment of at least 10 characters after trimming whitespace and is recorded as `self_approved`. See [R1 decisions](r1-decisions.md). Rejection and Sales withdrawal require reasons and immutable history. Copy a withdrawn/rejected version into a new draft. Issue PDF from approved data.
 
 Acceptance: Concurrent withdrawal and approval yield one outcome. A revision supersedes only its own alternative. Stale approval cannot authorize new terms.
+
+The VND/USD rate is a reference field with append-only history; it is excluded from the submitted-version lock and never changes USD totals. Quotation PDFs support English only, English–Vietnamese, English–Korean and Vietnamese–Korean; missing translations block issue. Details and controlled exceptions: [R1 decisions](r1-decisions.md).
 
 ### Quotations — acceptance
 

@@ -67,9 +67,10 @@ function WorkspaceContent({
   const [profileOpen, setProfileOpen] = useState(false)
   const [panel, setPanel] = useState<'notifications' | 'help' | null>(null)
   const [displayName, setDisplayName] = useState(authenticatedDisplayName)
-  const [avatarInitials, setAvatarInitials] = useState(profile.avatar_initials)
   const [query, setQuery] = useState('')
   const [saved, setSaved] = useState(false)
+  const [profileSaving, setProfileSaving] = useState(false)
+  const [profileError, setProfileError] = useState('')
   useEffect(
     () => setCollapsed(localStorage.getItem('r1-sidebar-collapsed') === 'true'),
     [],
@@ -82,6 +83,47 @@ function WorkspaceContent({
   )
   const changeLocale = (next: Locale) =>
     router.push(`/${next}/${segments.join('/')}${window.location.search}`)
+  const saveProfile = async () => {
+    setProfileSaving(true)
+    setProfileError('')
+    setSaved(false)
+    try {
+      const csrfCookie = document.cookie
+        .split('; ')
+        .find(
+          (value) =>
+            value.startsWith('crm_csrf=') ||
+            value.startsWith('__Host-crm_csrf='),
+        )
+      const csrfToken = csrfCookie
+        ? decodeURIComponent(csrfCookie.slice(csrfCookie.indexOf('=') + 1))
+        : ''
+      const response = await fetch('/api/v1/me', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-csrf-token': csrfToken,
+        },
+        body: JSON.stringify({ displayName }),
+      })
+      if (!response.ok) throw new Error('Profile update failed')
+      const result = (await response.json()) as {
+        data: { displayName: string }
+      }
+      setDisplayName(result.data.displayName)
+      setSaved(true)
+      setProfileOpen(false)
+      router.refresh()
+    } catch {
+      setProfileError(
+        locale === 'vi'
+          ? 'Không thể cập nhật hồ sơ. Vui lòng thử lại.'
+          : 'Could not update your profile. Please try again.',
+      )
+    } finally {
+      setProfileSaving(false)
+    }
+  }
   const nav = (mobile = false) => (
     <>
       <Link
@@ -316,7 +358,12 @@ function WorkspaceContent({
             }}
           >
             <span className="bg-secondary grid size-7 place-items-center rounded-full">
-              {avatarInitials}
+              {displayName
+                .trim()
+                .split(/\s+/)
+                .slice(0, 2)
+                .map((part) => part[0]?.toUpperCase())
+                .join('')}
             </span>
             <span className="hidden sm:inline">{displayName}</span>
           </button>
@@ -454,19 +501,6 @@ function WorkspaceContent({
               />
             </label>
             <label className="mt-4 block text-sm">
-              {locale === 'vi'
-                ? 'Chữ viết tắt ảnh đại diện'
-                : 'Avatar initials'}
-              <input
-                className="mt-1 min-h-10 w-full rounded-md border px-3"
-                maxLength={3}
-                onChange={(e) =>
-                  setAvatarInitials(e.target.value.toUpperCase())
-                }
-                value={avatarInitials}
-              />
-            </label>
-            <label className="mt-4 block text-sm">
               {m.language}
               <select
                 className="mt-1 min-h-10 w-full rounded-md border px-3"
@@ -493,13 +527,17 @@ function WorkspaceContent({
             </div>
             <div className="mt-6 flex gap-2">
               <button
-                className="bg-primary text-primary-foreground rounded-md px-4 py-2 text-sm"
-                onClick={() => {
-                  setSaved(true)
-                  setProfileOpen(false)
-                }}
+                aria-busy={profileSaving}
+                className="bg-primary text-primary-foreground rounded-md px-4 py-2 text-sm disabled:opacity-60"
+                disabled={profileSaving}
+                onClick={() => void saveProfile()}
+                type="button"
               >
-                {m.save}
+                {profileSaving
+                  ? locale === 'vi'
+                    ? 'Đang lưu…'
+                    : 'Saving…'
+                  : m.save}
               </button>
               <button
                 className="rounded-md border px-4 py-2 text-sm"
@@ -508,6 +546,11 @@ function WorkspaceContent({
                 {m.cancel}
               </button>
             </div>
+            {profileError && (
+              <p className="text-destructive mt-3 text-sm" role="alert">
+                {profileError}
+              </p>
+            )}
             {saved && <p className="mt-3 text-sm">✓</p>}
           </section>
         </div>

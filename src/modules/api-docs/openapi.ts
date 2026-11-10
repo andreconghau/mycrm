@@ -6,9 +6,16 @@ import {
   loginRequestSchema,
   marketMembershipRequestSchema,
   roleAssignmentRequestSchema,
+  selfProfileRequestSchema,
 } from '@/modules/access-control/application/api-contracts'
 import { recordScopes, roleCodes } from '@/modules/access-control/domain/types'
 import { auditQuerySchema } from '@/modules/access-control/application/audit-contracts'
+import {
+  archiveCustomerSchema,
+  createCustomerSchema,
+  reassignCustomerSchema,
+  updateCustomerSchema,
+} from '@/modules/customers/application/contracts'
 import { z, type ZodType } from 'zod'
 
 type Schema = Record<string, unknown>
@@ -63,6 +70,91 @@ const positiveInteger = {
 } as const
 
 const paths = {
+  '/api/v1/customers': {
+    get: {
+      operationId: 'listCustomers',
+      tags: ['Customers'],
+      summary: 'List market-scoped customers',
+      description:
+        'Requires customers:read and current market membership. Record scope is applied on the server before pagination.',
+      security: cookieSecurity,
+      parameters: [
+        { name: 'market', in: 'query', required: true, schema: { type: 'string', minLength: 2, maxLength: 32 } },
+        { name: 'q', in: 'query', schema: { type: 'string', maxLength: 120 } },
+        { name: 'country', in: 'query', schema: { type: 'string', pattern: '^[A-Z]{2}$' } },
+        { name: 'status', in: 'query', schema: { type: 'string', enum: ['PROSPECT', 'ACTIVE', 'ON_HOLD', 'INACTIVE', 'ARCHIVED'] } },
+        { name: 'owner', in: 'query', schema: positiveInteger },
+        { name: 'limit', in: 'query', schema: { type: 'integer', minimum: 1, maximum: 100, default: 50 } },
+        { name: 'cursor', in: 'query', schema: { type: 'string', maxLength: 512 } },
+      ],
+      responses: {
+        '200': jsonResponse('Scoped customer page and entitled history snapshots.', dataEnvelope({ type: 'object', required: ['items', 'historyItems', 'nextCursor'], properties: { items: { type: 'array', items: schemaRef('Customer') }, historyItems: { type: 'array', items: schemaRef('CustomerHistory') }, nextCursor: { type: ['string', 'null'] } }, additionalProperties: false })),
+        ...commonErrors,
+      },
+    },
+    post: {
+      operationId: 'createCustomer',
+      tags: ['Customers'],
+      summary: 'Create a buyer customer',
+      description: 'Requires customers:create, current market membership and CSRF proof. Duplicate identifiers are not merged.',
+      security: cookieSecurity,
+      parameters: [{ name: 'market', in: 'query', required: true, schema: { type: 'string' } }, csrfParameter],
+      requestBody: jsonBody('CreateCustomerRequest'),
+      responses: { '201': jsonResponse('Customer created.', dataEnvelope(schemaRef('Customer'))), ...commonErrors },
+    },
+  },
+  '/api/v1/customers/{id}': {
+    get: {
+      operationId: 'getCustomer',
+      tags: ['Customers'],
+      summary: 'Read a customer or entitled historical snapshot',
+      security: cookieSecurity,
+      parameters: [idParameter, { name: 'market', in: 'query', required: true, schema: { type: 'string' } }],
+      responses: { '200': jsonResponse('Customer projection filtered by read-field grants.', dataEnvelope(schemaRef('CustomerDetail'))), ...commonErrors, '404': responseRef('NotFound') },
+    },
+    patch: {
+      operationId: 'updateCustomer',
+      tags: ['Customers'],
+      summary: 'Update a customer with optimistic concurrency',
+      security: cookieSecurity,
+      parameters: [idParameter, { name: 'market', in: 'query', required: true, schema: { type: 'string' } }, csrfParameter],
+      requestBody: jsonBody('UpdateCustomerRequest'),
+      responses: { '200': jsonResponse('Customer updated.', dataEnvelope(schemaRef('Customer'))), ...commonErrors, '409': responseRef('Conflict') },
+    },
+  },
+  '/api/v1/customers/{id}/archive': {
+    post: {
+      operationId: 'archiveCustomer',
+      tags: ['Customers'],
+      summary: 'Archive a customer while preserving history',
+      security: cookieSecurity,
+      parameters: [idParameter, { name: 'market', in: 'query', required: true, schema: { type: 'string' } }, csrfParameter],
+      requestBody: jsonBody('ArchiveCustomerRequest'),
+      responses: { '200': jsonResponse('Customer archived.', dataEnvelope(schemaRef('Customer'))), ...commonErrors, '409': responseRef('Conflict') },
+    },
+  },
+  '/api/v1/customers/{id}/reassign': {
+    post: {
+      operationId: 'reassignCustomerOwner',
+      tags: ['Customers'],
+      summary: 'Transfer customer ownership with an audited snapshot',
+      security: cookieSecurity,
+      parameters: [idParameter, { name: 'market', in: 'query', required: true, schema: { type: 'string' } }, csrfParameter],
+      requestBody: jsonBody('ReassignCustomerRequest'),
+      responses: { '200': jsonResponse('Customer reassigned.', dataEnvelope(schemaRef('Customer'))), ...commonErrors, '409': responseRef('Conflict') },
+    },
+  },
+  '/api/v1/customers/duplicate-candidates': {
+    post: {
+      operationId: 'findCustomerDuplicateCandidates',
+      tags: ['Customers'],
+      summary: 'Find in-scope identifier matches in the same market',
+      security: cookieSecurity,
+      parameters: [{ name: 'market', in: 'query', required: true, schema: { type: 'string' } }, csrfParameter],
+      requestBody: jsonBody('DuplicateCandidatesRequest'),
+      responses: { '200': jsonResponse('Candidate records for human review; no automatic merge.', dataEnvelope({ type: 'array', items: schemaRef('Customer') })), ...commonErrors },
+    },
+  },
   '/api/v1/audit-events': {
     get: {
       operationId: 'listAuditEvents',
@@ -230,6 +322,27 @@ const paths = {
         ...commonErrors,
       },
     },
+    patch: {
+      operationId: 'updateOwnProfile',
+      tags: ['Current user'],
+      summary: 'Update the active user display name',
+      description: 'Updates only the authenticated user displayName. Email and role changes are not accepted.',
+      security: cookieSecurity,
+      parameters: [csrfParameter],
+      requestBody: jsonBody('SelfProfileRequest'),
+      responses: {
+        '200': jsonResponse(
+          'Current user profile updated.',
+          dataEnvelope({
+            type: 'object',
+            required: ['displayName'],
+            properties: { displayName: { type: 'string' } },
+            additionalProperties: false,
+          }),
+        ),
+        ...commonErrors,
+      },
+    },
   },
   '/api/v1/me/permissions': {
     get: {
@@ -242,6 +355,19 @@ const paths = {
           'Effective grants.',
           dataEnvelope({ type: 'array', items: schemaRef('EffectiveGrant') }),
         ),
+        ...commonErrors,
+      },
+    },
+  },
+  '/api/v1/me/markets': {
+    get: {
+      operationId: 'listMyMarkets',
+      tags: ['Customers'],
+      summary: 'List active markets for the authenticated employee',
+      description: 'Returns only active market memberships from the server-side principal.',
+      security: cookieSecurity,
+      responses: {
+        '200': jsonResponse('Authorized market options.', dataEnvelope({ type: 'array', items: { type: 'object', required: ['id', 'code', 'nameEn', 'nameVi', 'defaultCurrency'], properties: { id: positiveInteger, code: { type: 'string' }, nameEn: { type: 'string' }, nameVi: { type: 'string' }, defaultCurrency: { type: 'string' } }, additionalProperties: false } })),
         ...commonErrors,
       },
     },
@@ -488,9 +614,45 @@ export const openApiDocument = {
         'The request could not be completed.',
         errorSchema,
       ),
+      NotFound: jsonResponse('Customer is unavailable in the authorized scope.', errorSchema),
+      Conflict: jsonResponse('The customer changed or a business transition is invalid.', errorSchema),
     },
     schemas: {
       AuditQuery: fromZod(auditQuerySchema),
+      CreateCustomerRequest: fromZod(createCustomerSchema),
+      UpdateCustomerRequest: fromZod(updateCustomerSchema),
+      ArchiveCustomerRequest: fromZod(archiveCustomerSchema),
+      ReassignCustomerRequest: fromZod(reassignCustomerSchema),
+      DuplicateCandidatesRequest: {
+        type: 'object',
+        required: ['identifiers'],
+        properties: {
+          customerId: positiveInteger,
+          identifiers: { type: 'array', maxItems: 50, items: { type: 'object', required: ['kind', 'value'], properties: { kind: { type: 'string', minLength: 1, maxLength: 60 }, value: { type: 'string', minLength: 1, maxLength: 240 } }, additionalProperties: false } },
+        },
+        additionalProperties: false,
+      },
+      Customer: {
+        type: 'object',
+        properties: {
+          id: positiveInteger, code: { type: 'string' }, legalName: { type: 'string' }, tradeName: { type: ['string', 'null'] }, countryCode: { type: 'string', pattern: '^[A-Z]{2}$' }, preferredLanguage: { type: ['string', 'null'] }, preferredCurrency: { type: ['string', 'null'] }, website: { type: ['string', 'null'], format: 'uri' }, status: { type: 'string', enum: ['PROSPECT', 'ACTIVE', 'ON_HOLD', 'INACTIVE', 'ARCHIVED'] }, ownerId: positiveInteger, teamId: { type: ['integer', 'null'] }, version: { type: 'integer', minimum: 1 },
+        },
+        additionalProperties: false,
+      },
+      CustomerDetail: {
+        type: 'object',
+        properties: {
+          id: positiveInteger, code: { type: 'string' }, legalName: { type: 'string' }, tradeName: { type: ['string', 'null'] }, countryCode: { type: 'string', pattern: '^[A-Z]{2}$' }, preferredLanguage: { type: ['string', 'null'] }, preferredCurrency: { type: ['string', 'null'] }, website: { type: ['string', 'null'], format: 'uri' }, status: { type: 'string', enum: ['PROSPECT', 'ACTIVE', 'ON_HOLD', 'INACTIVE', 'ARCHIVED'] }, ownerId: positiveInteger, teamId: { type: ['integer', 'null'] }, version: { type: 'integer', minimum: 1 }, addresses: { type: 'array', items: { type: 'object' } }, identifiers: { type: 'array', items: { type: 'object' } }, historical: { type: 'boolean' },
+        },
+        additionalProperties: false,
+      },
+      CustomerHistory: {
+        type: 'object',
+        properties: {
+          id: positiveInteger, code: { type: 'string' }, legalName: { type: 'string' }, tradeName: { type: ['string', 'null'] }, countryCode: { type: 'string', pattern: '^[A-Z]{2}$' }, preferredLanguage: { type: ['string', 'null'] }, preferredCurrency: { type: ['string', 'null'] }, website: { type: ['string', 'null'], format: 'uri' }, status: { type: 'string', enum: ['PROSPECT', 'ACTIVE', 'ON_HOLD', 'INACTIVE', 'ARCHIVED'] }, ownerId: positiveInteger, teamId: { type: ['integer', 'null'] }, version: { type: 'integer', minimum: 1 }, historical: { type: 'boolean', const: true }, transferredAt: { type: 'string', format: 'date-time' },
+        },
+        additionalProperties: false,
+      },
       AuditEvent: {
         type: 'object',
         required: [
@@ -524,6 +686,7 @@ export const openApiDocument = {
       LoginRequest: fromZod(loginRequestSchema),
       InvitationAcceptanceRequest: fromZod(invitationAcceptanceRequestSchema),
       RoleAssignmentRequest: fromZod(roleAssignmentRequestSchema),
+      SelfProfileRequest: fromZod(selfProfileRequestSchema),
       DisableUserRequest: fromZod(disableUserRequestSchema),
       CreateTeamRequest: fromZod(createTeamRequestSchema),
       AssignTeamMemberRequest: fromZod(assignTeamMemberRequestSchema),

@@ -30,6 +30,10 @@ Effective access is the intersection of active account/session, active role gran
 
 The bootstrap policy grants `admin` only M29 resources (`access.users`, `access.roles`, `access.grants`, `access.teams`, `access.markets`). No customer, commercial, document or finance grant is activated by this task. Role-grant mutation endpoints remain intentionally absent until module policies are approved.
 
+## Evidence file uploads (approved, not implemented)
+
+Commercial evidence uploads accept jpg, png, webp, pdf, eml and msg up to 20 MB per file. The server verifies the real MIME type, stores SHA-256 and uploader metadata, keeps files immutable (replacement voids the prior file with a reason) and serves downloads only through authorized API routes. See [R1 decisions §7](../business/r1-decisions.md#7-evidence-files-sales-order-confirmation-and-quotation-acceptance).
+
 ## API documentation
 
 The OpenAPI JSON endpoint and localized Swagger UI require the same server-side `access.grants:read` permission. The document includes only implemented routes and synthetic schema examples; it contains no credentials, invitation tokens or production data. Responses are `private, no-store`. Swagger is self-hosted, sends requests only to the current origin and copies the readable signed CSRF cookie into `X-CSRF-Token` for unsafe “Try it out” requests. HttpOnly access and refresh cookies remain inaccessible to JavaScript.

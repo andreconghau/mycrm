@@ -1,6 +1,6 @@
 'use client'
 
-/* eslint-disable @next/next/no-css-tags -- Swagger CSS is an authenticated runtime asset. */
+/* eslint-disable @next/next/no-css-tags -- Swagger CSS is a public runtime asset. */
 
 import Script from 'next/script'
 import { useCallback, useEffect, useRef, useState } from 'react'

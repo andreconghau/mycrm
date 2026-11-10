@@ -2,16 +2,24 @@ import { describe, expect, it } from 'vitest'
 import { openApiDocument } from './openapi'
 
 const expectedOperations = [
+  'get /api/v1/customers',
+  'get /api/v1/customers/{id}',
   'get /api/v1/admin/role-grants',
   'get /api/v1/admin/users',
   'get /api/v1/audit-events',
   'get /api/v1/me',
   'get /api/v1/me/permissions',
+  'get /api/v1/me/markets',
   'post /api/v1/admin/markets/{id}/memberships',
   'post /api/v1/admin/teams',
   'post /api/v1/admin/teams/{id}/members',
   'post /api/v1/admin/users/{id}/disable',
   'post /api/v1/admin/users/{id}/roles',
+  'post /api/v1/customers',
+  'post /api/v1/customers/duplicate-candidates',
+  'post /api/v1/customers/{id}/archive',
+  'post /api/v1/customers/{id}/reassign',
+  'patch /api/v1/customers/{id}',
   'post /api/v1/auth/invitations/accept',
   'post /api/v1/auth/login',
   'post /api/v1/auth/logout',
@@ -19,17 +27,15 @@ const expectedOperations = [
 ]
 
 describe('OpenAPI document', () => {
-  it('publishes exactly the implemented access-control operations', () => {
+  it('publishes exactly the implemented API operations', () => {
     const operations = Object.entries(openApiDocument.paths)
       .flatMap(([path, methods]) =>
         Object.keys(methods).map((method) => `${method} ${path}`),
       )
       .sort()
 
-    expect(operations).toEqual(expectedOperations)
-    expect(
-      operations.some((operation) => operation.includes('customers')),
-    ).toBe(false)
+    expect(operations).toEqual([...expectedOperations].sort())
+    expect(operations.filter((operation) => operation.includes('customers'))).toHaveLength(7)
   })
 
   it('uses OpenAPI 3.1 with unique operation IDs', () => {

@@ -4,7 +4,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="vi">
+      <html lang="en">
       <body className="min-h-screen antialiased">{children}</body>
     </html>
   )

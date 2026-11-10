@@ -1,8 +1,34 @@
 import { roleCodes } from '../domain/types'
 
 const booleanFields = new Set(['active', 'sessionsRevoked'])
-const integerFields = new Set(['userId'])
-const stringFields = new Set(['status', 'grantBoundary'])
+const integerFields = new Set(['userId', 'ownerId', 'teamId'])
+const stringFields = new Set([
+  'status',
+  'grantBoundary',
+  'customerStatus',
+  'marketCode',
+  'defaultCurrency',
+])
+const customerStatuses = new Set([
+  'PROSPECT',
+  'ACTIVE',
+  'ON_HOLD',
+  'INACTIVE',
+  'ARCHIVED',
+])
+const customerAuditFields = new Set([
+  'code',
+  'legalName',
+  'tradeName',
+  'countryCode',
+  'preferredLanguage',
+  'preferredCurrency',
+  'status',
+  'ownerId',
+  'teamId',
+  'addresses',
+  'identifiers',
+])
 
 export function projectSafeAuditDiff(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return {}
@@ -10,6 +36,41 @@ export function projectSafeAuditDiff(value: unknown): Record<string, unknown> {
   const safe: Record<string, unknown> = {}
   for (const [key, item] of Object.entries(source)) {
     if (key === 'roleCode' && roleCodes.includes(item as never)) {
+      safe[key] = item
+    } else if (
+      key === 'grantBoundary' &&
+      (item === 'M29_ONLY' ||
+        item === 'M01_CUSTOMERS_APPROVED' ||
+        item === 'M29_AND_M01')
+    ) {
+      safe[key] = item
+    } else if (
+      key === 'customerStatus' &&
+      typeof item === 'string' &&
+      customerStatuses.has(item)
+    ) {
+      safe[key] = item
+    } else if (
+      key === 'marketCode' &&
+      typeof item === 'string' &&
+      ['KR', 'JP', 'US'].includes(item)
+    ) {
+      safe[key] = item
+    } else if (
+      key === 'defaultCurrency' &&
+      typeof item === 'string' &&
+      /^[A-Z]{3}$/.test(item)
+    ) {
+      safe[key] = item
+    } else if (
+      key === 'changedFields' &&
+      Array.isArray(item) &&
+      item.every(
+        (field) =>
+          typeof field === 'string' &&
+          (customerAuditFields.has(field) || field === 'displayName'),
+      )
+    ) {
       safe[key] = item
     } else if (key === 'roles' && Array.isArray(item)) {
       const roles = item.filter((role) => roleCodes.includes(role as never))

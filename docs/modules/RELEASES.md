@@ -6,6 +6,8 @@
 
 ## R1: 15 modules
 
+Owner-approved build order: R1.0 M29, M31 and shared components → R1.1 M01, M02, M06, M07 → R1.2 M08, M09, M10, M12 → R1.3 M03, M04, M05, M11, M30. See [R1 decisions](../business/r1-decisions.md).
+
 - [M01 customers](customers.md)
 - [M02 contacts](contacts.md)
 - [M03 leads](leads.md)
