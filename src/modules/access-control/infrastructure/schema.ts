@@ -203,6 +203,172 @@ export const auditEvents = pgTable('audit_events', {
     .defaultNow(),
 })
 
+export const customers = pgTable(
+  'customers',
+  {
+    id: identity(),
+    marketId: integer('market_id').notNull(),
+    code: text('code').notNull(),
+    legalName: text('legal_name').notNull(),
+    tradeName: text('trade_name'),
+    countryCode: text('country_code').notNull(),
+    preferredLanguage: text('preferred_language'),
+    preferredCurrency: text('preferred_currency'),
+    website: text('website'),
+    status: text('status').notNull(),
+    ownerId: integer('owner_id').notNull(),
+    teamId: integer('team_id'),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    version: integer('version').notNull().default(1),
+  },
+  (table) => [
+    index('customers_owner_page').on(
+      table.marketId,
+      table.ownerId,
+      table.createdAt,
+      table.id,
+    ),
+    index('idx_customers_team_id').on(table.teamId),
+  ],
+)
+
+export const customerAddresses = pgTable(
+  'customer_addresses',
+  {
+    id: identity(),
+    marketId: integer('market_id').notNull(),
+    customerId: integer('customer_id').notNull(),
+    kind: text('kind').notNull(),
+    addressLines: text('address_lines').notNull(),
+    city: text('city'),
+    region: text('region'),
+    postalCode: text('postal_code'),
+    countryCode: text('country_code').notNull(),
+    isDefault: boolean('is_default').notNull().default(false),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    version: integer('version').notNull().default(1),
+  },
+  (table) => [
+    index('idx_customer_addresses_market_id_customer_id').on(
+      table.marketId,
+      table.customerId,
+    ),
+  ],
+)
+
+export const customerIdentifiers = pgTable(
+  'customer_identifiers',
+  {
+    id: identity(),
+    marketId: integer('market_id').notNull(),
+    customerId: integer('customer_id').notNull(),
+    kind: text('kind').notNull(),
+    value: text('value').notNull(),
+    normalizedValue: text('normalized_value').notNull(),
+    issuingCountry: text('issuing_country'),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    version: integer('version').notNull().default(1),
+  },
+  (table) => [
+    index('customer_identifier_duplicate').on(
+      table.marketId,
+      table.kind,
+      table.normalizedValue,
+    ),
+    index('idx_customer_identifiers_market_id_customer_id').on(
+      table.marketId,
+      table.customerId,
+    ),
+  ],
+)
+
+export const recordLinks = pgTable('record_links', {
+  id: identity(),
+  marketId: integer('market_id').notNull(),
+  customerId: integer('customer_id'),
+  contactId: integer('contact_id'),
+  leadId: integer('lead_id'),
+  opportunityId: integer('opportunity_id'),
+  rfqId: integer('rfq_id'),
+  quotationId: integer('quotation_id'),
+  salesOrderId: integer('sales_order_id'),
+  sampleId: integer('sample_id'),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+})
+
+export const customerTransfers = pgTable('customer_transfers', {
+  id: identity(),
+  marketId: integer('market_id').notNull(),
+  customerId: integer('customer_id').notNull(),
+  transferredAt: timestamp('transferred_at', { withTimezone: true }).notNull(),
+  reason: text('reason').notNull(),
+  formerOwnerId: integer('former_owner_id').notNull(),
+  newOwnerId: integer('new_owner_id').notNull(),
+  authorizedBy: integer('authorized_by').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+})
+
+export const historySnapshots = pgTable('history_snapshots', {
+  id: identity(),
+  marketId: integer('market_id').notNull(),
+  transferId: integer('transfer_id').notNull(),
+  recordLinkId: integer('record_link_id').notNull(),
+  sourceVersion: integer('source_version').notNull(),
+  payload: jsonb('payload').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+})
+
+export const historyEntitlements = pgTable('history_entitlements', {
+  id: identity(),
+  marketId: integer('market_id').notNull(),
+  snapshotId: integer('snapshot_id').notNull(),
+  userId: integer('user_id').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+})
+
+export const duplicateReviews = pgTable('duplicate_reviews', {
+  id: identity(),
+  marketId: integer('market_id').notNull(),
+  leadId: integer('lead_id'),
+  customerId: integer('customer_id'),
+  candidateCustomerId: integer('candidate_customer_id').notNull(),
+  state: text('state').notNull(),
+  resolution: text('resolution'),
+  reason: text('reason'),
+  requestedBy: integer('requested_by').notNull(),
+  reviewedBy: integer('reviewed_by'),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  version: integer('version').notNull().default(1),
+})
+
 export const authRateLimits = pgTable(
   'auth_rate_limits',
   {

@@ -13,7 +13,7 @@ order: 1000
 > **Releases:** R1 Core CRM (15 modules), R2 Export Execution (9 modules), R3 Supply & Financial Control (8 modules)
 
 
-Current R1 tasks and acceptance criteria: [R1 task plan](../../plan-r1-task.md).
+Current R1 task status and content are maintained in Nimbalyst Tracker; this checkout does not contain a separate local R1 task plan file.
 
 ## 1. Purpose and document authority
 

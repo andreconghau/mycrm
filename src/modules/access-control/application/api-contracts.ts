@@ -23,6 +23,12 @@ export const roleAssignmentRequestSchema = z.object({
   reason: z.string().trim().min(3).max(500),
 })
 
+export const selfProfileRequestSchema = z
+  .object({
+    displayName: z.string().trim().min(2).max(120),
+  })
+  .strict()
+
 export const disableUserRequestSchema = z.object({
   reason: z.string().trim().min(3).max(500),
 })

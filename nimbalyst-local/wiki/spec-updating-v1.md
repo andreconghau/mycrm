@@ -16,3 +16,18 @@ Compared the M31 requirements in `CRM-Spec.md` (sections 4.1, 7 and 9) with the 
 ### Spec disposition
 
 No change was made to `CRM-Spec.md`. The admin-only read rule is limited to this approved implementation slice; broader auditor/scoped access requires a separate business-grant decision.
+
+
+## 2026-11-10 — M29 administrator account policy
+
+Compared `CRM-Spec.md` sections 2.4, 7 and 10 with the owner's approved M29 policy request in this session (2026-11-10).
+
+### Approved policy delta
+
+- Admin role retains all application permissions, including managing permissions and role assignments for non-admin users.
+- An Admin may edit only their own profile, limited to `displayName`; self-service email changes are excluded.
+- Application endpoints cannot disable an Admin account, change any role assignment on an Admin account, or grant the Admin role. Disabling or changing an Admin role requires a manual database operation. This applies when there are multiple Admin users as well.
+
+### Spec disposition
+
+No change was made to `CRM-Spec.md`. This policy refines the existing Admin candidate role and the pending role/action authorization policy. M29 implementation remains pending separate implementation approval.

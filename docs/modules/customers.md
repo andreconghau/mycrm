@@ -1,6 +1,6 @@
 # M01 — Customers
 
-> **Status: PLANNED — NOT IMPLEMENTED**  
+> **Status: Core CRUD implemented; Customer 360 and file-history access pending**
 > **Area:** CRM · **Release:** R1 · **Reference:** [`docs/context.md`](../context.md)
 
 ## Confirmed R1 workflow and acceptance
@@ -11,14 +11,15 @@
 Manage B2B buyer organizations as the authoritative commercial account.
 
 ## Features / use cases
-- Create/update/archive buyer with legal/trading names, country and identifiers
-- Assign Sales owner and team; list with scoped search and duplicate candidates
-- Show account 360°: contacts, RFQs, quotations, orders, tasks and activity
+- Create/update/archive buyer with legal/trading names, country, addresses and identifiers
+- Assign Sales owner and team; list with market-scoped search and duplicate candidates
+- Preserve transfer-time snapshots for former owners and expose historical records only through explicit entitlements
+- Customer 360° links to contacts, RFQs, quotations, orders, tasks and activity are deferred until those modules are implemented
 
-## Core data (proposed)
+## Core data
 Customer: id, name, legal_name, country_code, identifiers, owner_id, team_id, status, created_at, updated_at
 
-## States / lifecycle (proposed)
+## States / lifecycle
 `PROSPECT → ACTIVE → ON_HOLD / INACTIVE / ARCHIVED`
 
 ## Business rules and validation
@@ -27,19 +28,33 @@ Customer: id, name, legal_name, country_code, identifiers, owner_id, team_id, st
 - Owner reassignment is audited; retain linked order history
 
 ## Authorization and record scope
-Sales OWN; Sales Manager TEAM; Management read-safe; Admin management; other roles read only when assigned.
+Market membership is checked server-side before record access; a selected market is not authorization. Implemented Customer grants are Sales OWN and Manager TEAM; Admin may manage all records. Other roles, including Accountant, are denied unless a separately approved grant is added. Manager reassignment requires a reason and is limited to the manager's team. The Management read-safe grant remains deferred.
 
 ## Dependencies / integration boundaries
-Access Control, Contacts, Audit Log
+Access Control, Audit Log, market membership, Contacts, and the future commercial modules. Contact/RFQ/quotation/order/task/activity aggregation and history file delivery are not implemented by M01 core.
 
 ## Acceptance / UAT
 - Sales A cannot GET/PATCH Sales B private customer through direct API
 - Candidate duplicate is flagged for review rather than auto-merged
 - Buyer archive retains past orders and quote snapshots
 
+## Implemented API and operator setup
+
+- `GET/POST /api/v1/customers?market=KR` — market-scoped list/create with cursor pagination, filtering, duplicate suggestions, and server-side grants.
+- `GET/PATCH /api/v1/customers/:id?market=KR` — scoped detail/update with optimistic version checks.
+- `POST /api/v1/customers/:id/archive?market=KR` and `POST /api/v1/customers/:id/reassign?market=KR` — audited state/owner actions requiring reasons.
+- `POST /api/v1/customers/duplicate-candidates?market=KR` — scoped candidate warnings; no automatic merge.
+- `GET /api/v1/me/markets` — only the authenticated user's active market memberships.
+- `npm run access:operator -- seed-initial-markets --actor-email <admin>` seeds KR/South Korea/KRW, JP/Japan/JPY, and US/United States/USD. It is idempotent for matching active rows, audits inserts, and does not grant memberships.
+- `npm run access:operator -- grant-customers --actor-email <admin>` installs the approved Customer grants transactionally and audits the change. Operators must still assign users through M29 market memberships. Neither command was run during implementation.
+
+## Deferred scope
+
+Customer 360 aggregation, contacts, cross-module commercial blocking for archived customers, history/file authorization and delivery, Management read-safe grants, and interactive editing of customer addresses/identifiers remain pending. Existing baseline tables support customer core and snapshots; no schema migration was required or applied.
+
 ## Detailed Implementation Contract (proposed)
 
-> These are proposed use cases, API routes and fields for implementation planning; they are **not implemented**. Confirm database naming and exact API contracts through the relevant task/ADR before coding.
+> The implemented API above is the current contract. The remaining items below describe deferred cross-module behavior and acceptance work.
 
 ### Functional workflow
 1. Sales creates a buyer organization with country, primary contact and assigned owner; system checks candidate duplicates.
@@ -67,9 +82,11 @@ Access Control, Contacts, Audit Log
 - Two stale updates must not silently overwrite one another.
 
 ## Implementation checklist
-- [ ] Domain model, state transitions and failure cases reviewed with business owner.
-- [ ] Persistence contract/schema and safe database indexes approved.
-- [ ] Use cases, server-side Zod validation and scoped authorization implemented.
-- [ ] UI or API adapters implemented only where needed.
-- [ ] Unit and integration tests cover success, negative permissions and concurrency/idempotency where relevant.
-- [ ] Audit/observability/docs updated; acceptance verified.
+- [x] Domain model, state transitions and failure cases reviewed with business owner.
+- [x] Existing persistence contract reused; no schema migration required for M01 core.
+- [x] Use cases, server-side Zod validation, market membership and scoped authorization implemented.
+- [x] Core list/create/detail/update/archive/reassign/duplicate API and customer workspace implemented.
+- [x] Unit tests cover contracts, field projection, OWN scope and missing grants.
+- [x] Mandatory audit events are written in the same transaction as core mutations.
+- [ ] Integration tests against PostgreSQL cover transaction rollback, TEAM scope, transfer entitlements and concurrency.
+- [ ] Customer 360 links, archived-customer commercial blocking, history file access, and address/identifier editing UI.

@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "source": "nimbalyst",
+  "authority": "nimbalyst-live",
+  "sync_mode": "manual-export-import",
+  "conflict_policy": "prefer-live-and-preserve-local-snapshot",
+  "tasks": [
+    {
+      "tracker_id": "pln_mwa17uujian357",
+      "path": "/Users/andre/www/codex/ccc/nimbalyst-local/tracker/tasks/pln_mwa17uujian357.md",
+      "content_hash": "29a65bf5f5fa6999e9372d2196d370501de1228c81248bfac738c28b6ff9de87",
+      "source_updated_at": "2026-11-10T01:49:23.773Z",
+      "exported_at": "2026-11-10T01:52:58.611Z",
+      "schema_version": 1
+    },
+    {
+      "tracker_id": "tsk_mw8nm06oxowxdv",
+      "path": "/Users/andre/www/codex/ccc/nimbalyst-local/tracker/tasks/tsk_mw8nm06oxowxdv.md",
+      "content_hash": "41328a1811b476318933a536580ab3cd874e718d3a29b73ad0bcfc33f3265891",
+      "source_updated_at": "2026-11-09T09:05:34.125Z",
+      "exported_at": "2026-11-10T01:52:58.697Z",
+      "schema_version": 1
+    },
+    {
+      "tracker_id": "tsk_mw4huorcafqjax",
+      "path": "/Users/andre/www/codex/ccc/nimbalyst-local/tracker/tasks/tsk_mw4huorcafqjax.md",
+      "content_hash": "eb8153b90ab9fc07b648a8587979541ca5150f3ef05a42d19148b05cbddfb88b",
+      "source_updated_at": "2026-11-09T06:38:31.813Z",
+      "exported_at": "2026-11-10T01:52:58.768Z",
+      "schema_version": 1
+    },
+    {
+      "tracker_id": "tsk_mw6b36jpb923xl",
+      "path": "/Users/andre/www/codex/ccc/nimbalyst-local/tracker/tasks/tsk_mw6b36jpb923xl.md",
+      "content_hash": "5a92a011442e56204da3f5125f9e499cf1d1e324ce211590d3b0e9115c8d0e65",
+      "source_updated_at": "2026-11-09T06:38:05.768Z",
+      "exported_at": "2026-11-10T01:52:58.845Z",
+      "schema_version": 1
+    },
+    {
+      "tracker_id": "tsk_mw5x2mq5wanj82",
+      "path": "/Users/andre/www/codex/ccc/nimbalyst-local/tracker/tasks/tsk_mw5x2mq5wanj82.md",
+      "content_hash": "8e23060a11809cfdae32a508a9197ee31c014f184731f2b55ffc98242864d23b",
+      "source_updated_at": "2026-11-07T12:17:36.529Z",
+      "exported_at": "2026-11-10T01:52:58.918Z",
+      "schema_version": 1
+    },
+    {
+      "tracker_id": "tsk_mw4c5l55k09fz3",
+      "path": "/Users/andre/www/codex/ccc/nimbalyst-local/tracker/tasks/tsk_mw4c5l55k09fz3.md",
+      "content_hash": "975aa529dfe5710ecfa0602ed1dd15d3906d0e383711bedd8e408377a02918f8",
+      "source_updated_at": "2026-11-06T04:25:15.157Z",
+      "exported_at": "2026-11-10T01:52:59.091Z",
+      "schema_version": 1
+    },
+    {
+      "tracker_id": "tsk_mw3ao3fzsjwy5i",
+      "path": "/Users/andre/www/codex/ccc/nimbalyst-local/tracker/tasks/tsk_mw3ao3fzsjwy5i.md",
+      "content_hash": "35b050bcd7777d4b64aa5c3aadc97f90d5e9a6643ef2484bb5c04e64d89ae603",
+      "source_updated_at": "2026-11-06T02:08:22.241Z",
+      "exported_at": "2026-11-10T01:52:59.167Z",
+      "schema_version": 1
+    },
+    {
+      "tracker_id": "tsk_mw4aodxpvac4ud",
+      "path": "/Users/andre/www/codex/ccc/nimbalyst-local/tracker/tasks/tsk_mw4aodxpvac4ud.md",
+      "content_hash": "8fc5f10782553773dd623447409d52a7fe49ae94949e6c2d5d4d16761344c3c8",
+      "source_updated_at": "2026-11-06T01:47:02.265Z",
+      "exported_at": "2026-11-10T01:52:59.307Z",
+      "schema_version": 1
+    }
+  ]
+}

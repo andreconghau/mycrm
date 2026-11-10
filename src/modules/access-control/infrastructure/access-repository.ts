@@ -21,6 +21,7 @@ import {
   users,
 } from './schema'
 import {
+  AccessDeniedError,
   recordScopes,
   roleCodes,
   type EffectiveGrant,
@@ -28,6 +29,7 @@ import {
   type RecordScope,
   type RoleCode,
 } from '../domain/types'
+import { customerAdminGrants } from '../domain/customer-admin-grants'
 
 const ACCESS_GRANTS = [
   ['access.users', 'read'],
@@ -84,6 +86,38 @@ export class AccessRepository {
       .limit(Math.min(Math.max(limit, 1), 100))
   }
 
+  async updateOwnProfile(input: {
+    userId: number
+    displayName: string
+    requestId?: string
+  }) {
+    return this.database.transaction(async (transaction) => {
+      const now = new Date()
+      const [user] = await transaction
+        .update(users)
+        .set({
+          displayName: input.displayName,
+          updatedAt: now,
+          version: sql`${users.version} + 1`,
+        })
+        .where(and(eq(users.id, input.userId), eq(users.status, 'ACTIVE')))
+        .returning({ id: users.id, displayName: users.displayName })
+      if (!user) {
+        throw new AccessDeniedError('The active user profile was not found')
+      }
+      await transaction.insert(auditEvents).values({
+        actorId: input.userId,
+        action: 'access.profile_updated',
+        resourceType: 'user',
+        resourceId: input.userId,
+        requestId: input.requestId ?? randomUUID(),
+        safeDiff: projectSafeAuditDiff({ changedFields: ['displayName'] }),
+        result: 'SUCCESS',
+      })
+      return { displayName: user.displayName }
+    })
+  }
+
   async listRoleGrants() {
     return this.database
       .select({
@@ -109,13 +143,9 @@ export class AccessRepository {
     reason: string
     requestId?: string
   }) {
-    if (
-      input.actorId === input.userId &&
-      input.roleCode === 'admin' &&
-      !input.active
-    ) {
-      throw new Error(
-        'Administrators cannot revoke their own administrator role',
+    if (input.roleCode === 'admin' && input.active) {
+      throw new AccessDeniedError(
+        'The administrator role can only be granted manually in the database',
       )
     }
     await this.database.transaction(async (transaction) => {
@@ -124,8 +154,25 @@ export class AccessRepository {
         .from(users)
         .where(eq(users.id, input.userId))
         .limit(1)
+        .for('update')
       if (!target || target.status === 'DISABLED')
-        throw new Error('Target user is unavailable')
+        throw new AccessDeniedError('Target user is unavailable')
+      const [adminRole] = await transaction
+        .select({ userId: userRoles.userId })
+        .from(userRoles)
+        .where(
+          and(
+            eq(userRoles.userId, input.userId),
+            eq(userRoles.roleCode, 'admin'),
+            eq(userRoles.active, true),
+          ),
+        )
+        .limit(1)
+      if (adminRole) {
+        throw new AccessDeniedError(
+          'Administrator account roles can only be changed manually in the database',
+        )
+      }
       await transaction
         .insert(userRoles)
         .values({
@@ -166,10 +213,34 @@ export class AccessRepository {
     requestId?: string
   }) {
     if (input.actorId === input.userId)
-      throw new Error('Administrators cannot disable themselves')
+      throw new AccessDeniedError('Administrators cannot disable themselves')
     await this.database.transaction(async (transaction) => {
       const now = new Date()
       const [target] = await transaction
+        .select({ id: users.id, status: users.status })
+        .from(users)
+        .where(eq(users.id, input.userId))
+        .limit(1)
+        .for('update')
+      if (!target || target.status !== 'ACTIVE')
+        throw new AccessDeniedError('Active user was not found')
+      const [adminRole] = await transaction
+        .select({ userId: userRoles.userId })
+        .from(userRoles)
+        .where(
+          and(
+            eq(userRoles.userId, input.userId),
+            eq(userRoles.roleCode, 'admin'),
+            eq(userRoles.active, true),
+          ),
+        )
+        .limit(1)
+      if (adminRole) {
+        throw new AccessDeniedError(
+          'Administrator accounts can only be disabled manually in the database',
+        )
+      }
+      const [disabledUser] = await transaction
         .update(users)
         .set({
           status: 'DISABLED',
@@ -178,7 +249,7 @@ export class AccessRepository {
         })
         .where(and(eq(users.id, input.userId), eq(users.status, 'ACTIVE')))
         .returning({ id: users.id })
-      if (!target) throw new Error('Active user was not found')
+      if (!disabledUser) throw new AccessDeniedError('Active user was not found')
       await transaction
         .update(sessions)
         .set({
@@ -629,7 +700,52 @@ export class AccessRepository {
             active: true,
             changedBy: user.id,
           })
-          .onConflictDoNothing()
+          .onConflictDoUpdate({
+            target: [
+              roleGrants.roleCode,
+              roleGrants.resource,
+              roleGrants.action,
+              roleGrants.recordScope,
+            ],
+            set: {
+              readFields: ['id', 'email', 'displayName', 'status', 'version'],
+              writeFields: ['displayName', 'status', 'roleCode', 'active'],
+              active: true,
+              changedBy: user.id,
+              updatedAt: new Date(),
+              version: sql`${roleGrants.version} + 1`,
+            },
+          })
+      }
+      for (const grant of customerAdminGrants) {
+        await transaction
+          .insert(roleGrants)
+          .values({
+            roleCode: 'admin',
+            resource: grant.resource,
+            action: grant.action,
+            recordScope: grant.recordScope,
+            readFields: [...grant.readFields],
+            writeFields: [...grant.writeFields],
+            active: true,
+            changedBy: user.id,
+          })
+          .onConflictDoUpdate({
+            target: [
+              roleGrants.roleCode,
+              roleGrants.resource,
+              roleGrants.action,
+              roleGrants.recordScope,
+            ],
+            set: {
+              readFields: [...grant.readFields],
+              writeFields: [...grant.writeFields],
+              active: true,
+              changedBy: user.id,
+              updatedAt: new Date(),
+              version: sql`${roleGrants.version} + 1`,
+            },
+          })
       }
       await transaction.insert(auditEvents).values({
         actorId: user.id,
@@ -639,7 +755,7 @@ export class AccessRepository {
         requestId: randomUUID(),
         safeDiff: projectSafeAuditDiff({
           roles: ['admin'],
-          grantBoundary: 'M29_ONLY',
+          grantBoundary: 'M29_AND_M01',
         }),
         result: 'SUCCESS',
       })
