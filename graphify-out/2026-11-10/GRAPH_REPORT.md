@@ -375,16 +375,16 @@ Nodes (6): authority, conflict_policy, schema_version, source, sync_mode, tasks
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `next` connect `next` to `dependencies`, `package.json`, `[locale]/layout.tsx`, `react`, `R1RoutePage`, `authErrorResponse`, `swagger-docs.tsx`, `customer-detail.tsx`, `customer-workspace.tsx`, `projectSafeAuditDiff`, `r1-route-data.ts`, `workspace-shell.tsx`?**
-  _High betweenness centrality (0.050) - this node is a cross-community bridge._
+  _High betweenness centrality (0.052) - this node is a cross-community bridge._
 - **What connects `@modelcontextprotocol/server-memory`, `@playwright/mcp`, `@upstash/context7-mcp` to the rest of the system?**
   _3 weakly-connected nodes found - possible missing edges._
 - **Should `nimbalyst-tracker-export/package.json` be split into smaller, more focused modules?**
   _Cohesion score 0.1323529411764706 - nodes in this community are weakly interconnected._
 - **Why does `vitest` connect `Principal` to `package.json`, `devDependencies`, `react`, `customer-service.ts`, `src/backup.ts`, `vitest`, `authErrorResponse`, `access-control.ts`, `openapi.ts`, `projectSafeAuditDiff`, `r1-route-data.ts`, `@vitejs/plugin-react`?**
-  _High betweenness centrality (0.028) - this node is a cross-community bridge._
+  _High betweenness centrality (0.027) - this node is a cross-community bridge._
 - **Should `devDependencies` be split into smaller, more focused modules?**
   _Cohesion score 0.08333333333333333 - nodes in this community are weakly interconnected._
 - **Why does `zod` connect `auth-service.ts` to `dependencies`, `package.json`, `customer-service.ts`, `authErrorResponse`, `openapi.ts`, `projectSafeAuditDiff`, `api.ts`?**
-  _High betweenness centrality (0.014) - this node is a cross-community bridge._
+  _High betweenness centrality (0.016) - this node is a cross-community bridge._
 - **Should `modern-screenshot.umd.js` be split into smaller, more focused modules?**
   _Cohesion score 0.08583959899749373 - nodes in this community are weakly interconnected._

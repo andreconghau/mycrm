@@ -1,17 +1,17 @@
 # Graph Report - ccc  (2026-11-10)
 
 ## Corpus Check
-- 181 files · ~373,468 words
+- 181 files · ~373,940 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 17 file(s) not represented in the graph (top: (none) 9, .toml 4, .example 2)
 
 ## Summary
-- 1528 nodes · 4018 edges · 78 communities (62 shown, 16 thin omitted)
+- 1528 nodes · 4005 edges · 78 communities (62 shown, 16 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 91 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `3163648a`
+- Built from commit: `ea781739`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -51,7 +51,7 @@
 - dependencies
 - scripts
 - customer-service.ts
-- types.ts
+- projectSafeAuditDiff
 - auth-service.ts
 - live-browser-ignores.js
 - vitest
@@ -61,7 +61,7 @@
 - interface
 - eslint
 - swagger-docs.tsx
-- [file]/route.ts
+- request-auth.ts
 - start.sh
 - useMarket
 - stop.sh
@@ -91,15 +91,15 @@
 
 ## God Nodes (most connected - your core abstractions)
 1. `AccessRepository` - 43 edges
-2. `authErrorResponse()` - 38 edges
+2. `authErrorResponse()` - 34 edges
 3. `connectSSE()` - 34 edges
 4. `setLiveState()` - 33 edges
 5. `resumeSession()` - 33 edges
 6. `Principal` - 32 edges
 7. `showToast()` - 31 edges
 8. `initGlobalBar()` - 30 edges
-9. `requirePermission()` - 29 edges
-10. `el()` - 29 edges
+9. `el()` - 29 edges
+10. `R1RoutePage()` - 29 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `globalSetup()` --calls--> `hashPassword()`  [EXTRACTED]
@@ -155,12 +155,12 @@ Cohesion: 0.12
 Nodes (33): agentTargetBusyReason(), agentTargetOverlayGone(), agentTargetTaken(), claimAgentTarget(), claimAndActOnAgentTarget(), declineAgentTargetBusy(), declineAgentTargetUnresolvable(), fetchPendingCount() (+25 more)
 
 ### Community 9 - "next"
-Cohesion: 0.24
-Nodes (7): nextConfig, next, POST(), base(), clearAuthCookies(), cookieNames(), setAuthCookies()
+Cohesion: 0.19
+Nodes (11): nextConfig, next, POST(), POST(), requireCsrf(), getAuthConfig(), base(), clearAuthCookies() (+3 more)
 
 ### Community 10 - "authErrorResponse"
-Cohesion: 0.13
-Nodes (21): POST(), GET(), POST(), POST(), POST(), POST(), GET(), POST() (+13 more)
+Cohesion: 0.12
+Nodes (18): POST(), GET(), POST(), POST(), POST(), POST(), GET(), POST() (+10 more)
 
 ### Community 11 - "el"
 Cohesion: 0.09
@@ -191,7 +191,7 @@ Cohesion: 0.11
 Nodes (18): aliases, components, hooks, lib, ui, utils, iconLibrary, packageManager (+10 more)
 
 ### Community 18 - "Principal"
-Cohesion: 0.18
+Cohesion: 0.17
 Nodes (9): Principal, RecordScope, isRoleCode(), normalizeIdentifier(), CustomerConflictError, CustomerNotFoundError, CustomerRepository, safeSearch() (+1 more)
 
 ### Community 20 - "postgres"
@@ -212,7 +212,7 @@ Nodes (12): applyPlaceholderSizingStyles(), buildPlaceholderResizeHandles(), cre
 
 ### Community 24 - "openapi.ts"
 Cohesion: 0.09
-Nodes (23): assignTeamMemberRequestSchema, createTeamRequestSchema, disableUserRequestSchema, invitationAcceptanceRequestSchema, loginRequestSchema, marketMembershipRequestSchema, roleAssignmentRequestSchema, selfProfileRequestSchema (+15 more)
+Nodes (15): recordScopes, commonErrors, cookieSecurity, csrfParameter, errorSchema, idParameter, jsonBody(), openApiDocument (+7 more)
 
 ### Community 25 - "scopeCssBlock"
 Cohesion: 0.33
@@ -224,7 +224,7 @@ Nodes (7): react, AcceptInvitationPage(), AcceptInvitationForm(), csrfToken(), L
 
 ### Community 27 - "r1-route-data.ts"
 Cohesion: 0.10
-Nodes (9): DashboardPage(), MarketDashboard(), customer(), market(), product(), routeRows(), scoped(), searchableColumns (+1 more)
+Nodes (6): customer(), market(), product(), routeRows(), searchableColumns, user()
 
 ### Community 28 - "startVariantObserver"
 Cohesion: 0.08
@@ -250,13 +250,13 @@ Nodes (18): scripts, access:operator, build, db:migrate, db:validate-migrations,
 Cohesion: 0.13
 Nodes (19): addressInput, archiveCustomerSchema, canTransitionCustomer(), countryCode, CreateCustomerInput, createCustomerSchema, currencyCode, customerFields (+11 more)
 
-### Community 36 - "types.ts"
-Cohesion: 0.25
-Nodes (7): booleanFields, customerAuditFields, customerStatuses, integerFields, stringFields, RecordAccessContext, roleCodes
+### Community 36 - "projectSafeAuditDiff"
+Cohesion: 0.10
+Nodes (10): booleanFields, customerAuditFields, customerStatuses, integerFields, projectSafeAuditDiff(), projectSafeAuditReason(), stringFields, RoleCode (+2 more)
 
 ### Community 37 - "auth-service.ts"
 Cohesion: 0.14
-Nodes (19): zod, POST(), POST(), AuthService, AuthenticationError, AuthConfig, environmentSchema, getAuthConfig() (+11 more)
+Nodes (15): zod, invitationAcceptanceRequestSchema, loginRequestSchema, AuthenticationError, AuthConfig, environmentSchema, secret, createCsrfToken() (+7 more)
 
 ### Community 38 - "live-browser-ignores.js"
 Cohesion: 0.52
@@ -290,13 +290,13 @@ Nodes (4): eslint@9.39.5, eslint-config-next@16.4.5, eslint, eslint-config-next
 Cohesion: 0.29
 Nodes (8): ApiDocsPage(), csrfCookie(), prepareRequest(), SwaggerDocs(), SwaggerRequest, SwaggerUIFactory, unsafeMethods, Window
 
-### Community 46 - "[file]/route.ts"
-Cohesion: 0.40
-Nodes (4): assetDirectory, AssetName, assets, GET()
+### Community 46 - "request-auth.ts"
+Cohesion: 0.25
+Nodes (11): POST(), GET(), GET(), GET(), PATCH(), WorkspaceLayout(), selfProfileRequestSchema, AuthService (+3 more)
 
 ### Community 49 - "useMarket"
-Cohesion: 0.48
-Nodes (5): useMarket(), Metric(), R1ListScreen(), R1Route, RecordsTable()
+Cohesion: 0.29
+Nodes (8): DashboardPage(), useMarket(), MarketDashboard(), Metric(), R1ListScreen(), R1Route, scoped(), RecordsTable()
 
 ### Community 56 - "interface"
 Cohesion: 0.29
@@ -307,8 +307,8 @@ Cohesion: 0.14
 Nodes (25): drizzle-orm, ACCESS_GRANTS, DatabaseState, getDatabase(), globalState, poolSize(), auditEvents, authRateLimits (+17 more)
 
 ### Community 58 - "projectSafeAuditDiff"
-Cohesion: 0.09
-Nodes (17): GET(), currentPrincipal, list, AuditLogPage(), SearchParams, AuditCursor, AuditQuery, auditQuerySchema (+9 more)
+Cohesion: 0.17
+Nodes (14): vitest, GET(), currentPrincipal, list, AuditLogPage(), SearchParams, AuditCursor, AuditQuery (+6 more)
 
 ### Community 59 - "connectSSE"
 Cohesion: 0.09
@@ -316,11 +316,11 @@ Nodes (34): applySavedSessionMeta(), clampVariantIndex(), clearHandled(), compil
 
 ### Community 60 - "Principal"
 Cohesion: 0.16
-Nodes (15): vitest, canAccessRecord(), requireGrant(), scopeStrength, strongestScope(), grants, principal, AccessDeniedError (+7 more)
+Nodes (15): canAccessRecord(), requireGrant(), scopeStrength, strongestScope(), grants, principal, AccessDeniedError, EffectiveGrant (+7 more)
 
 ### Community 61 - "workspace-shell.tsx"
-Cohesion: 0.14
-Nodes (12): LoginPage(), WorkspaceLayout(), dict, Locale, Messages, NavLink(), navNames, WorkspaceContent() (+4 more)
+Cohesion: 0.15
+Nodes (11): LoginPage(), dict, Locale, Messages, NavLink(), navNames, WorkspaceContent(), WorkspaceShell() (+3 more)
 
 ### Community 62 - "scheduleAcceptCleanup"
 Cohesion: 0.31
@@ -343,8 +343,8 @@ Cohesion: 0.08
 Nodes (38): agentStatusText(), applyLiveBarPreference(), barPaletteForTheme(), brandMarkSvg(), clearStoredManualApplyState(), cursorForInsertAxis(), designPanelCss(), detectPageTheme() (+30 more)
 
 ### Community 69 - "src/backup.ts"
-Cohesion: 0.07
-Nodes (45): atomicWrite(), BackupConflictError, BackupOptions, BackupResult, backupTracker(), exists(), hashBody(), normalizeBody() (+37 more)
+Cohesion: 0.06
+Nodes (48): atomicWrite(), BackupConflictError, BackupOptions, BackupResult, backupTracker(), exists(), hashBody(), normalizeBody() (+40 more)
 
 ### Community 73 - "scheduleSteerFocusRecover"
 Cohesion: 0.27
@@ -368,23 +368,23 @@ Nodes (6): authority, conflict_policy, schema_version, source, sync_mode, tasks
 
 ## Knowledge Gaps
 - **3 isolated node(s):** `@modelcontextprotocol/server-memory`, `@playwright/mcp`, `@upstash/context7-mcp`
-  These have ≤1 connection - possible missing edges. (Counts symbols only; 289 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+  These have ≤1 connection - possible missing edges. (Counts symbols only; 291 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **16 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `next` connect `next` to `dependencies`, `package.json`, `[locale]/layout.tsx`, `react`, `R1RoutePage`, `authErrorResponse`, `swagger-docs.tsx`, `customer-detail.tsx`, `customer-workspace.tsx`, `projectSafeAuditDiff`, `r1-route-data.ts`, `workspace-shell.tsx`?**
-  _High betweenness centrality (0.052) - this node is a cross-community bridge._
+- **Why does `next` connect `next` to `dependencies`, `package.json`, `[locale]/layout.tsx`, `react`, `R1RoutePage`, `authErrorResponse`, `swagger-docs.tsx`, `customer-detail.tsx`, `request-auth.ts`, `customer-workspace.tsx`, `useMarket`, `projectSafeAuditDiff`, `workspace-shell.tsx`?**
+  _High betweenness centrality (0.043) - this node is a cross-community bridge._
 - **What connects `@modelcontextprotocol/server-memory`, `@playwright/mcp`, `@upstash/context7-mcp` to the rest of the system?**
   _3 weakly-connected nodes found - possible missing edges._
 - **Should `nimbalyst-tracker-export/package.json` be split into smaller, more focused modules?**
   _Cohesion score 0.1323529411764706 - nodes in this community are weakly interconnected._
-- **Why does `vitest` connect `Principal` to `package.json`, `devDependencies`, `react`, `customer-service.ts`, `src/backup.ts`, `vitest`, `authErrorResponse`, `access-control.ts`, `openapi.ts`, `projectSafeAuditDiff`, `r1-route-data.ts`, `@vitejs/plugin-react`?**
-  _High betweenness centrality (0.027) - this node is a cross-community bridge._
+- **Why does `vitest` connect `projectSafeAuditDiff` to `package.json`, `devDependencies`, `customer-service.ts`, `src/backup.ts`, `vitest`, `authErrorResponse`, `access-control.ts`, `openapi.ts`, `react`, `r1-route-data.ts`, `Principal`, `@vitejs/plugin-react`?**
+  _High betweenness centrality (0.033) - this node is a cross-community bridge._
 - **Should `devDependencies` be split into smaller, more focused modules?**
   _Cohesion score 0.08333333333333333 - nodes in this community are weakly interconnected._
-- **Why does `zod` connect `auth-service.ts` to `dependencies`, `package.json`, `customer-service.ts`, `authErrorResponse`, `openapi.ts`, `projectSafeAuditDiff`, `api.ts`?**
-  _High betweenness centrality (0.016) - this node is a cross-community bridge._
+- **Why does `scripts` connect `scripts` to `package.json`?**
+  _High betweenness centrality (0.013) - this node is a cross-community bridge._
 - **Should `modern-screenshot.umd.js` be split into smaller, more focused modules?**
   _Cohesion score 0.08583959899749373 - nodes in this community are weakly interconnected._

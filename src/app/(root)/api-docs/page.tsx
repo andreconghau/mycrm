@@ -1,26 +1,6 @@
-import { requirePermission } from '@/modules/access-control/application/request-auth'
 import { SwaggerDocs } from '@/modules/api-docs/swagger-docs'
 
-export default async function ApiDocsPage() {
-  const authorized = await requirePermission('access.grants', 'read').catch(
-    () => null,
-  )
-
-  if (!authorized) {
-    return (
-      <main className="mx-auto min-h-screen max-w-[1440px] px-4 py-6 sm:px-7 sm:py-8">
-        <section aria-labelledby="api-docs-denied-title">
-          <h1 className="text-2xl font-semibold" id="api-docs-denied-title">
-            Access denied
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            This account cannot view API documentation.
-          </p>
-        </section>
-      </main>
-    )
-  }
-
+export default function ApiDocsPage() {
   return (
     <main className="mx-auto min-h-screen max-w-[1440px] px-4 py-6 sm:px-7 sm:py-8">
       <section aria-labelledby="api-docs-title">
