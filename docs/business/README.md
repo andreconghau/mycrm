@@ -42,6 +42,7 @@ AI development agents, including Codex, must understand the relevant business re
 | [Supply and Quality](supply-and-quality.md)           | Suppliers, procurement, production batches, inspection, and inventory                | M13–M17           |
 | [Permissions](permissions.md)                         | Roles, access scope, approval responsibilities, and data authorization               | M29, M31          |
 | [Alerts and Integrations](alerts-and-integrations.md) | Notifications, business reminders, external systems, and integration workflows       | M20, M23, M32     |
+| [R1 Decisions](r1-decisions.md)                       | Approved R1 phasing, controlled exceptions, FX, evidence, amendment and PDF rules    | M01–M12, M29–M31  |
 
 ### Related Documentation
 
@@ -151,7 +152,7 @@ Price Calculation
 Quotation Preparation
         |
         v
-Manager Approval for Each Quotation Version
+Manager/Admin Approval for Each Quotation Version
         |
         v
 Customer Acceptance
@@ -234,7 +235,7 @@ Critical historical records must not be silently overwritten.
 - Confirmed commercial terms must remain historically traceable.
 - Financial changes should have an identifiable actor and reason.
 
-R1 prices offers in USD with one entered VND/USD rate per revision. Sum unrounded line amounts before ROUND_HALF_EVEN on the final total. Every submitted version requires manager approval. See the [pricing workflow](pricing-and-quotations.md).
+R1 prices offers in USD with one entered VND/USD rate per revision. Sum unrounded line amounts before ROUND_HALF_EVEN on the final total. Every submitted version requires Manager or Admin approval. See the [pricing workflow](pricing-and-quotations.md) and [R1 decisions](r1-decisions.md).
 
 ### 5.4 Role-Based Business Access
 

@@ -18,7 +18,14 @@ D01 confirms a **single operating company** for R1, with multiple employees and 
 
 **D06:** default-deny resource/action/scope/field authorization, audit and SoD enforcement are approved mechanisms. The matrix below is **not approved production policy**. Business grants remain denied until each module’s concrete action/field matrix is signed off. Broad `M`, “safe” and “limited” entries require expansion before implementation; role bootstrap and grant authorizers remain open.
 
-Apply [employee sessions and application authorization](../architecture/security.md). R1 managers may approve their own quotation version only with a nonblank comment. Sales confirms accepted orders with evidence; manager approval is required for amendments and cancellations.
+Apply [employee sessions and application authorization](../architecture/security.md). R1 Managers and Admins may approve their own quotation version only with a comment of at least 10 characters after trimming. Sales confirms accepted orders with evidence; Manager or Admin approval is required for amendments and cancellations.
+
+> **R1 approved policy (owner, 2026-11-10):** See [R1 decisions](r1-decisions.md).
+> - Record scopes used in R1: Sale `OWN`; time-bounded, audited `ASSIGNED` for peer support; Manager `ALL`. `TEAM` is not a data scope in R1; teams serve broadcast, notification and support.
+> - Admin holds an **explicit, audited approval grant** for quotation versions and Sales Order amendments/cancellations, and is the only role that may confirm a Sales Order without an evidence file (source comment required). This is a granted action, not a bypass; Admin still cannot approve anything without that grant.
+> - Self-approval by a Manager or Admin is a controlled Separation of Duties exception with compensating controls (mandatory comment, append-only audit, dashboard review filter). Sale cannot approve quotations.
+> - Accountant is not activated in R1 (default deny).
+> - These rules supersede the matching cells in the §5 proposal matrix for R1; the remaining matrix stays unapproved.
 
 ## 2. Authorization model
 
@@ -91,8 +98,8 @@ Legend: `R` read permitted fields, `C/E` create/edit, `A` approve, `P` post, `M`
 
 | Sensitive operation | Separation rule to confirm |
 |---|---|
-| Quotation approval | Every version requires a manager. Self-approval by its manager-author requires a recorded nonblank comment. |
-| Sales Order confirmation | Assigned Sales confirms with evidence; notify direct manager and quotation approver in CRM. Manager approval governs later amendments and cancellations. |
+| Quotation approval | Every version requires a Manager or Admin (explicit grant). Self-approval by its author requires a recorded comment of at least 10 characters; approved R1 SoD exception, see [R1 decisions §3.1](r1-decisions.md#31-quotation-and-amendment-self-approval-separation-of-duties-exception). |
+| Sales Order confirmation | Assigned Sales confirms with evidence; only Admin may confirm without a file (source comment required). Notify direct manager and quotation approver in CRM. Manager or Admin approval governs later amendments and cancellations. |
 | Supplier approval and purchase-order approval | Distinct responsibilities where risk/policy warrants |
 | QC hold release | Cannot be granted by ordinary Sales or by changing status manually |
 | Payment write-off/reversal | Separate right, independent review and durable correction trail |

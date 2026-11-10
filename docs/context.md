@@ -41,7 +41,7 @@ Invite-only employee login uses email/password and JWT in HttpOnly cookies. Use 
 
 ## 6. R1 execution
 
-Nimbalyst holds live task status.
+Nimbalyst holds live task status. Owner-approved R1 phasing (R1.0 Foundation → R1.1 Master data → R1.2 Price Lists/RFQs/Quotations/Sales Orders → R1.3 Leads, Opportunities, Tasks, Samples, Dashboard), deferrals and controlled exceptions are recorded in [R1 decisions](business/r1-decisions.md).
 
 ## 8. Shared invariants
 - **No destructive overwrite of accepted commercial terms**: quote/order line snapshots preserve price, pack, grade, currency, incoterm and version.
@@ -67,4 +67,4 @@ RFQ received → assign Sales → qualify → issue versioned quote → negotiat
 
 ## 11. Remaining decisions
 
-Sign off business grants per module and select production DB, storage, regions and recovery controls before deployment. See the [architecture overview](architecture/overview.md), [business workflows](business/README.md) and [module catalog](modules/README.md).
+Sign off business grants per module and select production DB, storage, regions and recovery controls (backup/restore owner, off-site copy and key management) before deployment. Hosting remains Vercel; a self-managed VPS stack was considered and not adopted. See the [architecture overview](architecture/overview.md), [business workflows](business/README.md) and [module catalog](modules/README.md).

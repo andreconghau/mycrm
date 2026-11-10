@@ -27,4 +27,6 @@ Presentation code depends on access-control application services. Application se
 - Invitations are delivered through an operator CLI in R1. No email provider or automated outbound delivery is implemented.
 - The implemented REST boundary has an OpenAPI 3.1 contract and self-hosted Swagger UI. Both are server-authorized with `access.grants:read`; planned endpoints are excluded.
 
+Approved R1.0 shared components (decimal/ROUND_HALF_EVEN, state machines, snapshot helper, idempotency keys, document numbering, pagination, repository scope filters, error model, OpenAPI, storage port/adapter, in-app notifications, `rate_history`) are listed in [R1 decisions](../business/r1-decisions.md#2-shared-r10-components). They are planned, not implemented, unless a task records otherwise. File storage goes through a port so the production provider can change without business changes.
+
 The application remains a partial R1 implementation. Business modules still render synthetic prototype data and must not be treated as database-backed or production-ready.

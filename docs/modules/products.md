@@ -24,6 +24,7 @@ Product: id, code, display_name, category, species_name, aliases, status, origin
 ## Business rules and validation
 - Avoid guessing scientific species/customs code from colloquial name
 - Product changes do not update accepted commercial snapshots
+- EN/VI/KO names and descriptions are required for quotation PDFs in the matching language; no machine translation ([R1 decisions §9](../business/r1-decisions.md#9-quotation-pdf))
 - Only verified product records can be referenced in sent quote per chosen rule
 
 ## Authorization and record scope
@@ -47,7 +48,7 @@ Product Specifications, Audit Log
 4. Retire SKU without changing historic quotations and orders.
 
 ### Proposed detailed fields
-- `Product`: `id`, `sku`, `category`, `species_common_name`, `species_scientific_name?`, `display_name`, `name_ko?`, `name_en?`, `name_vi?`, `form` (`whole|cleaned|cut|flower|other`), `processing_type?`, `default_unit`, `status`, `created_at`, `updated_at`.
+- `Product`: `id`, `sku`, `category`, `species_common_name`, `species_scientific_name?`, `display_name`, `name_en`, `name_vi`, `name_ko`, `description_en/vi/ko`, `legacy_ref?`, `form` (`whole|cleaned|cut|flower|other`), `processing_type?`, `default_unit`, `status`, `created_at`, `updated_at`.
 - `ProductAlias`: locale, external catalog code and search synonyms. Avoid treating localized marketing names as biological taxonomy.
 
 ### Use cases / endpoints (proposed)

@@ -25,6 +25,7 @@ ProductSpec: product_id, grade, processing, size_range, packing_type, net_weight
 - Use consistent UoM conversion with explicit pack weights
 - Spec revision is immutable once referenced by issued quote unless cloned
 - Buyer-specific customization linked without overwriting standard spec
+- EN/VI/KO names and descriptions are snapshotted into the quotation version at submission; missing translations block PDF issue ([R1 decisions §9](../business/r1-decisions.md#9-quotation-pdf))
 
 ## Authorization and record scope
 Sales read; Product/Purchasing/QC specialists edit; approval by configured role.
@@ -47,7 +48,7 @@ Products
 4. Quotation/Order references an exact approved specification revision rather than the mutable current draft.
 
 ### Proposed detailed fields
-- `ProductSpecification`: `id`, `product_id`, `version`, `grade?`, `size_band?`, `size_unit?`, `net_weight_per_pack?`, `gross_weight_per_pack?`, `glazing_percent?`, `packs_per_carton?`, `carton_net_weight?`, `storage_temp_c?`, `shelf_life?`, `origin_country?`, `packaging_material?`, `label_language[]`, `status`, `approved_at?`.
+- `ProductSpecification`: `id`, `product_id`, `version`, `grade?`, `size_band?`, `size_unit?`, `net_weight_per_pack?`, `gross_weight_per_pack?`, `glazing_percent?`, `packs_per_carton?`, `carton_net_weight?`, `storage_temp_c?`, `shelf_life?`, `origin_country?`, `packaging_material?`, `label_language[]`, `name_en`, `name_vi`, `name_ko`, `description_en/vi/ko`, `legacy_ref?`, `status`, `approved_at?`.
 - `SpecificationDocument`: secure object key, checksum, version and reviewer metadata.
 
 ### Use cases / endpoints (proposed)

@@ -28,7 +28,7 @@ Customer: id, name, legal_name, country_code, identifiers, owner_id, team_id, st
 - Owner reassignment is audited; retain linked order history
 
 ## Authorization and record scope
-Market membership is checked server-side before record access; a selected market is not authorization. Implemented Customer grants are Sales OWN and Manager TEAM; Admin may manage all records. Other roles, including Accountant, are denied unless a separately approved grant is added. Manager reassignment requires a reason and is limited to the manager's team. The Management read-safe grant remains deferred.
+Market membership is checked server-side before record access; a selected market is not authorization. Implemented Customer grants are Sales OWN and Manager TEAM; Admin may manage all records. Other roles, including Accountant, are denied unless a separately approved grant is added. Manager reassignment requires a reason and is limited to the manager's team. The Management read-safe grant remains deferred. **Approved target (2026-11-10):** Manager scope becomes `ALL` and team is not a data scope in R1 ([R1 decisions §10](../business/r1-decisions.md#10-teams-and-data-scope)); aligning the implemented `TEAM` grant requires a separate approved task.
 
 ## Dependencies / integration boundaries
 Access Control, Audit Log, market membership, Contacts, and the future commercial modules. Contact/RFQ/quotation/order/task/activity aggregation and history file delivery are not implemented by M01 core.
@@ -63,7 +63,7 @@ Customer 360 aggregation, contacts, cross-module commercial blocking for archive
 4. Archiving blocks new commercial activity per approved policy but preserves all links, snapshots and audit evidence.
 
 ### Proposed detailed fields
-- `Customer`: `id`, `code`, `legal_name`, `trade_name`, `country_code`, `preferred_language`, `preferred_currency`, `website`, `business_registration_id?`, `tax_id?`, `status`, `owner_user_id`, `team_id?`, `created_at`, `updated_at`, `version`.
+- `Customer`: `id`, `code`, `legal_name`, `trade_name`, `country_code`, `preferred_language`, `preferred_doc_language` (`en|en-vi|en-ko|vi-ko`, quotation PDF default), `preferred_currency`, `legacy_ref?`, `website`, `business_registration_id?`, `tax_id?`, `status`, `owner_user_id`, `team_id?`, `created_at`, `updated_at`, `version`.
 - `CustomerAddress`: `id`, `customer_id`, `kind` (`billing|shipping|office`), `address_lines`, `city`, `region?`, `postal_code?`, `country_code`, `is_default`.
 - `CustomerIdentifier`: `(customer_id, type, value, issuing_country?)`; normalize for duplicate suggestions rather than automatically merging.
 
