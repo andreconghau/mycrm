@@ -1,6 +1,6 @@
 # M02 — Contacts
 
-> **Status: PLANNED — NOT IMPLEMENTED**  
+> **Status: IN PROGRESS — CURRENT WORKTREE, NOT COMMITTED**
 > **Area:** CRM · **Release:** R1 · **Reference:** [`docs/context.md`](../context.md)
 
 ## Confirmed R1 workflow and acceptance
@@ -58,6 +58,10 @@ Customers, Access Control
 - Contact panel on customer details, contact profile, outbound channel shortcuts (no automatic messaging without integration approval).
 - Company changes require explicit transfer and authorization; preserve previous customer relationship if business policy requires history.
 - Warn on a normalized email match and allow a distinct person at the same customer to share that address.
+- On the Contacts list, create a contact in a responsive right-side drawer: expandable on desktop and full-screen on mobile.
+- Select the parent buyer through an authorized name/code search rather than an internal numeric ID.
+- Keep email/phone duplicate candidates and the explicit “create separate contact” decision inside the drawer. After successful creation, open the new contact profile.
+- Preserve keyboard focus, dirty-form confirmation, sticky actions and responsive accessibility behavior defined in `AGENTS.md`.
 
 ### Verification scenarios
 - Contact can be read only when parent customer is accessible; direct `/contacts/:id` cannot bypass parent scope.

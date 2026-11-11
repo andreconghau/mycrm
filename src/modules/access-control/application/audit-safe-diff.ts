@@ -1,7 +1,14 @@
 import { roleCodes } from '../domain/types'
 
 const booleanFields = new Set(['active', 'sessionsRevoked'])
-const integerFields = new Set(['userId', 'ownerId', 'teamId'])
+const integerFields = new Set([
+  'userId',
+  'ownerId',
+  'teamId',
+  'previousContactId',
+  'formerCustomerId',
+  'newCustomerId',
+])
 const stringFields = new Set([
   'status',
   'grantBoundary',
@@ -30,6 +37,41 @@ const customerAuditFields = new Set([
   'identifiers',
 ])
 
+const contactAuditFields = new Set([
+  'displayName',
+  'jobTitle',
+  'department',
+  'preferredLanguage',
+  'timezone',
+  'active',
+  'context',
+  'previousContactId',
+  'channelKind',
+  'preferencePurpose',
+  'allowed',
+  'formerCustomerId',
+  'newCustomerId',
+])
+
+const contactPrimaryContexts = new Set([
+  'procurement',
+  'invoicing',
+  'consignee',
+])
+const contactChannelKinds = new Set([
+  'email',
+  'phone',
+  'whatsapp',
+  'kakao',
+  'line',
+  'other',
+])
+const contactPreferencePurposes = new Set([
+  'commercial',
+  'operational',
+  'marketing',
+])
+
 export function projectSafeAuditDiff(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return {}
   const source = value as Record<string, unknown>
@@ -41,7 +83,9 @@ export function projectSafeAuditDiff(value: unknown): Record<string, unknown> {
       key === 'grantBoundary' &&
       (item === 'M29_ONLY' ||
         item === 'M01_CUSTOMERS_APPROVED' ||
-        item === 'M29_AND_M01')
+        item === 'M29_AND_M01' ||
+        item === 'M29_M01_M02' ||
+        item === 'M02_CONTACTS_APPROVED')
     ) {
       safe[key] = item
     } else if (
@@ -68,9 +112,31 @@ export function projectSafeAuditDiff(value: unknown): Record<string, unknown> {
       item.every(
         (field) =>
           typeof field === 'string' &&
-          (customerAuditFields.has(field) || field === 'displayName'),
+          (customerAuditFields.has(field) ||
+            field === 'displayName' ||
+            contactAuditFields.has(field)),
       )
     ) {
+      safe[key] = item
+    } else if (
+      key === 'context' &&
+      typeof item === 'string' &&
+      contactPrimaryContexts.has(item)
+    ) {
+      safe[key] = item
+    } else if (
+      key === 'channelKind' &&
+      typeof item === 'string' &&
+      contactChannelKinds.has(item)
+    ) {
+      safe[key] = item
+    } else if (
+      key === 'preferencePurpose' &&
+      typeof item === 'string' &&
+      contactPreferencePurposes.has(item)
+    ) {
+      safe[key] = item
+    } else if (key === 'allowed' && typeof item === 'boolean') {
       safe[key] = item
     } else if (key === 'roles' && Array.isArray(item)) {
       const roles = item.filter((role) => roleCodes.includes(role as never))

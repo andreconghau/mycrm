@@ -8,6 +8,7 @@ const expectedOperations = [
   'get /api/v1/admin/users',
   'get /api/v1/audit-events',
   'get /api/v1/me',
+  'patch /api/v1/me',
   'get /api/v1/me/permissions',
   'get /api/v1/me/markets',
   'post /api/v1/admin/markets/{id}/memberships',
@@ -24,6 +25,21 @@ const expectedOperations = [
   'post /api/v1/auth/login',
   'post /api/v1/auth/logout',
   'post /api/v1/auth/refresh',
+  'get /api/v1/contacts',
+  'post /api/v1/contacts',
+  'get /api/v1/contacts/{id}',
+  'patch /api/v1/contacts/{id}',
+  'get /api/v1/contacts/{id}/channels',
+  'post /api/v1/contacts/{id}/channels',
+  'patch /api/v1/contacts/{id}/channels/{childId}',
+  'get /api/v1/contacts/{id}/preferences',
+  'post /api/v1/contacts/{id}/preferences',
+  'patch /api/v1/contacts/{id}/preferences/{childId}',
+  'post /api/v1/contacts/{id}/set-primary',
+  'post /api/v1/contacts/{id}/deactivate',
+  'post /api/v1/contacts/{id}/transfer',
+  'get /api/v1/contacts/{id}/timeline',
+  'post /api/v1/contacts/duplicate-candidates',
 ]
 
 describe('OpenAPI document', () => {
@@ -36,6 +52,9 @@ describe('OpenAPI document', () => {
 
     expect(operations).toEqual([...expectedOperations].sort())
     expect(operations.filter((operation) => operation.includes('customers'))).toHaveLength(7)
+    expect(
+      operations.filter((operation) => operation.includes('/contacts')),
+    ).toHaveLength(15)
   })
 
   it('uses OpenAPI 3.1 with unique operation IDs', () => {
@@ -46,6 +65,18 @@ describe('OpenAPI document', () => {
 
     expect(openApiDocument.openapi).toBe('3.1.0')
     expect(new Set(operationIds).size).toBe(expectedOperations.length)
+  })
+
+  it('documents the contact contract without exposing channel handles in lists', () => {
+    const contact = openApiDocument.components.schemas.Contact
+    const update = openApiDocument.components.schemas.UpdateContactRequest
+
+    expect(Object.keys(contact.properties)).not.toContain('handle')
+    expect(Object.keys(update.properties ?? {})).not.toContain('customerId')
+    expect(Object.keys(update.properties ?? {})).not.toContain('marketId')
+    expect(
+      openApiDocument.paths['/api/v1/contacts/{id}/channels'].get.description,
+    ).toContain('sensitive-read')
   })
 
   it('derives request schemas from runtime Zod contracts', () => {

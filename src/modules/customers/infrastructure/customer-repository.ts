@@ -34,6 +34,7 @@ import {
   userMarketMemberships,
   users,
 } from '@/modules/access-control/infrastructure/schema'
+import { snapshotContactsForTransfer } from '@/modules/contacts/infrastructure/contact-history'
 import {
   canTransitionCustomer,
   normalizeIdentifier,
@@ -458,6 +459,14 @@ export class CustomerRepository {
           authorizedBy: input.actor.userId,
         })
         .returning({ id: customerTransfers.id })
+      // M02: freeze every contact under this buyer at the handover cutoff so
+      // the former owner keeps read-only access to what they actually handled.
+      await snapshotContactsForTransfer(transaction, {
+        marketId: input.marketId,
+        transferId: transfer.id,
+        customerId: input.id,
+        formerOwnerId: current.ownerId,
+      })
       const payload = {
         id: current.id,
         marketId: current.marketId,

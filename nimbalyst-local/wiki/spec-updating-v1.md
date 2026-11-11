@@ -55,3 +55,19 @@ Per-line rounding (the final-total ROUND_HALF_EVEN rule stands), Argon2id (scryp
 ### Spec disposition
 
 No change was made to `CRM-Spec.md`. Schema alignment with the baseline design (`docs/structure/database.md`), the Manager `ALL` change to the implemented M01 `TEAM` grant, production storage/backup decisions and the PDF library remain separate approved tasks. These deltas record approved policy, not implementation.
+
+## 2026-11-11 — M02 Contacts create-form interaction delta
+
+Compared `CRM-Spec.md` section 4.1 M02 with the owner-approved Contacts create-form implementation in this session (2026-11-11).
+
+### Approved interaction delta
+
+- The Contacts list uses a responsive right-side create drawer that can expand on desktop and occupies the full viewport on mobile.
+- The parent buyer is selected through an authorized search by legal name, trading name or buyer code; users are not asked to enter an internal numeric ID.
+- The R1 create form exposes contact identity, preferred language, email and phone. Other supported channel types remain outside this UI slice.
+- Duplicate email/phone candidates are reviewed inside the drawer. A match is a warning, not an automatic merge; the user may explicitly create a separate Contact with independent identity and history.
+- Successful creation opens the new Contact profile. The form protects dirty state, traps and restores focus, and keeps actions visible in a sticky footer.
+
+### Spec disposition
+
+No change was made to `CRM-Spec.md`. The interaction details refine how the existing M02 requirements are delivered without changing its business purpose, core records or duplicate-preservation rule. Broader communication preferences, roles and non-email/phone channels remain in the product specification and require separate approved UI slices.

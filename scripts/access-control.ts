@@ -3,6 +3,10 @@ import postgres from 'postgres'
 import { loadEnvConfig } from '@next/env'
 import { hashPassword } from '../src/modules/access-control/infrastructure/password'
 import { customerAdminGrants } from '../src/modules/access-control/domain/customer-admin-grants'
+import {
+  contactAdminGrants,
+  contactGrants,
+} from '../src/modules/access-control/domain/contact-grants'
 
 loadEnvConfig(process.cwd())
 
@@ -204,6 +208,25 @@ async function bootstrapAdmin() {
         ) ON CONFLICT (role_code, resource, action, record_scope) DO NOTHING
       `
     }
+    for (const grant of contactAdminGrants) {
+      await transaction`
+        INSERT INTO role_grants (
+          role_code, resource, action, record_scope, read_fields,
+          write_fields, active, changed_by
+        ) VALUES (
+          ${grant.roleCode}, ${grant.resource}, ${grant.action},
+          ${grant.recordScope},
+          ${[...grant.readFields]}, ${[...grant.writeFields]}, true, ${user.id}
+        ) ON CONFLICT (role_code, resource, action, record_scope)
+        DO UPDATE SET
+          read_fields = EXCLUDED.read_fields,
+          write_fields = EXCLUDED.write_fields,
+          active = true,
+          changed_by = EXCLUDED.changed_by,
+          updated_at = now(),
+          version = role_grants.version + 1
+      `
+    }
     for (const grant of customerAdminGrants) {
       await transaction`
         INSERT INTO role_grants (
@@ -227,7 +250,7 @@ async function bootstrapAdmin() {
         actor_id, action, resource_type, resource_id, request_id, safe_diff, result
       ) VALUES (
         ${user.id}, 'access.bootstrap_admin', 'user', ${user.id}, ${randomUUID()},
-        ${transaction.json({ roles: ['admin'], grantBoundary: 'M29_AND_M01' })}, 'SUCCESS'
+        ${transaction.json({ roles: ['admin'], grantBoundary: 'M29_M01_M02' })}, 'SUCCESS'
       )
     `
     return user.id
@@ -354,6 +377,72 @@ async function grantCustomers() {
   )
 }
 
+async function grantContacts() {
+  const actorEmail = option('--actor-email')?.trim().toLowerCase()
+  if (!actorEmail) throw new Error('--actor-email is required')
+  const result = await sql.begin(async (transaction) => {
+    const [actor] = await transaction<{ id: number }[]>`
+      SELECT users.id
+      FROM users
+      JOIN user_roles ON user_roles.user_id = users.id
+      JOIN role_grants ON role_grants.role_code = user_roles.role_code
+      WHERE users.email = ${actorEmail}
+        AND users.status = 'ACTIVE'
+        AND user_roles.active
+        AND user_roles.role_code = 'admin'
+        AND role_grants.active
+        AND role_grants.resource = 'access.grants'
+        AND role_grants.action = 'manage'
+      LIMIT 1
+      FOR UPDATE OF users
+    `
+    if (!actor) throw new Error('The actor cannot manage role grants')
+    let changed = 0
+    for (const grant of contactGrants) {
+      const rows = await transaction<{ id: number }[]>`
+        INSERT INTO role_grants (
+          role_code, resource, action, record_scope, read_fields,
+          write_fields, active, changed_by
+        ) VALUES (
+          ${grant.roleCode}, 'contacts', ${grant.action}, ${grant.recordScope},
+          ${[...grant.readFields]}, ${[...grant.writeFields]}, true, ${actor.id}
+        )
+        ON CONFLICT (role_code, resource, action, record_scope)
+        DO UPDATE SET
+          read_fields = EXCLUDED.read_fields,
+          write_fields = EXCLUDED.write_fields,
+          active = true,
+          changed_by = EXCLUDED.changed_by,
+          updated_at = now(),
+          version = role_grants.version + 1
+        WHERE role_grants.read_fields IS DISTINCT FROM EXCLUDED.read_fields
+          OR role_grants.write_fields IS DISTINCT FROM EXCLUDED.write_fields
+          OR role_grants.active IS DISTINCT FROM true
+        RETURNING id
+      `
+      changed += rows.length
+    }
+    if (changed) {
+      await transaction`
+        INSERT INTO audit_events (
+          actor_id, action, resource_type, request_id, safe_diff, result
+        ) VALUES (
+          ${actor.id}, 'access.contact_grants_activated', 'role_grant',
+          ${randomUUID()},
+          ${transaction.json({ grantBoundary: 'M02_CONTACTS_APPROVED' })},
+          'SUCCESS'
+        )
+      `
+    }
+    return changed
+  })
+  process.stdout.write(
+    result
+      ? `Activated ${result} approved Contacts role grants.\n`
+      : 'Approved Contacts role grants are already active.\n',
+  )
+}
+
 async function seedInitialMarkets() {
   const actorEmail = option('--actor-email')?.trim().toLowerCase()
   if (!actorEmail) throw new Error('--actor-email is required')
@@ -468,10 +557,11 @@ async function main() {
   if (command === 'bootstrap-admin') await bootstrapAdmin()
   else if (command === 'invite') await invite()
   else if (command === 'grant-customers') await grantCustomers()
+  else if (command === 'grant-contacts') await grantContacts()
   else if (command === 'seed-initial-markets') await seedInitialMarkets()
   else
     throw new Error(
-      'Usage: access:operator -- <bootstrap-admin|invite|grant-customers|seed-initial-markets> [options]',
+      'Usage: access:operator -- <bootstrap-admin|invite|grant-customers|grant-contacts|seed-initial-markets> [options]',
     )
 }
 
