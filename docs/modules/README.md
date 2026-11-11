@@ -5,7 +5,7 @@
 | ID | Area | Module | Release | Implementation status |
 |---|---|---|---|---|
 | M01 | CRM | [Customers](customers.md) | R1 | Core implemented; Customer 360 and file-history access pending |
-| M02 | CRM | [Contacts](contacts.md) | R1 | Planned |
+| M02 | CRM | [Contacts](contacts.md) | R1 | Core implemented; messaging/campaign adapter honoring do-not-contact pending |
 | M03 | CRM | [Leads](leads.md) | R1 | Planned |
 | M04 | CRM | [Opportunities](opportunities.md) | R1 | Planned |
 | M05 | CRM | [Tasks Activities](tasks-activities.md) | R1 | Planned |
