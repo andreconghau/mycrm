@@ -15,9 +15,8 @@ export default async function globalTeardown() {
   try {
     await client.begin(async (transaction) => {
       await transaction`
-        DELETE FROM audit_events
-        WHERE actor_id IN (${userId}, ${adminUserId})
-           OR resource_id IN (${userId}, ${adminUserId})
+        DELETE FROM user_market_memberships
+        WHERE user_id IN (${userId}, ${adminUserId})
       `
       await transaction`
         DELETE FROM sessions

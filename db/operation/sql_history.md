@@ -364,3 +364,8 @@ ORDER BY occurred_at;
 ### Rejected operator attempt
 
 The local `grant-customers` operator was also attempted, but `tsx` was blocked by the sandbox before the script or any SQL ran (`listen EPERM` on its IPC pipe). The successful audited SQL above was applied through PostgreSQL MCP instead.
+## 2026-11-11 — Migration 0004: Product Specifications (R1-06)
+
+`db/migrations/0004_product_specifications.sql` extends the baseline `specifications` and `specification_versions` tables with buyer, multilingual, technical, packaging, handling and audit fields. It adds lifecycle and measurement constraints, lookup/history indexes, a partial unique index allowing one approved revision per specification, and a database trigger preventing content edits after approval. The matching `.down.sql` removes the additions.
+
+Validation: `npm run db:validate-migrations` passed in an isolated PostgreSQL schema after rerunning with sandbox escalation to allow the `tsx` IPC socket. No development database migration was applied in this task.

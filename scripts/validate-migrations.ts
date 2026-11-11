@@ -38,6 +38,22 @@ async function main() {
     path.join(root, 'db/migrations/0002_audit_events_append_only.down.sql'),
     'utf8',
   )
+  const productsCatalog = await readFile(
+    path.join(root, 'db/migrations/0003_products_catalog.sql'),
+    'utf8',
+  )
+  const productsCatalogDown = await readFile(
+    path.join(root, 'db/migrations/0003_products_catalog.down.sql'),
+    'utf8',
+  )
+  const productSpecifications = await readFile(
+    path.join(root, 'db/migrations/0004_product_specifications.sql'),
+    'utf8',
+  )
+  const productSpecificationsDown = await readFile(
+    path.join(root, 'db/migrations/0004_product_specifications.down.sql'),
+    'utf8',
+  )
   await admin.unsafe(`CREATE SCHEMA "${schema}"`)
   try {
     await isolated.unsafe(baseline)
@@ -100,6 +116,133 @@ async function main() {
         'Mandatory audit insert failure did not roll back the business transaction',
       )
     }
+    // --- R1-05 catalog and R1-06 specification migrations ------------------
+    await isolated.unsafe(productsCatalog)
+    await isolated.unsafe(productSpecifications)
+
+    const [guards] = await isolated<
+      { approvalIndex: number; immutabilityTrigger: number }[]
+    >`
+      SELECT
+        (
+          SELECT COUNT(*)::integer FROM pg_indexes
+          WHERE schemaname = ${schema}
+            AND indexname = 'specification_versions_one_approved'
+        ) AS "approvalIndex",
+        (
+          SELECT COUNT(*)::integer FROM information_schema.triggers
+          WHERE trigger_schema = ${schema}
+            AND trigger_name = 'specification_versions_immutable_after_approval'
+        ) AS "immutabilityTrigger"
+    `
+    if (!guards.approvalIndex || !guards.immutabilityTrigger) {
+      throw new Error(
+        'Specification migration did not create the single-approval index and immutability trigger',
+      )
+    }
+
+    const [probeProduct] = await isolated<{ id: number }[]>`
+      INSERT INTO products (sku, display_name, default_unit, status)
+      VALUES ('MIG-PROBE-001', 'Migration probe squid', 'KG', 'ACTIVE')
+      RETURNING id
+    `
+    const [probeSpecification] = await isolated<{ id: number }[]>`
+      INSERT INTO specifications (market_id, product_id, code)
+      VALUES (1, ${probeProduct.id}, 'MIG-PROBE-001-S01')
+      RETURNING id
+    `
+    const [approvedRevision] = await isolated<{ id: number }[]>`
+      INSERT INTO specification_versions (
+        market_id, specification_id, product_id, revision_no, status,
+        created_by, approved_by, published_at
+      )
+      VALUES (
+        1, ${probeSpecification.id}, ${probeProduct.id}, 1, 'APPROVED',
+        1, 1, now()
+      )
+      RETURNING id
+    `
+
+    // At most one APPROVED revision per specification (AC-16).
+    let secondApprovalRejected = false
+    try {
+      await isolated`
+        INSERT INTO specification_versions (
+          market_id, specification_id, product_id, revision_no, status,
+          created_by, approved_by, published_at
+        )
+        VALUES (
+          1, ${probeSpecification.id}, ${probeProduct.id}, 2, 'APPROVED',
+          1, 1, now()
+        )
+      `
+    } catch {
+      secondApprovalRejected = true
+    }
+
+    // Approved content is frozen at the database level (AC-04).
+    let approvedContentFrozen = false
+    try {
+      await isolated`
+        UPDATE specification_versions SET grade = 'A'
+        WHERE id = ${approvedRevision.id}
+      `
+    } catch {
+      approvedContentFrozen = true
+    }
+
+    // Archiving an approved revision stays possible.
+    await isolated`
+      UPDATE specification_versions
+      SET status = 'ARCHIVED', archived_at = now()
+      WHERE id = ${approvedRevision.id}
+    `
+    let archivedReopenBlocked = false
+    try {
+      await isolated`
+        UPDATE specification_versions SET status = 'DRAFT'
+        WHERE id = ${approvedRevision.id}
+      `
+    } catch {
+      archivedReopenBlocked = true
+    }
+
+    if (
+      !secondApprovalRejected ||
+      !approvedContentFrozen ||
+      !archivedReopenBlocked
+    ) {
+      throw new Error(
+        'Specification single-approval, content-immutability or archive guards did not hold',
+      )
+    }
+
+    await isolated.unsafe(productSpecificationsDown)
+    const [specificationDown] = await isolated<
+      { approvalIndex: number; immutabilityTrigger: number }[]
+    >`
+      SELECT
+        (
+          SELECT COUNT(*)::integer FROM pg_indexes
+          WHERE schemaname = ${schema}
+            AND indexname = 'specification_versions_one_approved'
+        ) AS "approvalIndex",
+        (
+          SELECT COUNT(*)::integer FROM information_schema.triggers
+          WHERE trigger_schema = ${schema}
+            AND trigger_name = 'specification_versions_immutable_after_approval'
+        ) AS "immutabilityTrigger"
+    `
+    if (
+      specificationDown.approvalIndex ||
+      specificationDown.immutabilityTrigger
+    ) {
+      throw new Error(
+        'Specification down migration left the approval guard objects behind',
+      )
+    }
+    await isolated.unsafe(productsCatalogDown)
+
     await isolated.unsafe(appendOnlyDown)
     const [{ triggerCount }] = await isolated<{ triggerCount: number }[]>`
       SELECT COUNT(*)::integer AS "triggerCount"

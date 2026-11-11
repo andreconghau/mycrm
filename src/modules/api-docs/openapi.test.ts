@@ -47,6 +47,18 @@ const expectedOperations = [
   'post /api/v1/products/{id}/approve',
   'post /api/v1/products/{id}/retire',
   'post /api/v1/products/{id}/reactivate',
+  'get /api/v1/products/{id}/specifications',
+  'post /api/v1/products/{id}/specifications',
+  'get /api/v1/specifications',
+  'get /api/v1/specifications/{id}',
+  'post /api/v1/specifications/{id}/archive',
+  'get /api/v1/specifications/{id}/compare-revisions',
+  'get /api/v1/specifications/{id}/revisions',
+  'post /api/v1/specifications/{id}/revisions',
+  'patch /api/v1/specifications/{id}/revisions/{revisionNo}',
+  'get /api/v1/specifications/{id}/revisions/{revisionNo}/documents',
+  'post /api/v1/specifications/{id}/revisions/{revisionNo}/publish',
+  'get /api/v1/specifications/{id}/revisions/{revisionNo}/snapshot',
 ]
 
 describe('OpenAPI document', () => {
