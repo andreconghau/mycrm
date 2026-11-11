@@ -28,6 +28,13 @@ import {
   updateContactSchema,
   updatePreferenceSchema,
 } from '@/modules/contacts/application/contracts'
+import {
+  createProductSchema,
+  productStatuses,
+  productUnits,
+  transitionProductSchema,
+  updateProductSchema,
+} from '@/modules/products/application/contracts'
 import { z, type ZodType } from 'zod'
 
 type Schema = Record<string, unknown>
@@ -362,6 +369,96 @@ const paths = {
       parameters: [marketParameter, csrfParameter],
       responses: { '200': jsonResponse('Candidate contacts for human review; no automatic merge.', dataEnvelope({ type: 'array', items: schemaRef('ContactDuplicateCandidate') })), ...commonErrors },
       requestBody: jsonBody('ContactDuplicateCandidatesRequest'),
+    },
+  },
+  '/api/v1/products': {
+    get: {
+      operationId: 'listProducts',
+      tags: ['Products'],
+      summary: 'List the global product catalog',
+      description:
+        'Requires products:read. The catalog is not market-scoped. DRAFT products are visible per read grant but are never eligible for new commercial line selection.',
+      security: cookieSecurity,
+      parameters: [
+        { name: 'q', in: 'query', schema: { type: 'string', maxLength: 120 } },
+        { name: 'category', in: 'query', schema: { type: 'string', maxLength: 120 } },
+        { name: 'status', in: 'query', schema: { type: 'string', enum: productStatuses } },
+        { name: 'limit', in: 'query', schema: { type: 'integer', minimum: 1, maximum: 100, default: 50 } },
+        { name: 'cursor', in: 'query', schema: { type: 'string', maxLength: 512 } },
+      ],
+      responses: {
+        '200': jsonResponse('Product catalog page.', dataEnvelope({ type: 'object', required: ['items', 'nextCursor'], properties: { items: { type: 'array', items: schemaRef('Product') }, nextCursor: { type: ['string', 'null'] } }, additionalProperties: false })),
+        ...commonErrors,
+      },
+    },
+    post: {
+      operationId: 'createProduct',
+      tags: ['Products'],
+      summary: 'Create a DRAFT product',
+      description:
+        'Requires products:create and CSRF proof. New products start DRAFT and are not eligible for commercial lines until approved.',
+      security: cookieSecurity,
+      parameters: [csrfParameter],
+      requestBody: jsonBody('CreateProductRequest'),
+      responses: { '201': jsonResponse('Product created.', dataEnvelope(schemaRef('Product'))), ...commonErrors },
+    },
+  },
+  '/api/v1/products/{id}': {
+    get: {
+      operationId: 'getProduct',
+      tags: ['Products'],
+      summary: 'Read a product',
+      security: cookieSecurity,
+      parameters: [idParameter],
+      responses: { '200': jsonResponse('Product projection filtered by read-field grants.', dataEnvelope(schemaRef('Product'))), ...commonErrors, '404': responseRef('NotFound') },
+    },
+    patch: {
+      operationId: 'updateProduct',
+      tags: ['Products'],
+      summary: 'Update product attributes with optimistic concurrency',
+      description:
+        'Does not change sku or status. Renames/attribute changes never alter prior quotation/order snapshots.',
+      security: cookieSecurity,
+      parameters: [idParameter, csrfParameter],
+      requestBody: jsonBody('UpdateProductRequest'),
+      responses: { '200': jsonResponse('Product updated.', dataEnvelope(schemaRef('Product'))), ...commonErrors, '404': responseRef('NotFound'), '409': responseRef('Conflict') },
+    },
+  },
+  '/api/v1/products/{id}/approve': {
+    post: {
+      operationId: 'approveProduct',
+      tags: ['Products'],
+      summary: 'Approve a DRAFT product for commercial use (DRAFT -> ACTIVE)',
+      description: 'Requires products:approve.',
+      security: cookieSecurity,
+      parameters: [idParameter, csrfParameter],
+      requestBody: jsonBody('TransitionProductRequest'),
+      responses: { '200': jsonResponse('Product approved.', dataEnvelope(schemaRef('Product'))), ...commonErrors, '404': responseRef('NotFound'), '409': responseRef('Conflict') },
+    },
+  },
+  '/api/v1/products/{id}/retire': {
+    post: {
+      operationId: 'retireProduct',
+      tags: ['Products'],
+      summary: 'Retire an ACTIVE product (ACTIVE -> INACTIVE)',
+      description:
+        'Requires products:retire. Removes eligibility for new commercial lines; existing quotation/order references are unaffected.',
+      security: cookieSecurity,
+      parameters: [idParameter, csrfParameter],
+      requestBody: jsonBody('TransitionProductRequest'),
+      responses: { '200': jsonResponse('Product retired.', dataEnvelope(schemaRef('Product'))), ...commonErrors, '404': responseRef('NotFound'), '409': responseRef('Conflict') },
+    },
+  },
+  '/api/v1/products/{id}/reactivate': {
+    post: {
+      operationId: 'reactivateProduct',
+      tags: ['Products'],
+      summary: 'Reactivate a retired product (INACTIVE -> ACTIVE)',
+      description: 'Requires products:approve.',
+      security: cookieSecurity,
+      parameters: [idParameter, csrfParameter],
+      requestBody: jsonBody('TransitionProductRequest'),
+      responses: { '200': jsonResponse('Product reactivated.', dataEnvelope(schemaRef('Product'))), ...commonErrors, '404': responseRef('NotFound'), '409': responseRef('Conflict') },
     },
   },
   '/api/v1/audit-events': {
@@ -776,6 +873,7 @@ export const openApiDocument = {
     { name: 'Access administration' },
     { name: 'Customers' },
     { name: 'Contacts' },
+    { name: 'Products' },
   ],
   paths,
   components: {
@@ -1106,6 +1204,37 @@ export const openApiDocument = {
           readFields: { type: 'array', items: { type: 'string' } },
           writeFields: { type: 'array', items: { type: 'string' } },
           active: { type: 'boolean' },
+          version: { type: 'integer', minimum: 1 },
+        },
+        additionalProperties: false,
+      },
+      CreateProductRequest: fromZod(createProductSchema),
+      UpdateProductRequest: fromZod(updateProductSchema),
+      TransitionProductRequest: fromZod(transitionProductSchema),
+      Product: {
+        type: 'object',
+        required: ['id', 'sku', 'defaultUnit', 'status', 'version'],
+        properties: {
+          id: positiveInteger,
+          sku: { type: 'string' },
+          displayName: { type: 'string' },
+          category: { type: ['string', 'null'] },
+          speciesCommonName: { type: ['string', 'null'] },
+          speciesScientificName: { type: ['string', 'null'] },
+          productFamily: { type: ['string', 'null'] },
+          defaultUnit: { type: 'string', enum: productUnits },
+          status: { type: 'string', enum: productStatuses },
+          descriptionEn: { type: ['string', 'null'] },
+          descriptionVi: { type: ['string', 'null'] },
+          descriptionKo: { type: ['string', 'null'] },
+          names: {
+            type: 'object',
+            properties: { en: { type: 'string' }, vi: { type: 'string' }, ko: { type: 'string' } },
+          },
+          aliases: {
+            type: 'array',
+            items: { type: 'object', required: ['locale', 'label'], properties: { locale: { type: 'string' }, label: { type: 'string' } }, additionalProperties: false },
+          },
           version: { type: 'integer', minimum: 1 },
         },
         additionalProperties: false,

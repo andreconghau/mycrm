@@ -9,7 +9,7 @@
 | M03 | CRM | [Leads](leads.md) | R1 | Planned |
 | M04 | CRM | [Opportunities](opportunities.md) | R1 | Planned |
 | M05 | CRM | [Tasks Activities](tasks-activities.md) | R1 | Planned |
-| M06 | Product | [Products](products.md) | R1 | Planned |
+| M06 | Product | [Products](products.md) | R1 | Core implemented |
 | M07 | Product | [Product Specifications](product-specifications.md) | R1 | Planned |
 | M08 | Product | [Price Lists](price-lists.md) | R1 | Planned |
 | M09 | Sales | [Rfqs](rfqs.md) | R1 | Planned |
