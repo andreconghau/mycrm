@@ -71,3 +71,21 @@ Compared `CRM-Spec.md` section 4.1 M02 with the owner-approved Contacts create-f
 ### Spec disposition
 
 No change was made to `CRM-Spec.md`. The interaction details refine how the existing M02 requirements are delivered without changing its business purpose, core records or duplicate-preservation rule. Broader communication preferences, roles and non-email/phone channels remain in the product specification and require separate approved UI slices.
+
+## 2026-11-11 — R1-05 M06 Products implementation delta
+
+Compared `CRM-Spec.md` section 4.1 M06 (line 227) with the owner-approved R1-05 implementation decisions (`/grill-me`, 2026-11-11).
+
+### Approved implementation deltas
+
+- **Lifecycle (§4.1 M06):** `CRM-Spec.md` describes only an "active/inactive SKU state." The implementation adds a real `DRAFT` state ahead of `ACTIVE` (`DRAFT → ACTIVE ⇄ INACTIVE`), required so a product can exist and be edited before it is commercially usable; `DRAFT → INACTIVE` is rejected as a non-meaningful transition. This is an addition, not a contradiction — the spec's two states map to `ACTIVE`/`INACTIVE`.
+- **Classification scope boundary (§4.1 M06 vs M07):** `CRM-Spec.md`'s M06 purpose text lists "processing styles, forms, grades, packaging options" as part of the Product module's responsibility. The implementation keeps those fields exclusively on M07 `specification_versions` (already present in the baseline schema) and does not duplicate them on Product, to avoid two sources of truth for the same attribute. M06 Product instead carries `category`, `species_common_name`, `species_scientific_name` and a new `product_family` grouping field.
+- **Market-level eligibility:** The baseline schema pre-declared a `market_products` table (per-market eligibility override) that neither `CRM-Spec.md` nor the M06 module doc assigns ownership of explicitly. This task left it unclaimed — out of scope until RFQ/Price Lists (M08/M09) are implemented and need it.
+
+### Not adopted
+
+The module doc's prior proposal of a `Catalog Admin`/`Purchasing` edit role (in `docs/modules/products.md`, not `CRM-Spec.md`) was not adopted — `CRM-Spec.md` and R1-01 confirm only `admin`, `manager`, `sale`, `accountant` as application roles. M06 edit/approve/retire grants went to `admin` and `manager`; `sale` is read-only; `accountant` has no grant.
+
+### Spec disposition
+
+No change was made to `CRM-Spec.md`. The DRAFT lifecycle state is an additive refinement compatible with the existing two-state description. The M06/M07 field boundary is an implementation clarification of an ambiguity between the two sections, not a business-rule change — specification-level attributes (processing, grade, packaging) remain where `CRM-Spec.md`'s M07 section already places them. `market_products` ownership remains an open decision for whichever task implements M08/M09.

@@ -40,6 +40,13 @@ const expectedOperations = [
   'post /api/v1/contacts/{id}/transfer',
   'get /api/v1/contacts/{id}/timeline',
   'post /api/v1/contacts/duplicate-candidates',
+  'get /api/v1/products',
+  'post /api/v1/products',
+  'get /api/v1/products/{id}',
+  'patch /api/v1/products/{id}',
+  'post /api/v1/products/{id}/approve',
+  'post /api/v1/products/{id}/retire',
+  'post /api/v1/products/{id}/reactivate',
 ]
 
 describe('OpenAPI document', () => {

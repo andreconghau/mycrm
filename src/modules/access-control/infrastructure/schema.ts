@@ -501,6 +501,57 @@ export const duplicateReviews = pgTable('duplicate_reviews', {
   version: integer('version').notNull().default(1),
 })
 
+export const products = pgTable(
+  'products',
+  {
+    id: identity(),
+    sku: text('sku').notNull(),
+    displayName: text('display_name').notNull(),
+    category: text('category'),
+    speciesCommonName: text('species_common_name'),
+    speciesScientificName: text('species_scientific_name'),
+    productFamily: text('product_family'),
+    defaultUnit: text('default_unit').notNull(),
+    status: text('status').notNull(),
+    descriptionEn: text('description_en'),
+    descriptionVi: text('description_vi'),
+    descriptionKo: text('description_ko'),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    version: integer('version').notNull().default(1),
+  },
+  (table) => [
+    uniqueIndex('products_sku_key').on(table.sku),
+    index('products_status_idx').on(table.status),
+    index('products_category_idx').on(table.category),
+  ],
+)
+
+export const productAliases = pgTable(
+  'product_aliases',
+  {
+    id: identity(),
+    productId: integer('product_id').notNull(),
+    locale: text('locale').notNull(),
+    label: text('label').notNull(),
+    kind: text('kind').notNull().default('ALIAS'),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('product_aliases_product_id_locale_label_key').on(
+      table.productId,
+      table.locale,
+      table.label,
+    ),
+  ],
+)
+
 export const authRateLimits = pgTable(
   'auth_rate_limits',
   {
