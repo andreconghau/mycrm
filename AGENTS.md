@@ -120,7 +120,19 @@ Report implemented work, pending items, actual test results, risks and documenta
 7. `/goal`: verify availability and approval; never claim execution if unavailable.
 8. Skill approval does not imply Implementation approval.
 
-## 6. Graphify & PostgreSQL MCP
+## 6. Form UX Pattern
+
+- Apply `impeccable` after the product direction is approved and before editing user-facing forms.
+- On list pages, medium or long create flows default to an accessible right-side drawer so users retain list context. The drawer expands on desktop and uses the full viewport on mobile.
+- Group related fields into clearly named sections. Keep primary and secondary actions in a sticky footer; use explicit loading, error, empty and success states.
+- For entity relationships, use an authorized searchable picker with human-readable names/codes. Do not require users to enter internal numeric IDs.
+- Keep duplicate and conflict review inside the form. Explain whether the match blocks creation or is only a warning; do not use browser-native confirmation dialogs for this workflow.
+- Trap and restore focus, support Escape and overlay close, and confirm before discarding dirty form state. Preserve visible keyboard focus and touch targets of at least 40px.
+- After successful creation, open the new entity detail page unless the approved workflow explicitly favors batch entry or returning to the list.
+- Short, low-risk forms may remain inline or use a popover when that better preserves context. Material exceptions require `/grill-me` and explicit approval.
+- Reuse existing project components and API/business contracts. Do not introduce dependencies or broaden backend scope solely to match this presentation pattern.
+
+## 7. Graphify & PostgreSQL MCP
 
 **Graphify:** If `graphify-out/graph.json` exists, run `graphify query` before codebase source searches. Use `graphify path/explain` for dependencies, verify against source and run `graphify update .` after code changes. Fall back to targeted inspection if unavailable.
 
@@ -130,7 +142,7 @@ Use `postgres_mcp_list_connection_profiles` → `postgres_mcp_connect`.
 
 Default **read-only**. Never modify data/schema or execute migrations without explicit approval. Report connection failures accurately.
 
-## 7. Next.js Rules
+## 8. Next.js Rules
 
 <!-- BEGIN:nextjs-agent-rules -->
 
@@ -142,7 +154,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
-## 8. Task Prompt Contract
+## 9. Task Prompt Contract
 
 New tasks only need:
 

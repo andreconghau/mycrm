@@ -4,8 +4,10 @@ order: 3048
 ---
 # Start app develop
 ```javascript
-npm run dev -- --hostname 127.0.0.1
+npm run dev
 ```
+
+The default dev script binds to `127.0.0.1` to match `APP_ORIGIN`. Open the app at `http://127.0.0.1:3000`; using `localhost` causes trusted-origin checks to reject authentication requests.
 
 # Tạo user bằng CLI
 ```javascript

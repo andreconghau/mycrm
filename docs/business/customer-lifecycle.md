@@ -15,7 +15,7 @@ Maintain one traceable view of every international B2B buyer from first inquiry 
 ## 2. Actors and responsibility
 
 | Actor | Business responsibility |
-|---|---|
+| --- | --- |
 | Sales Representative | Capture inquiries, qualify buyer, maintain contacts, own next action |
 | Sales Manager | Assign/reassign ownership, resolve duplicates, review stalled opportunities |
 | Export Operations | Read order-linked delivery information on a need-to-know basis |
@@ -28,7 +28,7 @@ No role in this document automatically grants access. Apply the policies in [Per
 ## 3. Key concepts and minimum business data
 
 | Concept | Identity and business fields | Notes |
-|---|---|---|
+| --- | --- | --- |
 | Lead | Source, source reference, received time, buyer/company text, country, language, contact, interest, owner, next action, status | May be incomplete; preserve raw inquiry |
 | Customer | Legal/trading name, country, addresses, registration/tax identifiers if available, website, business type, owner/team, lifecycle state, risk flags | One legal entity may have many locations/contacts |
 | Contact | Customer reference, name, title/function, email/phone, language, communication preference, active flag | Procurement, shipping, finance contacts can differ |
@@ -68,7 +68,7 @@ Do not conflate a lead's `QUALIFIED` status with customer's `ACTIVE` status, or 
 ## 6. Business rules
 
 | ID | Rule |
-|---|---|
+| --- | --- |
 | CUS-01 | Never silently merge customers based only on approximate company name. Offer duplicate candidates using name/country, domain, registration ID and contact data. |
 | CUS-02 | Customer and contact are distinct entities; a customer can have multiple contacts with multiple functions. |
 | CUS-03 | A lead converted more than once must not create duplicate customer/contact/opportunity records; record the original lead and conversion event. |
@@ -83,7 +83,7 @@ Do not conflate a lead's `QUALIFIED` status with customer's `ACTIVE` status, or 
 ## 7. Exceptions and resolution
 
 | Exception | Required business handling |
-|---|---|
+| --- | --- |
 | Same trading name, different country/legal registration | Flag as possible duplicate, require manual resolution |
 | Two sales users claim ownership | Manager assigns owner; audit decision and downstream visibility |
 | Buyer requests data correction | Authorized edit, history for significant changes; follow applicable data obligations |

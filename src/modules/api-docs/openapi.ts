@@ -16,6 +16,18 @@ import {
   reassignCustomerSchema,
   updateCustomerSchema,
 } from '@/modules/customers/application/contracts'
+import {
+  channelInputSchema,
+  contactDuplicateCandidatesSchema,
+  createContactSchema,
+  deactivateContactSchema,
+  preferenceInputSchema,
+  setPrimaryContactSchema,
+  transferContactSchema,
+  updateChannelSchema,
+  updateContactSchema,
+  updatePreferenceSchema,
+} from '@/modules/contacts/application/contracts'
 import { z, type ZodType } from 'zod'
 
 type Schema = Record<string, unknown>
@@ -62,6 +74,13 @@ const cookieSecurity = [{ accessCookie: [] }]
 const refreshSecurity = [{ refreshCookie: [] }]
 const csrfParameter = parameterRef('CsrfToken')
 const idParameter = parameterRef('PositiveId')
+const childIdParameter = parameterRef('PositiveChildId')
+const marketParameter = {
+  name: 'market',
+  in: 'query',
+  required: true,
+  schema: { type: 'string', minLength: 2, maxLength: 32 },
+} as const
 
 const positiveInteger = {
   type: 'integer',
@@ -153,6 +172,196 @@ const paths = {
       parameters: [{ name: 'market', in: 'query', required: true, schema: { type: 'string' } }, csrfParameter],
       requestBody: jsonBody('DuplicateCandidatesRequest'),
       responses: { '200': jsonResponse('Candidate records for human review; no automatic merge.', dataEnvelope({ type: 'array', items: schemaRef('Customer') })), ...commonErrors },
+    },
+  },
+  '/api/v1/contacts': {
+    get: {
+      operationId: 'listContacts',
+      tags: ['Contacts'],
+      summary: 'List buyer contacts within the authorized parent scope',
+      description:
+        'Requires contacts:list and current market membership. Record scope is derived from the parent customer before pagination. Channel handles are never included.',
+      security: cookieSecurity,
+      parameters: [
+        marketParameter,
+        { name: 'customerId', in: 'query', schema: positiveInteger },
+        { name: 'active', in: 'query', schema: { type: 'string', enum: ['true', 'false'] } },
+        { name: 'q', in: 'query', schema: { type: 'string', maxLength: 120 } },
+        { name: 'limit', in: 'query', schema: { type: 'integer', minimum: 1, maximum: 100, default: 50 } },
+        { name: 'cursor', in: 'query', schema: { type: 'string', maxLength: 512 } },
+      ],
+      responses: {
+        '200': jsonResponse('Scoped contact page and entitled history snapshots.', dataEnvelope({ type: 'object', required: ['items', 'historyItems', 'nextCursor'], properties: { items: { type: 'array', items: schemaRef('Contact') }, historyItems: { type: 'array', items: schemaRef('ContactHistory') }, nextCursor: { type: ['string', 'null'] } }, additionalProperties: false })),
+        ...commonErrors,
+      },
+    },
+    post: {
+      operationId: 'createContact',
+      tags: ['Contacts'],
+      summary: 'Create a contact under an authorized buyer',
+      description:
+        'Requires contacts:create, parent-customer scope and CSRF proof. A normalized channel match is only a warning; duplicate people are never merged.',
+      security: cookieSecurity,
+      parameters: [marketParameter, csrfParameter],
+      requestBody: jsonBody('CreateContactRequest'),
+      responses: { '201': jsonResponse('Contact created.', dataEnvelope(schemaRef('Contact'))), ...commonErrors, '404': responseRef('NotFound') },
+    },
+  },
+  '/api/v1/contacts/{id}': {
+    get: {
+      operationId: 'getContact',
+      tags: ['Contacts'],
+      summary: 'Read a contact or an entitled frozen snapshot',
+      description:
+        'Direct lookup cannot bypass parent scope. A former owner receives the handover-time snapshot, never live data.',
+      security: cookieSecurity,
+      parameters: [idParameter, marketParameter],
+      responses: { '200': jsonResponse('Contact projection filtered by read-field grants.', dataEnvelope(schemaRef('ContactDetail'))), ...commonErrors, '404': responseRef('NotFound') },
+    },
+    patch: {
+      operationId: 'updateContact',
+      tags: ['Contacts'],
+      summary: 'Update allowlisted contact fields with optimistic concurrency',
+      description:
+        'customerId and marketId are not accepted; moving a contact requires the explicit transfer command.',
+      security: cookieSecurity,
+      parameters: [idParameter, marketParameter, csrfParameter],
+      requestBody: jsonBody('UpdateContactRequest'),
+      responses: { '200': jsonResponse('Contact updated.', dataEnvelope(schemaRef('Contact'))), ...commonErrors, '404': responseRef('NotFound'), '409': responseRef('Conflict') },
+    },
+  },
+  '/api/v1/contacts/{id}/channels': {
+    get: {
+      operationId: 'listContactChannels',
+      tags: ['Contacts'],
+      summary: 'Read permitted contact channels',
+      description: 'Requires contacts:sensitive-read in addition to parent scope.',
+      security: cookieSecurity,
+      parameters: [idParameter, marketParameter],
+      responses: { '200': jsonResponse('Channels for the contact.', dataEnvelope({ type: 'array', items: schemaRef('ContactChannel') })), ...commonErrors, '404': responseRef('NotFound') },
+    },
+    post: {
+      operationId: 'createContactChannel',
+      tags: ['Contacts'],
+      summary: 'Record an explicit contact channel',
+      description:
+        'Requires contacts:edit and the parent contact version. verifiedAt is never client-settable.',
+      security: cookieSecurity,
+      parameters: [idParameter, marketParameter, csrfParameter],
+      requestBody: jsonBody('ContactChannelRequest'),
+      responses: { '201': jsonResponse('Channel recorded.', dataEnvelope(schemaRef('ContactChannelResult'))), ...commonErrors, '404': responseRef('NotFound'), '409': responseRef('Conflict') },
+    },
+  },
+  '/api/v1/contacts/{id}/channels/{childId}': {
+    patch: {
+      operationId: 'updateContactChannel',
+      tags: ['Contacts'],
+      summary: 'Update a contact channel',
+      security: cookieSecurity,
+      parameters: [idParameter, childIdParameter, marketParameter, csrfParameter],
+      requestBody: jsonBody('UpdateContactChannelRequest'),
+      responses: { '200': jsonResponse('Channel updated.', dataEnvelope(schemaRef('ContactChannelResult'))), ...commonErrors, '404': responseRef('NotFound'), '409': responseRef('Conflict') },
+    },
+  },
+  '/api/v1/contacts/{id}/preferences': {
+    get: {
+      operationId: 'listContactPreferences',
+      tags: ['Contacts'],
+      summary: 'Read recorded communication preferences',
+      description: 'Requires contacts:sensitive-read. Consent is never inferred from absence.',
+      security: cookieSecurity,
+      parameters: [idParameter, marketParameter],
+      responses: { '200': jsonResponse('Preferences for the contact.', dataEnvelope({ type: 'array', items: schemaRef('ContactPreference') })), ...commonErrors, '404': responseRef('NotFound') },
+    },
+    post: {
+      operationId: 'recordContactPreference',
+      tags: ['Contacts'],
+      summary: 'Record an explicit communication preference',
+      description:
+        'An evidenceFileId must reference a same-market file whose scan state is CLEAN, otherwise the request is rejected as 422.',
+      security: cookieSecurity,
+      parameters: [idParameter, marketParameter, csrfParameter],
+      requestBody: jsonBody('ContactPreferenceRequest'),
+      responses: { '201': jsonResponse('Preference recorded.', dataEnvelope(schemaRef('ContactPreferenceResult'))), ...commonErrors, '404': responseRef('NotFound'), '409': responseRef('Conflict'), '422': responseRef('BusinessRuleViolation') },
+    },
+  },
+  '/api/v1/contacts/{id}/preferences/{childId}': {
+    patch: {
+      operationId: 'updateContactPreference',
+      tags: ['Contacts'],
+      summary: 'Update a recorded communication preference',
+      security: cookieSecurity,
+      parameters: [idParameter, childIdParameter, marketParameter, csrfParameter],
+      requestBody: jsonBody('UpdateContactPreferenceRequest'),
+      responses: { '200': jsonResponse('Preference updated.', dataEnvelope(schemaRef('ContactPreferenceResult'))), ...commonErrors, '404': responseRef('NotFound'), '409': responseRef('Conflict'), '422': responseRef('BusinessRuleViolation') },
+    },
+  },
+  '/api/v1/contacts/{id}/set-primary': {
+    post: {
+      operationId: 'setPrimaryContact',
+      tags: ['Contacts'],
+      summary: 'Designate the primary contact for one buyer context',
+      description:
+        'Contexts are independent. Changing a primary never deletes prior correspondence or affects existing orders.',
+      security: cookieSecurity,
+      parameters: [idParameter, marketParameter, csrfParameter],
+      requestBody: jsonBody('SetPrimaryContactRequest'),
+      responses: { '200': jsonResponse('Primary designation recorded.', dataEnvelope(schemaRef('ContactDetail'))), ...commonErrors, '404': responseRef('NotFound'), '409': responseRef('Conflict') },
+    },
+  },
+  '/api/v1/contacts/{id}/deactivate': {
+    post: {
+      operationId: 'deactivateContact',
+      tags: ['Contacts'],
+      summary: 'Deactivate a contact while preserving history',
+      description: 'There is no delete operation; historical references remain intact.',
+      security: cookieSecurity,
+      parameters: [idParameter, marketParameter, csrfParameter],
+      requestBody: jsonBody('DeactivateContactRequest'),
+      responses: { '200': jsonResponse('Contact deactivated.', dataEnvelope(schemaRef('Contact'))), ...commonErrors, '404': responseRef('NotFound'), '409': responseRef('Conflict') },
+    },
+  },
+  '/api/v1/contacts/{id}/transfer': {
+    post: {
+      operationId: 'transferContact',
+      tags: ['Contacts'],
+      summary: 'Move a contact to another authorized buyer',
+      description:
+        'Requires contacts:edit on both the source and the destination customer. An inaccessible destination is reported as 404.',
+      security: cookieSecurity,
+      parameters: [idParameter, marketParameter, csrfParameter],
+      requestBody: jsonBody('TransferContactRequest'),
+      responses: { '200': jsonResponse('Contact transferred.', dataEnvelope(schemaRef('Contact'))), ...commonErrors, '404': responseRef('NotFound'), '409': responseRef('Conflict') },
+    },
+  },
+  '/api/v1/contacts/{id}/timeline': {
+    get: {
+      operationId: 'getContactTimeline',
+      tags: ['Contacts'],
+      summary: 'Read the audited contact timeline',
+      description:
+        'Derived from audit events for this contact and filtered through the safe-diff allowlist; inherits parent scope.',
+      security: cookieSecurity,
+      parameters: [
+        idParameter,
+        marketParameter,
+        { name: 'limit', in: 'query', schema: { type: 'integer', minimum: 1, maximum: 100, default: 50 } },
+        { name: 'cursor', in: 'query', schema: { type: 'string', maxLength: 512 } },
+      ],
+      responses: { '200': jsonResponse('Audited contact timeline page.', dataEnvelope({ type: 'object', required: ['items', 'nextCursor'], properties: { items: { type: 'array', items: schemaRef('ContactTimelineEvent') }, nextCursor: { type: ['string', 'null'] } }, additionalProperties: false })), ...commonErrors, '404': responseRef('NotFound') },
+    },
+  },
+  '/api/v1/contacts/duplicate-candidates': {
+    post: {
+      operationId: 'findContactDuplicateCandidates',
+      tags: ['Contacts'],
+      summary: 'Find in-scope normalized channel matches in the same market',
+      description:
+        'Warning only. Two distinct people at the same buyer may share an email; candidates outside the caller scope are never returned.',
+      security: cookieSecurity,
+      parameters: [marketParameter, csrfParameter],
+      responses: { '200': jsonResponse('Candidate contacts for human review; no automatic merge.', dataEnvelope({ type: 'array', items: schemaRef('ContactDuplicateCandidate') })), ...commonErrors },
+      requestBody: jsonBody('ContactDuplicateCandidatesRequest'),
     },
   },
   '/api/v1/audit-events': {
@@ -565,6 +774,8 @@ export const openApiDocument = {
     { name: 'Authentication' },
     { name: 'Current user' },
     { name: 'Access administration' },
+    { name: 'Customers' },
+    { name: 'Contacts' },
   ],
   paths,
   components: {
@@ -587,6 +798,12 @@ export const openApiDocument = {
     parameters: {
       PositiveId: {
         name: 'id',
+        in: 'path',
+        required: true,
+        schema: positiveInteger,
+      },
+      PositiveChildId: {
+        name: 'childId',
         in: 'path',
         required: true,
         schema: positiveInteger,
@@ -615,7 +832,8 @@ export const openApiDocument = {
         errorSchema,
       ),
       NotFound: jsonResponse('Customer is unavailable in the authorized scope.', errorSchema),
-      Conflict: jsonResponse('The customer changed or a business transition is invalid.', errorSchema),
+      Conflict: jsonResponse('The record changed or a business transition is invalid.', errorSchema),
+      BusinessRuleViolation: jsonResponse('The authorized record failed a business prerequisite.', errorSchema),
     },
     schemas: {
       AuditQuery: fromZod(auditQuerySchema),
@@ -652,6 +870,134 @@ export const openApiDocument = {
           id: positiveInteger, code: { type: 'string' }, legalName: { type: 'string' }, tradeName: { type: ['string', 'null'] }, countryCode: { type: 'string', pattern: '^[A-Z]{2}$' }, preferredLanguage: { type: ['string', 'null'] }, preferredCurrency: { type: ['string', 'null'] }, website: { type: ['string', 'null'], format: 'uri' }, status: { type: 'string', enum: ['PROSPECT', 'ACTIVE', 'ON_HOLD', 'INACTIVE', 'ARCHIVED'] }, ownerId: positiveInteger, teamId: { type: ['integer', 'null'] }, version: { type: 'integer', minimum: 1 }, historical: { type: 'boolean', const: true }, transferredAt: { type: 'string', format: 'date-time' },
         },
         additionalProperties: false,
+      },
+      CreateContactRequest: fromZod(createContactSchema),
+      UpdateContactRequest: fromZod(updateContactSchema),
+      ContactChannelRequest: {
+        allOf: [
+          { type: 'object', required: ['version'], properties: { version: { type: 'integer', minimum: 1 } } },
+          fromZod(channelInputSchema),
+        ],
+      },
+      UpdateContactChannelRequest: fromZod(updateChannelSchema),
+      ContactPreferenceRequest: {
+        allOf: [
+          { type: 'object', required: ['version'], properties: { version: { type: 'integer', minimum: 1 } } },
+          fromZod(preferenceInputSchema),
+        ],
+      },
+      UpdateContactPreferenceRequest: fromZod(updatePreferenceSchema),
+      SetPrimaryContactRequest: fromZod(setPrimaryContactSchema),
+      DeactivateContactRequest: fromZod(deactivateContactSchema),
+      TransferContactRequest: fromZod(transferContactSchema),
+      ContactDuplicateCandidatesRequest: fromZod(contactDuplicateCandidatesSchema),
+      Contact: {
+        type: 'object',
+        properties: {
+          id: positiveInteger,
+          customerId: positiveInteger,
+          customerLegalName: { type: 'string' },
+          displayName: { type: 'string' },
+          jobTitle: { type: ['string', 'null'] },
+          department: { type: ['string', 'null'] },
+          preferredLanguage: { type: ['string', 'null'] },
+          timezone: { type: ['string', 'null'] },
+          active: { type: 'boolean' },
+          version: { type: 'integer', minimum: 1 },
+        },
+        additionalProperties: false,
+      },
+      ContactDetail: {
+        allOf: [
+          schemaRef('Contact'),
+          {
+            type: 'object',
+            properties: {
+              primaryContexts: { type: 'array', items: { type: 'string', enum: ['procurement', 'invoicing', 'consignee'] } },
+              historical: { type: 'boolean' },
+              transferredAt: { type: 'string', format: 'date-time' },
+            },
+          },
+        ],
+      },
+      ContactHistory: {
+        allOf: [
+          schemaRef('Contact'),
+          {
+            type: 'object',
+            properties: {
+              historical: { type: 'boolean', const: true },
+              transferredAt: { type: 'string', format: 'date-time' },
+            },
+          },
+        ],
+      },
+      ContactChannel: {
+        type: 'object',
+        required: ['id', 'contactId', 'kind', 'handle', 'isPrimary', 'version'],
+        properties: {
+          id: positiveInteger,
+          contactId: positiveInteger,
+          kind: { type: 'string', enum: ['email', 'phone', 'whatsapp', 'kakao', 'line', 'other'] },
+          handle: { type: 'string' },
+          isPrimary: { type: 'boolean' },
+          verifiedAt: { type: ['string', 'null'], format: 'date-time' },
+          version: { type: 'integer', minimum: 1 },
+        },
+        additionalProperties: false,
+      },
+      ContactChannelResult: {
+        type: 'object',
+        required: ['channel', 'contact'],
+        properties: { channel: schemaRef('ContactChannel'), contact: schemaRef('Contact') },
+        additionalProperties: false,
+      },
+      ContactPreference: {
+        type: 'object',
+        required: ['id', 'contactId', 'purpose', 'allowed', 'recordedAt', 'version'],
+        properties: {
+          id: positiveInteger,
+          contactId: positiveInteger,
+          purpose: { type: 'string', enum: ['commercial', 'operational', 'marketing'] },
+          allowed: { type: 'boolean' },
+          evidenceFileId: { type: ['integer', 'null'] },
+          recordedAt: { type: 'string', format: 'date-time' },
+          version: { type: 'integer', minimum: 1 },
+        },
+        additionalProperties: false,
+      },
+      ContactPreferenceResult: {
+        type: 'object',
+        required: ['preference', 'contact'],
+        properties: { preference: schemaRef('ContactPreference'), contact: schemaRef('Contact') },
+        additionalProperties: false,
+      },
+      ContactTimelineEvent: {
+        type: 'object',
+        required: ['id', 'action', 'result', 'occurredAt'],
+        properties: {
+          id: positiveInteger,
+          actorId: { type: ['integer', 'null'] },
+          action: { type: 'string' },
+          resourceVersion: { type: ['integer', 'null'] },
+          reason: { type: ['string', 'null'] },
+          safeDiff: { type: 'object', additionalProperties: true },
+          result: { type: 'string' },
+          occurredAt: { type: 'string', format: 'date-time' },
+        },
+        additionalProperties: false,
+      },
+      ContactDuplicateCandidate: {
+        allOf: [
+          schemaRef('Contact'),
+          {
+            type: 'object',
+            properties: {
+              matchedKind: { type: 'string' },
+              sameCustomer: { type: 'boolean' },
+            },
+          },
+        ],
       },
       AuditEvent: {
         type: 'object',

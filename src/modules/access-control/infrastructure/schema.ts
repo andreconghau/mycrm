@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm'
 import {
   boolean,
   index,
@@ -296,6 +297,137 @@ export const customerIdentifiers = pgTable(
     ),
   ],
 )
+
+export const contacts = pgTable(
+  'contacts',
+  {
+    id: identity(),
+    marketId: integer('market_id').notNull(),
+    customerId: integer('customer_id').notNull(),
+    displayName: text('display_name').notNull(),
+    jobTitle: text('job_title'),
+    department: text('department'),
+    preferredLanguage: text('preferred_language'),
+    timezone: text('timezone'),
+    active: boolean('active').notNull().default(true),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    version: integer('version').notNull().default(1),
+  },
+  (table) => [
+    index('contacts_parent_page').on(
+      table.marketId,
+      table.customerId,
+      table.createdAt,
+      table.id,
+    ),
+    index('idx_contacts_market_id').on(table.marketId, table.id),
+  ],
+)
+
+export const contactChannels = pgTable(
+  'contact_channels',
+  {
+    id: identity(),
+    marketId: integer('market_id').notNull(),
+    contactId: integer('contact_id').notNull(),
+    kind: text('kind').notNull(),
+    handle: text('handle').notNull(),
+    normalizedHandle: text('normalized_handle').notNull(),
+    isPrimary: boolean('is_primary').notNull().default(false),
+    verifiedAt: timestamp('verified_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    version: integer('version').notNull().default(1),
+  },
+  (table) => [
+    uniqueIndex('contact_channel_primary')
+      .on(table.marketId, table.contactId, table.kind)
+      .where(sql`is_primary`),
+    index('contact_channel_duplicate').on(
+      table.marketId,
+      table.kind,
+      table.normalizedHandle,
+    ),
+    index('idx_contact_channels_market_id_contact_id').on(
+      table.marketId,
+      table.contactId,
+    ),
+  ],
+)
+
+export const contactPreferences = pgTable(
+  'contact_preferences',
+  {
+    id: identity(),
+    marketId: integer('market_id').notNull(),
+    contactId: integer('contact_id').notNull(),
+    purpose: text('purpose').notNull(),
+    allowed: boolean('allowed').notNull().default(false),
+    evidenceFileId: integer('evidence_file_id'),
+    recordedAt: timestamp('recorded_at', { withTimezone: true }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    version: integer('version').notNull().default(1),
+  },
+  (table) => [
+    uniqueIndex('contact_preferences_market_id_contact_id_purpose_key').on(
+      table.marketId,
+      table.contactId,
+      table.purpose,
+    ),
+    index('idx_contact_preferences_market_id_contact_id').on(
+      table.marketId,
+      table.contactId,
+    ),
+  ],
+)
+
+export const customerPrimaryContacts = pgTable(
+  'customer_primary_contacts',
+  {
+    id: identity(),
+    marketId: integer('market_id').notNull(),
+    customerId: integer('customer_id').notNull(),
+    contactId: integer('contact_id').notNull(),
+    context: text('context').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    version: integer('version').notNull().default(1),
+  },
+  (table) => [
+    uniqueIndex('customer_primary_contacts_market_id_customer_id_context_key').on(
+      table.marketId,
+      table.customerId,
+      table.context,
+    ),
+    index(
+      'idx_customer_primary_contacts_market_id_customer_id_contact_id',
+    ).on(table.marketId, table.customerId, table.contactId),
+  ],
+)
+
+export const files = pgTable('files', {
+  id: identity(),
+  marketId: integer('market_id').notNull(),
+  scanState: text('scan_state').notNull(),
+})
 
 export const recordLinks = pgTable('record_links', {
   id: identity(),

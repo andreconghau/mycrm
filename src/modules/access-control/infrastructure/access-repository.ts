@@ -30,6 +30,7 @@ import {
   type RoleCode,
 } from '../domain/types'
 import { customerAdminGrants } from '../domain/customer-admin-grants'
+import { contactAdminGrants } from '../domain/contact-grants'
 
 const ACCESS_GRANTS = [
   ['access.users', 'read'],
@@ -747,6 +748,36 @@ export class AccessRepository {
             },
           })
       }
+      for (const grant of contactAdminGrants) {
+        await transaction
+          .insert(roleGrants)
+          .values({
+            roleCode: grant.roleCode,
+            resource: grant.resource,
+            action: grant.action,
+            recordScope: grant.recordScope,
+            readFields: [...grant.readFields],
+            writeFields: [...grant.writeFields],
+            active: true,
+            changedBy: user.id,
+          })
+          .onConflictDoUpdate({
+            target: [
+              roleGrants.roleCode,
+              roleGrants.resource,
+              roleGrants.action,
+              roleGrants.recordScope,
+            ],
+            set: {
+              readFields: [...grant.readFields],
+              writeFields: [...grant.writeFields],
+              active: true,
+              changedBy: user.id,
+              updatedAt: new Date(),
+              version: sql`${roleGrants.version} + 1`,
+            },
+          })
+      }
       await transaction.insert(auditEvents).values({
         actorId: user.id,
         action: 'access.bootstrap_admin',
@@ -755,7 +786,7 @@ export class AccessRepository {
         requestId: randomUUID(),
         safeDiff: projectSafeAuditDiff({
           roles: ['admin'],
-          grantBoundary: 'M29_AND_M01',
+          grantBoundary: 'M29_M01_M02',
         }),
         result: 'SUCCESS',
       })

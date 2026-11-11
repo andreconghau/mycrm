@@ -1,0 +1,10 @@
+{
+  "enabledMcpjsonServers": [
+    "playwright",
+    "chrome-devtools",
+    "context7",
+    "knowledge-graph-memory",
+    "postgres-mcp"
+  ],
+  "enableAllProjectMcpServers": true
+}

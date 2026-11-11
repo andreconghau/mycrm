@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useMarket } from '@/modules/markets/market-context'
+import { CustomerContactsPanel } from '@/modules/contacts/presentation/customer-contacts-panel'
 
 type Customer = {
   id: number
@@ -226,6 +227,13 @@ export function CustomerDetail({
       )}
       {Array.isArray(customer.identifiers) && customer.identifiers.length > 0 && (
         <section className="bg-card space-y-3 rounded-xl border p-5"><h2 className="font-semibold">{vi ? 'Định danh doanh nghiệp' : 'Business identifiers'}</h2>{customer.identifiers.map((identifier, index) => <article className="rounded-md border p-3 text-sm" key={String(identifier.id ?? index)}><span className="text-muted-foreground">{String(identifier.kind)} · </span>{String(identifier.value)}</article>)}</section>
+      )}
+      {!customer.historical && marketCode && (
+        <CustomerContactsPanel
+          customerId={id}
+          locale={locale}
+          marketCode={marketCode}
+        />
       )}
       {customer.history && customer.history.length > 0 && (
         <section className="bg-card space-y-3 rounded-xl border p-5" aria-labelledby="customer-history-title">

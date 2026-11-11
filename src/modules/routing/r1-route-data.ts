@@ -1,6 +1,5 @@
 import routeFixtures from '@/constants/dummy/r1-route-data.json'
 import customers from '@/constants/dummy/customers.json'
-import contacts from '@/constants/dummy/contacts.json'
 import leads from '@/constants/dummy/leads.json'
 import opportunities from '@/constants/dummy/opportunities.json'
 import tasks from '@/constants/dummy/tasks-activities.json'
@@ -48,14 +47,6 @@ export function routeRows(
         String(
           scoped(rfqs, marketId).filter((q) => q.customer_id === r.id).length,
         ),
-        r.updated_at,
-      ])
-    case '/contacts':
-      return scoped(contacts, marketId).map((r) => [
-        r.display_name,
-        customer(r.customer_id),
-        r.job_title,
-        r.email,
         r.updated_at,
       ])
     case '/leads':
@@ -185,7 +176,6 @@ export function routeRows(
 // Explicit safe display columns; never search contact details, money, audit or access records.
 const searchableColumns: Record<string, number[]> = {
   '/customers': [0],
-  '/contacts': [0, 1],
   '/leads': [0, 1, 5],
   '/opportunities': [0, 1, 5],
   '/tasks': [0, 1, 5],
