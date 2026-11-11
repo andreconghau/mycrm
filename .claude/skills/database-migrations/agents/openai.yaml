@@ -1,0 +1,9 @@
+interface:
+  display_name: "database-migrations"
+  short_description: "Analyze tables, design schemas and plan migrations"
+  icon_small: "./assets/logo.svg"
+  icon_large: "./assets/logo.svg"
+  brand_color: "#b50404"
+  default_prompt: "Use $database-migrations for table analysis, schema design and migration planning."
+policy:
+  allow_implicit_invocation: true

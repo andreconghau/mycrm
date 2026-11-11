@@ -1,0 +1,7 @@
+interface:
+  display_name: "Frontend Patterns"
+  short_description: "Project frontend and backend patterns"
+  brand_color: "#8B5CF6"
+  default_prompt: "Use $frontend-patterns to apply Project frontend and backend patterns."
+policy:
+  allow_implicit_invocation: true
