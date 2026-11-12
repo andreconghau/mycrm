@@ -27,7 +27,7 @@ Maintain searchable product catalogue for seafood export commercial offers.
 - Product changes (rename, attribute edit, retirement) never alter prior quotation/order snapshots — `quotation_lines.product_snapshot` (M09/M10, not yet implemented) is the historical boundary; M06 only guarantees the live record is immutable-by-reference once referenced
 - EN/VI/KO canonical names are required at creation (stored as `product_aliases` rows with `kind = 'NAME'`); descriptions are optional free text per locale. No machine translation.
 - SKU is normalized uppercase, pattern `^[A-Za-z0-9_-]{2,40}$`
-- Processing form, origin/treatment, grade and packaging are **not** duplicated on Product — they belong to [Product Specifications (M07)](product-specifications.md); Product carries only identity-level classification (`category`, `species_common_name`, `species_scientific_name`, `product_family`)
+- Processing form, origin/treatment, grade and packaging are **not** duplicated on Product — they belong to [Product Specifications (M07, currently in progress)](product-specifications.md); Product carries only identity-level classification (`category`, `species_common_name`, `species_scientific_name`, `product_family`)
 - `default_unit` is validated against a fixed application-level enum (`KG`, `MT`, `CTN`, `PCS`, `LB`); no unit-conversion logic
 - Market-level eligibility overrides (`market_products` table) are **out of scope** for R1-05 — this table exists in the baseline schema but is unclaimed until RFQ/Price Lists (M08/M09) need it
 

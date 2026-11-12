@@ -20,6 +20,13 @@ const isolated = postgres(databaseUrl, {
   connection: { search_path: schema },
 })
 
+function postgresErrorCode(error: unknown): string | undefined {
+  if (typeof error !== 'object' || error === null) return undefined
+  if ('code' in error && typeof error.code === 'string') return error.code
+  if ('cause' in error) return postgresErrorCode(error.cause)
+  return undefined
+}
+
 async function main() {
   const root = process.cwd()
   const baseline = await readFile(
@@ -36,6 +43,30 @@ async function main() {
   )
   const appendOnlyDown = await readFile(
     path.join(root, 'db/migrations/0002_audit_events_append_only.down.sql'),
+    'utf8',
+  )
+  const productsCatalog = await readFile(
+    path.join(root, 'db/migrations/0003_products_catalog.sql'),
+    'utf8',
+  )
+  const productsCatalogDown = await readFile(
+    path.join(root, 'db/migrations/0003_products_catalog.down.sql'),
+    'utf8',
+  )
+  const productSpecifications = await readFile(
+    path.join(root, 'db/migrations/0004_product_specifications.sql'),
+    'utf8',
+  )
+  const productSpecificationsDown = await readFile(
+    path.join(root, 'db/migrations/0004_product_specifications.down.sql'),
+    'utf8',
+  )
+  const priceLists = await readFile(
+    path.join(root, 'db/migrations/0005_price_lists.sql'),
+    'utf8',
+  )
+  const priceListsDown = await readFile(
+    path.join(root, 'db/migrations/0005_price_lists.down.sql'),
     'utf8',
   )
   await admin.unsafe(`CREATE SCHEMA "${schema}"`)
@@ -100,6 +131,283 @@ async function main() {
         'Mandatory audit insert failure did not roll back the business transaction',
       )
     }
+    // --- R1-05 catalog and R1-06 specification migrations ------------------
+    await isolated.unsafe(productsCatalog)
+    await isolated.unsafe(productSpecifications)
+    await isolated.unsafe(priceLists)
+
+    const [priceGuards] = await isolated<
+      { selectionTable: number; appendOnlyTrigger: number; itemGuard: number; itemDeleteGuard: number; hasForeignKey: number }[]
+    >`
+      SELECT
+        (SELECT COUNT(*)::integer FROM information_schema.tables
+          WHERE table_schema = ${schema} AND table_name = 'price_selections') AS "selectionTable",
+        (SELECT COUNT(*)::integer FROM information_schema.triggers
+          WHERE trigger_schema = ${schema} AND trigger_name = 'price_selections_append_only') AS "appendOnlyTrigger",
+        (SELECT COUNT(*)::integer FROM information_schema.triggers
+          WHERE trigger_schema = ${schema} AND trigger_name = 'price_list_items_immutable_after_approval') AS "itemGuard",
+        (SELECT COUNT(*)::integer FROM information_schema.triggers
+          WHERE trigger_schema = ${schema} AND trigger_name = 'price_list_items_delete_after_approval') AS "itemDeleteGuard",
+        (SELECT COUNT(*)::integer FROM information_schema.table_constraints
+          WHERE table_schema = ${schema} AND table_name = 'price_selections'
+            AND constraint_type = 'FOREIGN KEY') AS "hasForeignKey"
+    `
+    if (
+      !priceGuards.selectionTable ||
+      !priceGuards.appendOnlyTrigger ||
+      !priceGuards.itemGuard ||
+      !priceGuards.itemDeleteGuard ||
+      priceGuards.hasForeignKey
+    ) {
+      throw new Error('Price List migration did not create its expected guards or introduced a foreign key')
+    }
+
+    let invalidPriceListStatusRejected = false
+    try {
+      await isolated`
+        INSERT INTO price_lists (
+          market_id, code, tier, currency, valid_from, status, created_by
+        ) VALUES (1, 'MIG-PRICE-INVALID-STATUS', 'MARKET', 'USD', now(), 'ACTIVE', 1)
+      `
+    } catch {
+      invalidPriceListStatusRejected = true
+    }
+    if (!invalidPriceListStatusRejected) {
+      throw new Error('Price List lifecycle CHECK accepted a derived ACTIVE state as stored status')
+    }
+
+    const [priceProbeProduct] = await isolated<{ id: number }[]>`
+      INSERT INTO products (sku, display_name, default_unit, status)
+      VALUES ('MIG-PRICE-001', 'Price migration probe', 'KG', 'ACTIVE')
+      RETURNING id
+    `
+    const [priceList] = await isolated<{ id: number }[]>`
+      INSERT INTO price_lists (
+        market_id, code, tier, currency, valid_from, status, created_by
+      ) VALUES (1, 'MIG-PRICE-001', 'MARKET', 'USD', now() - interval '1 day', 'DRAFT', 1)
+      RETURNING id
+    `
+    const [priceItem] = await isolated<{ id: number }[]>`
+      INSERT INTO price_list_items (
+        market_id, price_list_id, product_id, unit, price_basis,
+        unit_price, valid_from
+      ) VALUES (1, ${priceList.id}, ${priceProbeProduct.id}, 'KG', 'NET', 10, now() - interval '1 day')
+      RETURNING id
+    `
+    let otherBasisWithoutNoteRejected = false
+    try {
+      await isolated`
+        INSERT INTO price_list_items (
+          market_id, price_list_id, product_id, unit, price_basis,
+          unit_price, valid_from
+        ) VALUES (1, ${priceList.id}, ${priceProbeProduct.id}, 'KG', 'OTHER', 10, now())
+      `
+    } catch {
+      otherBasisWithoutNoteRejected = true
+    }
+    if (!otherBasisWithoutNoteRejected) {
+      throw new Error('OTHER price basis CHECK accepted an item without its note')
+    }
+    await isolated`
+      UPDATE price_lists
+      SET status = 'APPROVED', approved_by = 1, approved_at = now()
+      WHERE id = ${priceList.id}
+    `
+    let approvedItemFrozen = false
+    try {
+      await isolated`UPDATE price_list_items SET unit_price = 11 WHERE id = ${priceItem.id}`
+    } catch (error) {
+      approvedItemFrozen = postgresErrorCode(error) === '55000'
+    }
+    let approvedItemDeleteBlocked = false
+    try {
+      await isolated`DELETE FROM price_list_items WHERE id = ${priceItem.id}`
+    } catch (error) {
+      approvedItemDeleteBlocked = postgresErrorCode(error) === '55000'
+    }
+    if (!approvedItemFrozen || !approvedItemDeleteBlocked) {
+      throw new Error('Approved Price List item mutation guards did not reject a change')
+    }
+
+    let reasonlessManualRejected = false
+    try {
+      await isolated`
+        INSERT INTO price_selections (
+          market_id, context_type, product_id, selection_type, selected_amount,
+          currency, unit, price_basis, quantity, selected_by, request_id
+        ) VALUES (1, 'AD_HOC', ${priceProbeProduct.id}, 'MANUAL', 12, 'USD', 'KG', 'NET', 1, 1, ${randomUUID()})
+      `
+    } catch {
+      reasonlessManualRejected = true
+    }
+    if (!reasonlessManualRejected) {
+      throw new Error('Price selection reason CHECK accepted a reasonless MANUAL row')
+    }
+
+    const [selection] = await isolated<{ id: number }[]>`
+      INSERT INTO price_selections (
+        market_id, context_type, product_id, price_list_id, price_list_item_id,
+        selection_type, listed_amount, selected_amount, currency, unit, price_basis,
+        quantity, source_metadata, selected_by, request_id
+      ) VALUES (
+        1, 'AD_HOC', ${priceProbeProduct.id}, ${priceList.id}, ${priceItem.id},
+        'REFERENCE', 10, 10.00, 'USD', 'KG', 'NET', 1, '{}', 1, ${randomUUID()}
+      ) RETURNING id
+    `
+    let selectionUpdateBlocked = false
+    try {
+      await isolated`UPDATE price_selections SET selected_amount = 11 WHERE id = ${selection.id}`
+    } catch {
+      selectionUpdateBlocked = true
+    }
+    let selectionDeleteBlocked = false
+    try {
+      await isolated`DELETE FROM price_selections WHERE id = ${selection.id}`
+    } catch {
+      selectionDeleteBlocked = true
+    }
+    if (!selectionUpdateBlocked || !selectionDeleteBlocked) {
+      throw new Error('Price selection append-only trigger did not reject UPDATE and DELETE')
+    }
+
+    await isolated.unsafe(priceListsDown)
+    const [priceDown] = await isolated<{ selectionTable: number; guardTrigger: number; listColumn: number }[]>`
+      SELECT
+        (SELECT COUNT(*)::integer FROM information_schema.tables
+          WHERE table_schema = ${schema} AND table_name = 'price_selections') AS "selectionTable",
+        (SELECT COUNT(*)::integer FROM information_schema.triggers
+          WHERE trigger_schema = ${schema}
+            AND trigger_name IN ('price_selections_append_only', 'price_list_items_immutable_after_approval', 'price_list_items_delete_after_approval')) AS "guardTrigger",
+        (SELECT COUNT(*)::integer FROM information_schema.columns
+          WHERE table_schema = ${schema} AND table_name = 'price_lists' AND column_name = 'created_by') AS "listColumn"
+    `
+    if (priceDown.selectionTable || priceDown.guardTrigger || priceDown.listColumn) {
+      throw new Error('Price List down migration left M08 schema objects behind')
+    }
+
+    const [guards] = await isolated<
+      { approvalIndex: number; immutabilityTrigger: number }[]
+    >`
+      SELECT
+        (
+          SELECT COUNT(*)::integer FROM pg_indexes
+          WHERE schemaname = ${schema}
+            AND indexname = 'specification_versions_one_approved'
+        ) AS "approvalIndex",
+        (
+          SELECT COUNT(*)::integer FROM information_schema.triggers
+          WHERE trigger_schema = ${schema}
+            AND trigger_name = 'specification_versions_immutable_after_approval'
+        ) AS "immutabilityTrigger"
+    `
+    if (!guards.approvalIndex || !guards.immutabilityTrigger) {
+      throw new Error(
+        'Specification migration did not create the single-approval index and immutability trigger',
+      )
+    }
+
+    const [probeProduct] = await isolated<{ id: number }[]>`
+      INSERT INTO products (sku, display_name, default_unit, status)
+      VALUES ('MIG-PROBE-001', 'Migration probe squid', 'KG', 'ACTIVE')
+      RETURNING id
+    `
+    const [probeSpecification] = await isolated<{ id: number }[]>`
+      INSERT INTO specifications (market_id, product_id, code)
+      VALUES (1, ${probeProduct.id}, 'MIG-PROBE-001-S01')
+      RETURNING id
+    `
+    const [approvedRevision] = await isolated<{ id: number }[]>`
+      INSERT INTO specification_versions (
+        market_id, specification_id, product_id, revision_no, status,
+        created_by, approved_by, published_at
+      )
+      VALUES (
+        1, ${probeSpecification.id}, ${probeProduct.id}, 1, 'APPROVED',
+        1, 1, now()
+      )
+      RETURNING id
+    `
+
+    // At most one APPROVED revision per specification (AC-16).
+    let secondApprovalRejected = false
+    try {
+      await isolated`
+        INSERT INTO specification_versions (
+          market_id, specification_id, product_id, revision_no, status,
+          created_by, approved_by, published_at
+        )
+        VALUES (
+          1, ${probeSpecification.id}, ${probeProduct.id}, 2, 'APPROVED',
+          1, 1, now()
+        )
+      `
+    } catch {
+      secondApprovalRejected = true
+    }
+
+    // Approved content is frozen at the database level (AC-04).
+    let approvedContentFrozen = false
+    try {
+      await isolated`
+        UPDATE specification_versions SET grade = 'A'
+        WHERE id = ${approvedRevision.id}
+      `
+    } catch {
+      approvedContentFrozen = true
+    }
+
+    // Archiving an approved revision stays possible.
+    await isolated`
+      UPDATE specification_versions
+      SET status = 'ARCHIVED', archived_at = now()
+      WHERE id = ${approvedRevision.id}
+    `
+    let archivedReopenBlocked = false
+    try {
+      await isolated`
+        UPDATE specification_versions SET status = 'DRAFT'
+        WHERE id = ${approvedRevision.id}
+      `
+    } catch {
+      archivedReopenBlocked = true
+    }
+
+    if (
+      !secondApprovalRejected ||
+      !approvedContentFrozen ||
+      !archivedReopenBlocked
+    ) {
+      throw new Error(
+        'Specification single-approval, content-immutability or archive guards did not hold',
+      )
+    }
+
+    await isolated.unsafe(productSpecificationsDown)
+    const [specificationDown] = await isolated<
+      { approvalIndex: number; immutabilityTrigger: number }[]
+    >`
+      SELECT
+        (
+          SELECT COUNT(*)::integer FROM pg_indexes
+          WHERE schemaname = ${schema}
+            AND indexname = 'specification_versions_one_approved'
+        ) AS "approvalIndex",
+        (
+          SELECT COUNT(*)::integer FROM information_schema.triggers
+          WHERE trigger_schema = ${schema}
+            AND trigger_name = 'specification_versions_immutable_after_approval'
+        ) AS "immutabilityTrigger"
+    `
+    if (
+      specificationDown.approvalIndex ||
+      specificationDown.immutabilityTrigger
+    ) {
+      throw new Error(
+        'Specification down migration left the approval guard objects behind',
+      )
+    }
+    await isolated.unsafe(productsCatalogDown)
+
     await isolated.unsafe(appendOnlyDown)
     const [{ triggerCount }] = await isolated<{ triggerCount: number }[]>`
       SELECT COUNT(*)::integer AS "triggerCount"

@@ -1,9 +1,11 @@
 import { sql } from 'drizzle-orm'
 import {
+  bigint,
   boolean,
   index,
   integer,
   jsonb,
+  numeric,
   pgTable,
   primaryKey,
   text,
@@ -423,11 +425,47 @@ export const customerPrimaryContacts = pgTable(
   ],
 )
 
+/**
+ * Mapping only — the physical table is created by the R1 baseline initializer.
+ * No storage adapter exists yet, so these columns are read-only for M07's
+ * authorized document metadata listing; nothing in R1-06 writes to `files`.
+ */
 export const files = pgTable('files', {
   id: identity(),
   marketId: integer('market_id').notNull(),
+  uploadedBy: integer('uploaded_by').notNull(),
+  storageKey: text('storage_key').notNull(),
+  originalName: text('original_name').notNull(),
+  mediaType: text('media_type').notNull(),
+  byteSize: bigint('byte_size', { mode: 'number' }).notNull(),
+  sha256: text('sha256').notNull(),
   scanState: text('scan_state').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 })
+
+export const fileAttachments = pgTable(
+  'file_attachments',
+  {
+    id: identity(),
+    marketId: integer('market_id').notNull(),
+    fileId: integer('file_id').notNull(),
+    recordLinkId: integer('record_link_id'),
+    specificationVersionId: integer('specification_version_id'),
+    quotationVersionId: integer('quotation_version_id'),
+    purpose: text('purpose').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index('idx_file_attachments_market_id_specification_version_id').on(
+      table.marketId,
+      table.specificationVersionId,
+    ),
+  ],
+)
 
 export const recordLinks = pgTable('record_links', {
   id: identity(),
@@ -548,6 +586,237 @@ export const productAliases = pgTable(
       table.productId,
       table.locale,
       table.label,
+    ),
+  ],
+)
+
+/**
+ * M07 Product Specifications. The physical tables come from the R1 baseline
+ * initializer; `customer_id` and the revision content columns are added by
+ * migration 0004_product_specifications.
+ */
+export const specifications = pgTable(
+  'specifications',
+  {
+    id: identity(),
+    marketId: integer('market_id').notNull(),
+    productId: integer('product_id').notNull(),
+    /** NULL = standard specification; set = buyer-specific specification. */
+    customerId: integer('customer_id'),
+    code: text('code').notNull(),
+    /** false = archived specification; historical references are preserved. */
+    active: boolean('active').notNull().default(true),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    version: integer('version').notNull().default(1),
+  },
+  (table) => [
+    index('idx_specifications_market_id_product_id').on(
+      table.marketId,
+      table.productId,
+    ),
+    index('specifications_market_customer_idx').on(
+      table.marketId,
+      table.customerId,
+    ),
+    index('specifications_market_active_idx').on(table.marketId, table.active),
+  ],
+)
+
+export const specificationVersions = pgTable(
+  'specification_versions',
+  {
+    id: identity(),
+    marketId: integer('market_id').notNull(),
+    specificationId: integer('specification_id').notNull(),
+    productId: integer('product_id').notNull(),
+    /** Content revision number within one specification. */
+    revisionNo: integer('revision_no').notNull(),
+    /** DRAFT -> APPROVED -> ARCHIVED. */
+    status: text('status').notNull(),
+
+    nameEn: text('name_en'),
+    nameVi: text('name_vi'),
+    nameKo: text('name_ko'),
+    descriptionEn: text('description_en'),
+    descriptionVi: text('description_vi'),
+    descriptionKo: text('description_ko'),
+
+    grade: text('grade'),
+    processing: text('processing'),
+    treatment: text('treatment'),
+    frozenForm: text('frozen_form'),
+    sizeBand: text('size_band'),
+    sizeUnit: text('size_unit'),
+
+    netWeightPerPack: numeric('net_weight_per_pack'),
+    grossWeightPerPack: numeric('gross_weight_per_pack'),
+    weightUnit: text('weight_unit'),
+    packsPerCarton: integer('packs_per_carton'),
+    cartonNetWeight: numeric('carton_net_weight'),
+    glazingPercent: numeric('glazing_percent'),
+    packaging: text('packaging'),
+    packagingMaterial: text('packaging_material'),
+    uom: text('uom'),
+    moq: numeric('moq'),
+    moqUnit: text('moq_unit'),
+
+    storageTempC: numeric('storage_temp_c'),
+    shelfLifeMonths: integer('shelf_life_months'),
+    originCountry: text('origin_country'),
+    certifications: text('certifications').array(),
+    labelLanguages: text('label_languages').array(),
+
+    buyerRequirements: text('buyer_requirements'),
+    notes: text('notes'),
+    requirements: jsonb('requirements').notNull().default({}),
+
+    createdBy: integer('created_by').notNull(),
+    approvedBy: integer('approved_by'),
+    /** Approval instant; the lifecycle has no separate PUBLISHED state. */
+    publishedAt: timestamp('published_at', { withTimezone: true }),
+    archivedAt: timestamp('archived_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    version: integer('version').notNull().default(1),
+  },
+  (table) => [
+    index('specification_versions_market_product_status_idx').on(
+      table.marketId,
+      table.productId,
+      table.status,
+    ),
+    // Postgres truncates the baseline name at 63 characters.
+    index('idx_specification_versions_market_id_product_id_specification_i').on(
+      table.marketId,
+      table.productId,
+      table.specificationId,
+    ),
+  ],
+)
+
+export const priceLists = pgTable(
+  'price_lists',
+  {
+    id: identity(),
+    marketId: integer('market_id').notNull(),
+    code: text('code').notNull(),
+    customerId: integer('customer_id'),
+    tier: text('tier').notNull(),
+    currency: text('currency').notNull(),
+    validFrom: timestamp('valid_from', { withTimezone: true }).notNull(),
+    validTo: timestamp('valid_to', { withTimezone: true }),
+    status: text('status').notNull(),
+    approvedBy: integer('approved_by'),
+    createdBy: integer('created_by').notNull(),
+    approvedAt: timestamp('approved_at', { withTimezone: true }),
+    archivedAt: timestamp('archived_at', { withTimezone: true }),
+    archiveReason: text('archive_reason'),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    version: integer('version').notNull().default(1),
+  },
+  (table) => [
+    index('price_lists_eligibility_idx').on(
+      table.marketId,
+      table.status,
+      table.tier,
+      table.validFrom,
+      table.validTo,
+    ),
+  ],
+)
+
+export const priceListItems = pgTable(
+  'price_list_items',
+  {
+    id: identity(),
+    marketId: integer('market_id').notNull(),
+    priceListId: integer('price_list_id').notNull(),
+    productId: integer('product_id').notNull(),
+    specificationVersionId: integer('specification_version_id'),
+    unit: text('unit').notNull(),
+    priceBasis: text('price_basis').notNull(),
+    priceBasisNote: text('price_basis_note'),
+    unitPrice: numeric('unit_price').notNull(),
+    minQuantity: numeric('min_quantity'),
+    maxQuantity: numeric('max_quantity'),
+    validFrom: timestamp('valid_from', { withTimezone: true }).notNull(),
+    validTo: timestamp('valid_to', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    version: integer('version').notNull().default(1),
+  },
+  (table) => [
+    index('price_list_items_lookup_idx').on(
+      table.marketId,
+      table.productId,
+      table.unit,
+      table.validFrom,
+      table.validTo,
+    ),
+  ],
+)
+
+export const priceSelections = pgTable(
+  'price_selections',
+  {
+    id: identity(),
+    marketId: integer('market_id').notNull(),
+    contextType: text('context_type').notNull(),
+    contextId: integer('context_id'),
+    productId: integer('product_id').notNull(),
+    specificationVersionId: integer('specification_version_id'),
+    priceListId: integer('price_list_id'),
+    priceListItemId: integer('price_list_item_id'),
+    selectionType: text('selection_type').notNull(),
+    listedAmount: numeric('listed_amount'),
+    selectedAmount: numeric('selected_amount').notNull(),
+    currency: text('currency').notNull(),
+    unit: text('unit').notNull(),
+    priceBasis: text('price_basis').notNull(),
+    quantity: numeric('quantity').notNull(),
+    reason: text('reason'),
+    sourceMetadata: jsonb('source_metadata').notNull().default({}),
+    selectedBy: integer('selected_by').notNull(),
+    selectedAt: timestamp('selected_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    requestId: uuid('request_id').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index('price_selections_context_idx').on(
+      table.marketId,
+      table.contextType,
+      table.contextId,
+    ),
+    index('price_selections_product_time_idx').on(
+      table.marketId,
+      table.productId,
+      table.selectedAt,
+    ),
+    index('price_selections_item_idx').on(
+      table.marketId,
+      table.priceListItemId,
     ),
   ],
 )

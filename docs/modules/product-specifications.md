@@ -1,6 +1,6 @@
 # M07 — Product Specifications
 
-> **Status: PLANNED — NOT IMPLEMENTED**  
+> **Status: IMPLEMENTED (R1-06)** — migration `0004`, scoped API, core workspace flows and positive authenticated HTTP verification are complete. Technical-file upload/download and M10 quotation/PDF flows remain outside this task and are blocked until their owning capabilities exist.
 > **Area:** Product · **Release:** R1 · **Reference:** [`docs/context.md`](../context.md)
 
 ## Confirmed R1 workflow and acceptance
@@ -15,10 +15,10 @@ Define exact product grades, processing, packaging and quantity/weight basis.
 - Record MOQ, labels/certificates and buyer-specific spec notes
 - Validate compatible product/spec combinations
 
-## Core data (proposed)
+## Core data (implemented in migration 0004; applied to the development database)
 ProductSpec: product_id, grade, processing, size_range, packing_type, net_weight, gross_weight, uom, moq, revision
 
-## States / lifecycle (proposed)
+## States / lifecycle (implemented)
 `DRAFT → APPROVED → ARCHIVED`
 
 ## Business rules and validation
@@ -37,9 +37,9 @@ Products
 - 10 cartons with specified net kg/carton produces correct total weight
 - Wrong product/spec combination rejected
 
-## Detailed Implementation Contract (proposed)
+## Detailed Implementation Contract
 
-> These are proposed use cases, API routes and fields for implementation planning; they are **not implemented**. Confirm database naming and exact API contracts through the relevant task/ADR before coding.
+> The following contract remains the intended scope. See the implementation progress section and checklist for verified delivery versus remaining work.
 
 ### Functional workflow
 1. Define a versioned specification tied to product and intended buyer/market where necessary.
@@ -66,9 +66,17 @@ Products
 - Invalid impossible weights/percentages and missing mandatory approved fields rejected.
 
 ## Implementation checklist
-- [ ] Domain model, state transitions and failure cases reviewed with business owner.
-- [ ] Persistence contract/schema and safe database indexes approved.
-- [ ] Use cases, server-side Zod validation and scoped authorization implemented.
-- [ ] UI or API adapters implemented only where needed.
-- [ ] Unit and integration tests cover success, negative permissions and concurrency/idempotency where relevant.
-- [ ] Audit/observability/docs updated; acceptance verified.
+- [x] Domain model, state transitions and failure cases reviewed with business owner (`/grill-me`, 2026-11-11).
+- [x] Persistence contract/schema and indexes implemented in migration `0004_product_specifications`; isolated replay passed.
+- [x] Use cases, Zod boundaries, scoped authorization, transactional audit and REST/OpenAPI adapters implemented.
+- [x] Core UI: workspace supports market/search/status filters, authorized buyer search, draft creation/editing, optional technical fields, revision history, successor creation, approval and compare, with focus/dirty-state protections.
+- [ ] Approved-document upload/download UX remains blocked by the missing private storage adapter.
+- [x] Verification: 119 unit tests, 6 PostgreSQL integration tests in an isolated schema, 2 anonymous and 2 authenticated HTTP E2E cases, migration replay/rollback validation in an isolated schema, development migration `0004`, typecheck, targeted lint and Webpack production build.
+- [ ] Technical-file upload/download and M10 quotation/PDF scenarios remain blocked by their approved module boundary.
+- [ ] Review and commit before closing the task.
+
+### Implemented API boundary
+
+`GET /api/v1/specifications`, `GET/POST /api/v1/products/:id/specifications`, specification detail and revision routes, publish, archive, compare, snapshot, and metadata-only document listing are implemented under `/api/v1`. Database authorization and audit are enforced server-side. Migration `0004` extends the baseline tables, adds revision guards, and supplies the `DRAFT → APPROVED → ARCHIVED` lifecycle.
+
+No upload/download adapter is implemented. M10 quotation submission and PDF issue are also outside this task; AC-09/AC-10 and file-level AC-18 remain blocked until their owning capabilities exist.

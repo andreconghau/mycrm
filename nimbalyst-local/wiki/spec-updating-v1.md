@@ -89,3 +89,19 @@ The module doc's prior proposal of a `Catalog Admin`/`Purchasing` edit role (in 
 ### Spec disposition
 
 No change was made to `CRM-Spec.md`. The DRAFT lifecycle state is an additive refinement compatible with the existing two-state description. The M06/M07 field boundary is an implementation clarification of an ambiguity between the two sections, not a business-rule change — specification-level attributes (processing, grade, packaging) remain where `CRM-Spec.md`'s M07 section already places them. `market_products` ownership remains an open decision for whichever task implements M08/M09.
+# 2026-11-11 — R1-06 M07 Product Specifications
+
+Compared `CRM-Spec.md` §4.1 M07 with the approved implementation plan and current source.
+
+## Implementation clarifications
+
+- The implemented data model uses the baseline `specifications` and `specification_versions` records and adds the approved technical, multilingual, buyer-specific, lifecycle and audit columns through migration `0004`; this implements the M07 ProductSpecification/SpecificationVersion concept without adding a separate attribute table.
+- Specification records remain market-scoped and buyer-specific revisions remain separate from standard specifications. Revisions follow `DRAFT → APPROVED → ARCHIVED`; approved content is immutable, with later changes represented by a successor revision.
+- The snapshot helper establishes the future quotation integration contract. This task does not claim issued quotation/order snapshots or PDF preservation because M10/M12 execution is not implemented.
+- Technical document upload/download and storage versioning are not delivered in this task; only authorized metadata listing is in scope, so the broader attachment outcome in CRM-Spec remains outstanding.
+- Buyer-specific customer references are checked against the same market and archived buyers are rejected. A real-PostgreSQL integration test verifies buyer-specific and standard specifications remain separate.
+- A synthetic `quotation_lines.specification_snapshot` integration case verifies that approving a successor revision does not alter the earlier stored snapshot. This exercises the persistence boundary without claiming M10 submission or PDF issuance.
+
+## Spec disposition
+
+No change was made to `CRM-Spec.md`. These are implementation choices within its existing M07 purpose and acceptance outcome. The task remains in progress; no acceptance outcome is marked complete based solely on the snapshot helper.

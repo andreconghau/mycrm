@@ -35,6 +35,18 @@ import {
   transitionProductSchema,
   updateProductSchema,
 } from '@/modules/products/application/contracts'
+import {
+  approveRevisionSchema,
+  archiveSpecificationSchema,
+  createRevisionSchema,
+  createSpecificationSchema,
+  updateRevisionSchema,
+} from '@/modules/product-specifications/application/contracts'
+import { specificationRevisionStatuses } from '@/modules/product-specifications/domain/specification-lifecycle'
+import {
+  measurementUnits,
+  weightUnits,
+} from '@/modules/product-specifications/domain/specification-measurements'
 import { z, type ZodType } from 'zod'
 
 type Schema = Record<string, unknown>
@@ -93,6 +105,37 @@ const positiveInteger = {
   type: 'integer',
   format: 'int64',
   minimum: 1,
+} as const
+
+const priceListPaths = {
+  '/api/v1/price-lists': {
+    get: { operationId: 'listPriceLists', tags: ['Price Lists'], summary: 'List market-scoped Price Lists', security: cookieSecurity, parameters: [marketParameter], responses: { '200': jsonResponse('Price List page.', dataEnvelope({ type: 'object' })), ...commonErrors } },
+    post: { operationId: 'createPriceList', tags: ['Price Lists'], summary: 'Create a DRAFT Price List', security: cookieSecurity, parameters: [marketParameter, csrfParameter], requestBody: { required: true, content: { 'application/json': { schema: { type: 'object' } } } }, responses: { '201': jsonResponse('Price List created.', dataEnvelope({ type: 'object' })), ...commonErrors } },
+  },
+  '/api/v1/price-lists/{id}': {
+    get: { operationId: 'getPriceList', tags: ['Price Lists'], summary: 'Read a Price List with items', security: cookieSecurity, parameters: [idParameter, marketParameter], responses: { '200': jsonResponse('Price List.', dataEnvelope({ type: 'object' })), ...commonErrors } },
+    patch: { operationId: 'updatePriceList', tags: ['Price Lists'], summary: 'Update a DRAFT Price List', security: cookieSecurity, parameters: [idParameter, marketParameter, csrfParameter], requestBody: { required: true, content: { 'application/json': { schema: { type: 'object' } } } }, responses: { '200': jsonResponse('Price List updated.', dataEnvelope({ type: 'object' })), ...commonErrors } },
+  },
+  '/api/v1/price-lists/{id}/items': {
+    get: { operationId: 'listPriceListItems', tags: ['Price Lists'], summary: 'List Price List items', security: cookieSecurity, parameters: [idParameter, marketParameter], responses: { '200': jsonResponse('Price List items.', dataEnvelope({ type: 'object' })), ...commonErrors } },
+    post: { operationId: 'createPriceListItem', tags: ['Price Lists'], summary: 'Add an item to a DRAFT Price List', security: cookieSecurity, parameters: [idParameter, marketParameter, csrfParameter], requestBody: { required: true, content: { 'application/json': { schema: { type: 'object' } } } }, responses: { '201': jsonResponse('Created item and overlaps warning.', dataEnvelope({ type: 'object' })), ...commonErrors } },
+  },
+  '/api/v1/price-lists/{id}/items/{itemId}': {
+    patch: { operationId: 'updatePriceListItem', tags: ['Price Lists'], summary: 'Update a draft item', security: cookieSecurity, parameters: [idParameter, { name: 'itemId', in: 'path', required: true, schema: positiveInteger }, marketParameter, csrfParameter], requestBody: { required: true, content: { 'application/json': { schema: { type: 'object' } } } }, responses: { '200': jsonResponse('Updated item and overlaps warning.', dataEnvelope({ type: 'object' })), ...commonErrors } },
+  },
+  '/api/v1/price-lists/{id}/approve': {
+    post: { operationId: 'approvePriceList', tags: ['Price Lists'], summary: 'Approve a DRAFT Price List', security: cookieSecurity, parameters: [idParameter, marketParameter, csrfParameter], requestBody: { required: true, content: { 'application/json': { schema: { type: 'object' } } } }, responses: { '200': jsonResponse('Price List approved.', dataEnvelope({ type: 'object' })), ...commonErrors } },
+  },
+  '/api/v1/price-lists/{id}/archive': {
+    post: { operationId: 'archivePriceList', tags: ['Price Lists'], summary: 'Archive a Price List with a reason', security: cookieSecurity, parameters: [idParameter, marketParameter, csrfParameter], requestBody: { required: true, content: { 'application/json': { schema: { type: 'object' } } } }, responses: { '200': jsonResponse('Price List archived.', dataEnvelope({ type: 'object' })), ...commonErrors } },
+  },
+  '/api/v1/price-lists/applicable': {
+    get: { operationId: 'applicablePrices', tags: ['Price Lists'], summary: 'Return all eligible reference prices and recommendation', security: cookieSecurity, parameters: [marketParameter], responses: { '200': jsonResponse('All eligible price options.', dataEnvelope({ type: 'object' })), ...commonErrors } },
+  },
+  '/api/v1/price-selections': {
+    get: { operationId: 'listPriceSelections', tags: ['Price Lists'], summary: 'Read market-scoped selection history', security: cookieSecurity, parameters: [marketParameter], responses: { '200': jsonResponse('Selection history.', dataEnvelope({ type: 'array', items: { type: 'object' } })), ...commonErrors } },
+    post: { operationId: 'recordPriceSelection', tags: ['Price Lists'], summary: 'Record a standalone AD_HOC selection', description: 'Selections are append-only and audited. Manual and override selections require a separate override grant and reason.', security: cookieSecurity, parameters: [marketParameter, csrfParameter], requestBody: { required: true, content: { 'application/json': { schema: { type: 'object' } } } }, responses: { '201': jsonResponse('Selection recorded.', dataEnvelope({ type: 'object' })), ...commonErrors } },
+  },
 } as const
 
 const paths = {
@@ -459,6 +502,164 @@ const paths = {
       parameters: [idParameter, csrfParameter],
       requestBody: jsonBody('TransitionProductRequest'),
       responses: { '200': jsonResponse('Product reactivated.', dataEnvelope(schemaRef('Product'))), ...commonErrors, '404': responseRef('NotFound'), '409': responseRef('Conflict') },
+    },
+  },
+  '/api/v1/specifications': {
+    get: {
+      operationId: 'listSpecifications',
+      tags: ['Product specifications'],
+      summary: 'List market-scoped product specifications',
+      description:
+        'Requires specifications:read and current market membership. Unlike the global product catalog, specifications are market-scoped. `kind=STANDARD` returns specifications with no buyer link; `kind=BUYER` returns buyer-specific specifications.',
+      security: cookieSecurity,
+      parameters: [
+        marketParameter,
+        { name: 'q', in: 'query', schema: { type: 'string', maxLength: 120 } },
+        { name: 'productId', in: 'query', schema: positiveInteger },
+        { name: 'customerId', in: 'query', schema: positiveInteger },
+        { name: 'status', in: 'query', schema: { type: 'string', enum: specificationRevisionStatuses } },
+        { name: 'kind', in: 'query', schema: { type: 'string', enum: ['STANDARD', 'BUYER'] } },
+        { name: 'active', in: 'query', schema: { type: 'string', enum: ['true', 'false'] } },
+        { name: 'limit', in: 'query', schema: { type: 'integer', minimum: 1, maximum: 100, default: 50 } },
+        { name: 'cursor', in: 'query', schema: { type: 'string', maxLength: 512 } },
+      ],
+      responses: {
+        '200': jsonResponse('Specification page.', dataEnvelope({ type: 'object', required: ['items', 'nextCursor'], properties: { items: { type: 'array', items: schemaRef('Specification') }, nextCursor: { type: ['string', 'null'] } }, additionalProperties: false })),
+        ...commonErrors,
+      },
+    },
+  },
+  '/api/v1/products/{id}/specifications': {
+    get: {
+      operationId: 'listProductSpecifications',
+      tags: ['Product specifications'],
+      summary: 'List the specifications of one product',
+      security: cookieSecurity,
+      parameters: [idParameter, marketParameter],
+      responses: {
+        '200': jsonResponse('Specification page scoped to the product.', dataEnvelope({ type: 'object', required: ['items', 'nextCursor'], properties: { items: { type: 'array', items: schemaRef('Specification') }, nextCursor: { type: ['string', 'null'] } }, additionalProperties: false })),
+        ...commonErrors,
+      },
+    },
+    post: {
+      operationId: 'createProductSpecification',
+      tags: ['Product specifications'],
+      summary: 'Create a specification with its first DRAFT revision',
+      description:
+        'Requires specifications:create and CSRF proof. The product must exist and be ACTIVE. The specification code is generated server-side as <SKU>-S<nn>. Supplying customerId creates a buyer-specific specification that never overwrites the standard one.',
+      security: cookieSecurity,
+      parameters: [idParameter, marketParameter, csrfParameter],
+      requestBody: jsonBody('CreateSpecificationRequest'),
+      responses: { '201': jsonResponse('Specification created with revision 1 in DRAFT.', dataEnvelope(schemaRef('Specification'))), ...commonErrors, '409': responseRef('Conflict') },
+    },
+  },
+  '/api/v1/specifications/{id}': {
+    get: {
+      operationId: 'getSpecification',
+      tags: ['Product specifications'],
+      summary: 'Read a specification with its revision history',
+      security: cookieSecurity,
+      parameters: [idParameter, marketParameter],
+      responses: { '200': jsonResponse('Specification projection filtered by read-field grants.', dataEnvelope(schemaRef('Specification'))), ...commonErrors, '404': responseRef('NotFound') },
+    },
+  },
+  '/api/v1/specifications/{id}/revisions': {
+    get: {
+      operationId: 'listSpecificationRevisions',
+      tags: ['Product specifications'],
+      summary: 'List every revision of a specification oldest-first',
+      security: cookieSecurity,
+      parameters: [idParameter, marketParameter],
+      responses: { '200': jsonResponse('Revision history.', dataEnvelope({ type: 'array', items: schemaRef('SpecificationRevision') })), ...commonErrors, '404': responseRef('NotFound') },
+    },
+    post: {
+      operationId: 'createSpecificationRevision',
+      tags: ['Product specifications'],
+      summary: 'Create the next DRAFT revision, cloning an existing revision',
+      description:
+        'Requires specifications:create and CSRF proof. Content is inherited from sourceRevisionNo (default: the highest revision) and overridden by the supplied fields. The source revision is left unchanged. At most one open DRAFT revision may exist at a time.',
+      security: cookieSecurity,
+      parameters: [idParameter, marketParameter, csrfParameter],
+      requestBody: jsonBody('CreateSpecificationRevisionRequest'),
+      responses: { '201': jsonResponse('Next DRAFT revision created.', dataEnvelope(schemaRef('SpecificationRevision'))), ...commonErrors, '404': responseRef('NotFound'), '409': responseRef('Conflict') },
+    },
+  },
+  '/api/v1/specifications/{id}/revisions/{revisionNo}': {
+    patch: {
+      operationId: 'updateSpecificationRevision',
+      tags: ['Product specifications'],
+      summary: 'Edit a DRAFT revision with optimistic concurrency',
+      description:
+        'Requires specifications:update and CSRF proof. Only a DRAFT revision is editable; an APPROVED or ARCHIVED revision is rejected with IMMUTABLE_REVISION and a new revision is required instead. This is additionally enforced by a database trigger.',
+      security: cookieSecurity,
+      parameters: [idParameter, { name: 'revisionNo', in: 'path', required: true, schema: { type: 'integer', minimum: 1 } }, marketParameter, csrfParameter],
+      requestBody: jsonBody('UpdateSpecificationRevisionRequest'),
+      responses: { '200': jsonResponse('Draft revision updated.', dataEnvelope(schemaRef('SpecificationRevision'))), ...commonErrors, '404': responseRef('NotFound'), '409': responseRef('Conflict'), '422': jsonResponse('Impossible measurement or unsupported unit conversion.', schemaRef('Error')) },
+    },
+  },
+  '/api/v1/specifications/{id}/revisions/{revisionNo}/publish': {
+    post: {
+      operationId: 'publishSpecificationRevision',
+      tags: ['Product specifications'],
+      summary: 'Approve a DRAFT revision (DRAFT -> APPROVED)',
+      description:
+        'Requires specifications:approve and CSRF proof. Publish and approve are the same transition. The previously approved revision is archived in the same transaction, so at most one APPROVED revision exists per specification; a partial unique index makes concurrent publishes resolve to exactly one winner. Approval is rejected with APPROVAL_FIELDS_MISSING when a required field is empty.',
+      security: cookieSecurity,
+      parameters: [idParameter, { name: 'revisionNo', in: 'path', required: true, schema: { type: 'integer', minimum: 1 } }, marketParameter, csrfParameter],
+      requestBody: jsonBody('ApproveSpecificationRevisionRequest'),
+      responses: { '200': jsonResponse('Revision approved.', dataEnvelope(schemaRef('SpecificationRevision'))), ...commonErrors, '404': responseRef('NotFound'), '409': responseRef('Conflict'), '422': jsonResponse('Required approval fields are missing.', schemaRef('Error')) },
+    },
+  },
+  '/api/v1/specifications/{id}/revisions/{revisionNo}/snapshot': {
+    get: {
+      operationId: 'getSpecificationRevisionSnapshot',
+      tags: ['Product specifications'],
+      summary: 'Read the immutable offer snapshot for a revision',
+      description:
+        'Requires specifications:read. Returns the frozen value copy M10 Quotations persists into quotation_lines.specification_snapshot at submission, so a later revision can never alter an earlier offer. Only an APPROVED or ARCHIVED revision can be snapshotted. Document references carry file id and SHA-256 but never a private storage key or download URL.',
+      security: cookieSecurity,
+      parameters: [idParameter, { name: 'revisionNo', in: 'path', required: true, schema: { type: 'integer', minimum: 1 } }, marketParameter],
+      responses: { '200': jsonResponse('Immutable specification snapshot.', dataEnvelope(schemaRef('SpecificationSnapshot'))), ...commonErrors, '404': responseRef('NotFound'), '409': responseRef('Conflict') },
+    },
+  },
+  '/api/v1/specifications/{id}/revisions/{revisionNo}/documents': {
+    get: {
+      operationId: 'listSpecificationRevisionDocuments',
+      tags: ['Product specifications'],
+      summary: 'List technical document metadata attached to a revision',
+      description:
+        'Requires specifications:read. Metadata only: no storage key and no download URL are returned, because no storage adapter is implemented in R1. Upload and download are out of scope for this release.',
+      security: cookieSecurity,
+      parameters: [idParameter, { name: 'revisionNo', in: 'path', required: true, schema: { type: 'integer', minimum: 1 } }, marketParameter],
+      responses: { '200': jsonResponse('Attached document metadata.', dataEnvelope({ type: 'array', items: schemaRef('SpecificationDocument') })), ...commonErrors, '404': responseRef('NotFound') },
+    },
+  },
+  '/api/v1/specifications/{id}/compare-revisions': {
+    get: {
+      operationId: 'compareSpecificationRevisions',
+      tags: ['Product specifications'],
+      summary: 'Compare two revisions field by field',
+      security: cookieSecurity,
+      parameters: [
+        idParameter,
+        marketParameter,
+        { name: 'left', in: 'query', required: true, schema: { type: 'integer', minimum: 1 } },
+        { name: 'right', in: 'query', required: true, schema: { type: 'integer', minimum: 1 } },
+      ],
+      responses: { '200': jsonResponse('Both revisions plus only the fields that differ.', dataEnvelope(schemaRef('SpecificationRevisionComparison'))), ...commonErrors, '404': responseRef('NotFound') },
+    },
+  },
+  '/api/v1/specifications/{id}/archive': {
+    post: {
+      operationId: 'archiveSpecification',
+      tags: ['Product specifications'],
+      summary: 'Archive a whole specification',
+      description:
+        'Requires specifications:archive and CSRF proof. Removes the specification from new commercial selection and archives its open revisions. Nothing is deleted: every historical offer reference and approved revision content is preserved.',
+      security: cookieSecurity,
+      parameters: [idParameter, marketParameter, csrfParameter],
+      requestBody: jsonBody('ArchiveSpecificationRequest'),
+      responses: { '200': jsonResponse('Specification archived.', dataEnvelope(schemaRef('Specification'))), ...commonErrors, '404': responseRef('NotFound'), '409': responseRef('Conflict') },
     },
   },
   '/api/v1/audit-events': {
@@ -839,6 +1040,7 @@ const paths = {
       },
     },
   },
+  ...priceListPaths,
 } as const
 
 const errorSchema = {
@@ -864,7 +1066,7 @@ export const openApiDocument = {
     title: 'Seafood Export CRM API',
     version: '0.1.0',
     description:
-      'Implemented R1 access-control API. Planned module contracts are intentionally excluded.',
+      'Implemented R1 access-control and Price Lists APIs. Unimplemented module contracts are intentionally excluded.',
   },
   servers: [{ url: '/', description: 'Same-origin CRM application' }],
   tags: [
@@ -874,6 +1076,8 @@ export const openApiDocument = {
     { name: 'Customers' },
     { name: 'Contacts' },
     { name: 'Products' },
+    { name: 'Product specifications' },
+    { name: 'Price Lists' },
   ],
   paths,
   components: {
@@ -1236,6 +1440,135 @@ export const openApiDocument = {
             items: { type: 'object', required: ['locale', 'label'], properties: { locale: { type: 'string' }, label: { type: 'string' } }, additionalProperties: false },
           },
           version: { type: 'integer', minimum: 1 },
+        },
+        additionalProperties: false,
+      },
+      CreateSpecificationRequest: fromZod(createSpecificationSchema),
+      UpdateSpecificationRevisionRequest: fromZod(updateRevisionSchema),
+      CreateSpecificationRevisionRequest: fromZod(createRevisionSchema),
+      ApproveSpecificationRevisionRequest: fromZod(approveRevisionSchema),
+      ArchiveSpecificationRequest: fromZod(archiveSpecificationSchema),
+      SpecificationRevision: {
+        type: 'object',
+        required: ['id', 'revisionNo', 'status'],
+        properties: {
+          id: positiveInteger,
+          marketId: positiveInteger,
+          specificationId: positiveInteger,
+          productId: positiveInteger,
+          revisionNo: { type: 'integer', minimum: 1 },
+          status: { type: 'string', enum: specificationRevisionStatuses },
+          nameEn: { type: ['string', 'null'] },
+          nameVi: { type: ['string', 'null'] },
+          nameKo: { type: ['string', 'null'] },
+          descriptionEn: { type: ['string', 'null'] },
+          descriptionVi: { type: ['string', 'null'] },
+          descriptionKo: { type: ['string', 'null'] },
+          grade: { type: ['string', 'null'] },
+          processing: { type: ['string', 'null'] },
+          treatment: { type: ['string', 'null'] },
+          frozenForm: { type: ['string', 'null'] },
+          sizeBand: { type: ['string', 'null'] },
+          sizeUnit: { type: ['string', 'null'] },
+          netWeightPerPack: { type: ['string', 'null'], description: 'Exact decimal as a string; never a JSON number, so no precision is lost.' },
+          grossWeightPerPack: { type: ['string', 'null'], description: 'Exact decimal as a string; never a JSON number, so no precision is lost.' },
+          weightUnit: { type: ['string', 'null'], enum: [...weightUnits, null] },
+          packsPerCarton: { type: ['integer', 'null'], minimum: 1 },
+          cartonNetWeight: { type: ['string', 'null'], description: 'Exact decimal as a string; never a JSON number, so no precision is lost.' },
+          glazingPercent: { type: ['string', 'null'], description: 'Exact decimal as a string; never a JSON number, so no precision is lost.' },
+          packaging: { type: ['string', 'null'] },
+          packagingMaterial: { type: ['string', 'null'] },
+          uom: { type: ['string', 'null'], enum: [...measurementUnits, null] },
+          moq: { type: ['string', 'null'], description: 'Exact decimal as a string; never a JSON number, so no precision is lost.' },
+          moqUnit: { type: ['string', 'null'], enum: [...measurementUnits, null] },
+          storageTempC: { type: ['string', 'null'], description: 'Exact decimal as a string; never a JSON number, so no precision is lost.' },
+          shelfLifeMonths: { type: ['integer', 'null'], minimum: 1 },
+          originCountry: { type: ['string', 'null'], pattern: '^[A-Z]{2}$' },
+          certifications: { type: ['array', 'null'], items: { type: 'string' } },
+          labelLanguages: { type: ['array', 'null'], items: { type: 'string' } },
+          buyerRequirements: { type: ['string', 'null'] },
+          notes: { type: ['string', 'null'] },
+          requirements: { type: 'object', additionalProperties: true },
+          approvedBy: { type: ['integer', 'null'] },
+          createdBy: { type: ['integer', 'null'] },
+          version: { type: 'integer', minimum: 1 },
+        },
+        additionalProperties: true,
+      },
+      Specification: {
+        type: 'object',
+        required: ['id', 'code', 'productId', 'active', 'version'],
+        properties: {
+          id: positiveInteger,
+          marketId: positiveInteger,
+          productId: positiveInteger,
+          customerId: { type: ['integer', 'null'], description: 'null = standard specification; set = buyer-specific.' },
+          code: { type: 'string', description: 'Server-generated <SKU>-S<nn>.' },
+          active: { type: 'boolean', description: 'false = archived; historical references are preserved.' },
+          productSku: { type: ['string', 'null'] },
+          productName: { type: ['string', 'null'] },
+          currentRevision: { oneOf: [schemaRef('SpecificationRevision'), { type: 'null' }] },
+          approvedRevision: { oneOf: [schemaRef('SpecificationRevision'), { type: 'null' }] },
+          draftRevision: { oneOf: [schemaRef('SpecificationRevision'), { type: 'null' }] },
+          revisions: { type: 'array', items: schemaRef('SpecificationRevision') },
+          missingApprovalFields: { type: 'array', items: { type: 'string' }, description: 'Read-only aid; the server re-checks these at approval time.' },
+          version: { type: 'integer', minimum: 1 },
+        },
+        additionalProperties: true,
+      },
+      SpecificationDocument: {
+        type: 'object',
+        required: ['fileId', 'purpose', 'originalName', 'sha256'],
+        properties: {
+          fileId: positiveInteger,
+          purpose: { type: 'string' },
+          originalName: { type: 'string' },
+          mediaType: { type: 'string' },
+          byteSize: { type: 'integer', minimum: 1 },
+          sha256: { type: 'string', pattern: '^[0-9a-f]{64}$' },
+          scanState: { type: 'string' },
+          createdAt: { type: 'string', format: 'date-time' },
+        },
+        additionalProperties: false,
+      },
+      SpecificationSnapshot: {
+        type: 'object',
+        required: ['snapshotVersion', 'specificationId', 'revisionNo', 'sku'],
+        description:
+          'Frozen value copy of an approved revision. Persisted verbatim by M10 so catalog or specification changes can never alter an earlier offer or its issued PDF.',
+        properties: {
+          snapshotVersion: { type: 'integer', minimum: 1 },
+          capturedAt: { type: 'string', format: 'date-time' },
+          productId: positiveInteger,
+          sku: { type: 'string' },
+          productNames: { type: 'object', additionalProperties: { type: 'string' } },
+          specificationId: positiveInteger,
+          specificationCode: { type: 'string' },
+          specificationVersionId: positiveInteger,
+          revisionNo: { type: 'integer', minimum: 1 },
+          status: { type: 'string', enum: specificationRevisionStatuses },
+          approvedAt: { type: ['string', 'null'], format: 'date-time' },
+          approvedBy: { type: ['integer', 'null'] },
+          customerId: { type: ['integer', 'null'] },
+          documents: { type: 'array', items: schemaRef('SpecificationDocument') },
+        },
+        additionalProperties: true,
+      },
+      SpecificationRevisionComparison: {
+        type: 'object',
+        required: ['left', 'right', 'differences'],
+        properties: {
+          left: schemaRef('SpecificationRevision'),
+          right: schemaRef('SpecificationRevision'),
+          differences: {
+            type: 'array',
+            items: {
+              type: 'object',
+              required: ['field'],
+              properties: { field: { type: 'string' }, left: {}, right: {} },
+              additionalProperties: false,
+            },
+          },
         },
         additionalProperties: false,
       },

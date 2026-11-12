@@ -14,7 +14,9 @@ Internal B2B Seafood Export CRM. Releases: R1 Core CRM, R2 Export Execution, R3 
 
 Verify file existence and actual implementation. Never assume planned features exist. Nimbalyst owns live task status.
 
-**Language:** Communicate with the owner in Vietnamese. Write code, comments, SQL, tests, documentation and commits in English.
+**Language:** Communicate with the owner in Vietnamese. Write code, SQL, tests, documentation and commits in English.
+
+**Code comments:** Do not add comments or docstrings to code files. Keep code self-explanatory through clear names and structure.
 
 **Priorities:** Correctness → Data integrity → Security → Fault tolerance → Performance → Scalability → Maintainability.
 
@@ -53,6 +55,12 @@ Apply automatically to **every development task**, even when not repeated in the
 - Run `/goal` if available and approved; otherwise report limitation and review acceptance criteria manually.
 - Report `PASS / FAIL / BLOCKED / NOT TESTED` with evidence.
 - Review final diff; preserve unrelated edits.
+
+### Browser Verification
+
+- For authenticated browser testing as Admin, use `ADMIN_ROLE_USER` and `ADMIN_ROLE_PASS` from the local `.env` file to sign in through the UI. Never print, log, or copy their values into source, test output, or documentation.
+- When browser verification needs sample content, create realistic, clearly synthetic records through the frontend UI. Use the local development environment, avoid real customer data, and clean up created records when safe.
+- Keep automated E2E fixtures separate from the local Admin credentials; use the repository's temporary test-user setup for automated tests.
 
 ### Development Log
 

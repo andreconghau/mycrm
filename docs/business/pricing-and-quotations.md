@@ -14,6 +14,10 @@ Create independent alternatives and revisions. Require SKU and specification ver
 
 Acceptance: Draft FX changes recompute VND lines. Sum exact decimals before rounding the total to cents using ROUND_HALF_EVEN: 20.005 → 20.00, 20.015 → 20.02, 10.004 + 10.004 → 20.01.
 
+For mixed-currency drafts, retain original USD and VND totals separately and never add across currencies; the payable total is USD. Calculate that final total from exact source amounts and the revision's rate, including freight and insurance as explicit adjustments, and round only the aggregate. A new revision clones the latest revision of its own alternative into an independent draft. Drafts may be incomplete; readiness checks require an eligible SKU and approved Specification Revision per commercial line without submitting or locking it. M08 price selection is reused after its contract is implemented and verified.
+
+The R1-09 Draft & Calculate implementation slice excludes submission, approval/rejection/withdrawal, PDF issue, buyer acceptance and Sales Order conversion. The approved rules below remain the specification for those later slices. The representation of repeating converted line decimals must not affect exact payable-total calculation; its persisted precision and serialization remain to be designed before migration approval.
+
 ### Quotations — approval and issue
 
 Lock each submitted version. Every version requires Manager or Admin approval (explicit grant, no amount threshold); Sale cannot approve. Self-approval requires a comment of at least 10 characters after trimming whitespace and is recorded as `self_approved`. See [R1 decisions](r1-decisions.md). Rejection and Sales withdrawal require reasons and immutable history. Copy a withdrawn/rejected version into a new draft. Issue PDF from approved data.
