@@ -15,6 +15,10 @@ import {
   specificationAdminGrants,
   specificationSaleGrants,
 } from '../src/modules/product-specifications/domain/specification-grants'
+import {
+  priceListAdminGrants,
+  priceListSaleGrants,
+} from '../src/modules/price-lists/domain/price-list-grants'
 
 loadEnvConfig(process.cwd())
 
@@ -714,6 +718,82 @@ async function grantSpecifications() {
   )
 }
 
+async function grantPriceLists() {
+  const actorEmail = option('--actor-email')?.trim().toLowerCase()
+  if (!actorEmail) throw new Error('--actor-email is required')
+  const result = await sql.begin(async (transaction) => {
+    const [actor] = await transaction<{ id: number }[]>`
+      SELECT users.id
+      FROM users
+      JOIN user_roles ON user_roles.user_id = users.id
+      JOIN role_grants ON role_grants.role_code = user_roles.role_code
+      WHERE users.email = ${actorEmail}
+        AND users.status = 'ACTIVE'
+        AND user_roles.active
+        AND user_roles.role_code = 'admin'
+        AND role_grants.active
+        AND role_grants.resource = 'access.grants'
+        AND role_grants.action = 'manage'
+      LIMIT 1
+      FOR UPDATE OF users
+    `
+    if (!actor) throw new Error('The actor cannot manage role grants')
+    let changed = 0
+    const assignments: Array<{
+      roleCode: 'admin' | 'manager' | 'sale'
+      grants: typeof priceListAdminGrants | typeof priceListSaleGrants
+    }> = [
+      { roleCode: 'admin', grants: priceListAdminGrants },
+      { roleCode: 'manager', grants: priceListAdminGrants },
+      { roleCode: 'sale', grants: priceListSaleGrants },
+    ]
+    for (const assignment of assignments) {
+      for (const grant of assignment.grants) {
+        const rows = await transaction<{ id: number }[]>`
+          INSERT INTO role_grants (
+            role_code, resource, action, record_scope, read_fields,
+            write_fields, active, changed_by
+          ) VALUES (
+            ${assignment.roleCode}, ${grant.resource}, ${grant.action}, ${grant.recordScope},
+            ${[...grant.readFields]}, ${[...grant.writeFields]}, true, ${actor.id}
+          )
+          ON CONFLICT (role_code, resource, action, record_scope)
+          DO UPDATE SET
+            read_fields = EXCLUDED.read_fields,
+            write_fields = EXCLUDED.write_fields,
+            active = true,
+            changed_by = EXCLUDED.changed_by,
+            updated_at = now(),
+            version = role_grants.version + 1
+          WHERE role_grants.read_fields IS DISTINCT FROM EXCLUDED.read_fields
+            OR role_grants.write_fields IS DISTINCT FROM EXCLUDED.write_fields
+            OR role_grants.active IS DISTINCT FROM true
+          RETURNING id
+        `
+        changed += rows.length
+      }
+    }
+    if (changed) {
+      await transaction`
+        INSERT INTO audit_events (
+          actor_id, action, resource_type, request_id, safe_diff, result
+        ) VALUES (
+          ${actor.id}, 'access.price_list_grants_activated', 'role_grant',
+          ${randomUUID()},
+          ${transaction.json({ grantBoundary: 'M08_PRICE_LISTS_APPROVED' })},
+          'SUCCESS'
+        )
+      `
+    }
+    return changed
+  })
+  process.stdout.write(
+    result
+      ? `Activated ${result} approved Price List role grants.\n`
+      : 'Approved Price List role grants are already active.\n',
+  )
+}
+
 async function main() {
   const command = process.argv[2]
   if (command === 'bootstrap-admin') await bootstrapAdmin()
@@ -722,10 +802,11 @@ async function main() {
   else if (command === 'grant-contacts') await grantContacts()
   else if (command === 'grant-products') await grantProducts()
   else if (command === 'grant-specifications') await grantSpecifications()
+  else if (command === 'grant-price-lists') await grantPriceLists()
   else if (command === 'seed-initial-markets') await seedInitialMarkets()
   else
     throw new Error(
-      'Usage: access:operator -- <bootstrap-admin|invite|grant-customers|grant-contacts|grant-products|grant-specifications|seed-initial-markets> [options]',
+      'Usage: access:operator -- <bootstrap-admin|invite|grant-customers|grant-contacts|grant-products|grant-specifications|grant-price-lists|seed-initial-markets> [options]',
     )
 }
 

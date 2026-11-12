@@ -69,6 +69,10 @@ export default async function globalSetup() {
         VALUES (${market.id}, ${admin.id}, true, ${admin.id})
       `
         await transaction`
+        INSERT INTO user_market_memberships (market_id, user_id, active, granted_by)
+        VALUES (${market.id}, ${user.id}, true, ${admin.id})
+      `
+        await transaction`
         INSERT INTO role_grants (
           role_code,
           resource,
@@ -90,6 +94,33 @@ export default async function globalSetup() {
         )
         ON CONFLICT (role_code, resource, action, record_scope) DO NOTHING
       `
+        const priceListReadFields = [
+          'id', 'marketId', 'code', 'customerId', 'tier', 'currency', 'validFrom',
+          'validTo', 'status', 'effectiveState', 'items', 'selectionType',
+          'listedAmount', 'selectedAmount', 'reason', 'selectedBy', 'selectedAt',
+          'productId', 'priceListItemId', 'unit',
+        ]
+        const priceListWriteFields = [
+          'code', 'customerId', 'tier', 'currency', 'validFrom', 'validTo',
+          'productId', 'specificationVersionId', 'unit', 'priceBasis',
+          'priceBasisNote', 'unitPrice', 'minQuantity', 'maxQuantity',
+        ]
+        const priceListGrantAssignments = [
+          ...['create', 'read', 'update', 'approve', 'archive', 'select', 'override'].map((action) => ({ role: 'admin', action, write: action === 'create' || action === 'update' ? priceListWriteFields : [] })),
+          ...['create', 'read', 'update', 'approve', 'archive', 'select', 'override'].map((action) => ({ role: 'manager', action, write: action === 'create' || action === 'update' ? priceListWriteFields : [] })),
+          ...['read', 'select'].map((action) => ({ role: 'sale', action, write: [] as string[] })),
+        ]
+        for (const grant of priceListGrantAssignments) {
+          await transaction`
+          INSERT INTO role_grants (
+            role_code, resource, action, record_scope, read_fields,
+            write_fields, active, changed_by
+          ) VALUES (
+            ${grant.role}, 'price_lists', ${grant.action}, 'ALL',
+            ${priceListReadFields}, ${grant.write}, true, ${admin.id}
+          ) ON CONFLICT (role_code, resource, action, record_scope) DO NOTHING
+        `
+        }
         await transaction`
         INSERT INTO role_grants (
           role_code,

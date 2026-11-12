@@ -59,6 +59,18 @@ const expectedOperations = [
   'get /api/v1/specifications/{id}/revisions/{revisionNo}/documents',
   'post /api/v1/specifications/{id}/revisions/{revisionNo}/publish',
   'get /api/v1/specifications/{id}/revisions/{revisionNo}/snapshot',
+  'get /api/v1/price-lists',
+  'post /api/v1/price-lists',
+  'get /api/v1/price-lists/{id}',
+  'patch /api/v1/price-lists/{id}',
+  'get /api/v1/price-lists/{id}/items',
+  'post /api/v1/price-lists/{id}/items',
+  'patch /api/v1/price-lists/{id}/items/{itemId}',
+  'post /api/v1/price-lists/{id}/approve',
+  'post /api/v1/price-lists/{id}/archive',
+  'get /api/v1/price-lists/applicable',
+  'get /api/v1/price-selections',
+  'post /api/v1/price-selections',
 ]
 
 describe('OpenAPI document', () => {

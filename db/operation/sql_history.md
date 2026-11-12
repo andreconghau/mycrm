@@ -369,3 +369,8 @@ The local `grant-customers` operator was also attempted, but `tsx` was blocked b
 `db/migrations/0004_product_specifications.sql` extends the baseline `specifications` and `specification_versions` tables with buyer, multilingual, technical, packaging, handling and audit fields. It adds lifecycle and measurement constraints, lookup/history indexes, a partial unique index allowing one approved revision per specification, and a database trigger preventing content edits after approval. The matching `.down.sql` removes the additions.
 
 Validation: `npm run db:validate-migrations` passed in an isolated PostgreSQL schema after rerunning with sandbox escalation to allow the `tsx` IPC socket. No development database migration was applied in this task.
+## 2026-11-11 — Migration 0005: Price Lists (R1-08)
+
+`db/migrations/0005_price_lists.sql` extends the existing baseline price tables with creator/lifecycle metadata, USD/VND and item basis constraints, market lookup indexes, and guards that freeze price-list item commercial fields after approval. It creates append-only `price_selections` for reference, manual and override selections, with reason/reference constraints and no SQL foreign keys. The matching `.down.sql` removes the M08 additions.
+
+Validation: replay and guard checks passed in disposable isolated schema `migration_validation_08f2b55d`. The run verified approved-item update/delete rejection (SQLSTATE 55000), reasonless manual selection rejection, append-only selection mutation rejection, no foreign keys on `price_selections`, and down-migration cleanup. No development or production schema was migrated.

@@ -1,7 +1,7 @@
 # Graph Report - ccc  (2026-11-11)
 
 ## Corpus Check
-- 274 files · ~583,102 words
+- 274 files · ~583,410 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 24 file(s) not represented in the graph (top: (none) 11, .toml 8, .cmd 2)
 
@@ -569,16 +569,16 @@ Nodes (6): ProductDetailPage(), csrfToken(), DetailValue(), Product, ProductDeta
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `next` connect `requestCorrelationId` to `dependencies`, `package.json`, `[locale]/layout.tsx`, `R1RoutePage`, `product-create-drawer.tsx`, `useMarket`, `swagger-docs.tsx`, `next`, `customer-detail.tsx`, `contact-create-drawer.tsx`, `contact-detail.tsx`, `product-detail.tsx`, `customer-create-drawer.tsx`, `workspace-shell.tsx`?**
-  _High betweenness centrality (0.032) - this node is a cross-community bridge._
+  _High betweenness centrality (0.046) - this node is a cross-community bridge._
 - **What connects `@microsoft/postgres-mcp`, `@modelcontextprotocol/server-memory`, `@playwright/mcp` to the rest of the system?**
   _4 weakly-connected nodes found - possible missing edges._
 - **Should `nimbalyst-tracker-export/package.json` be split into smaller, more focused modules?**
   _Cohesion score 0.1323529411764706 - nodes in this community are weakly interconnected._
-- **Why does `vitest` connect `specification-lifecycle.ts` to `package.json`, `openapi.ts`, `r1-route-data.ts`, `dependencies`, `AccessDeniedError`, `requestCorrelationId`, `product-service.ts`, `authorization.ts`, `auth-service.ts`, `Principal`, `workspace-shell.tsx`, `contact-create-drawer.tsx`, `customer-create-drawer.tsx`, `ref_node_fs`, `contact-repository.integration.test.ts`, `specification-measurements.ts`, `decimal.ts`, `specification-snapshot.ts`, `product-repository.integration.test.ts`, `audit-safe-diff.ts`, `next`, `specification-repository.integration.test.ts`?**
-  _High betweenness centrality (0.026) - this node is a cross-community bridge._
+- **Why does `Principal` connect `Principal` to `AccessDeniedError`, `specification-service.ts`, `requestCorrelationId`, `RecordScope`, `AccessRepository`, `specification-repository.ts`, `authorization.ts`, `product-service.ts`, `auth-service.ts`, `product-specifications/presentation/api.ts`, `ProductRepository`, `CustomerRepository`, `openapi.ts`, `access-repository.ts`, `SpecificationRepository`, `products/presentation/api.ts`, `contacts/presentation/api.ts`, `customers/presentation/api.ts`?**
+  _High betweenness centrality (0.033) - this node is a cross-community bridge._
 - **Should `package.json` be split into smaller, more focused modules?**
   _Cohesion score 0.057624113475177305 - nodes in this community are weakly interconnected._
-- **Why does `Principal` connect `Principal` to `AccessDeniedError`, `specification-service.ts`, `requestCorrelationId`, `RecordScope`, `AccessRepository`, `specification-repository.ts`, `authorization.ts`, `product-service.ts`, `auth-service.ts`, `product-specifications/presentation/api.ts`, `ProductRepository`, `CustomerRepository`, `openapi.ts`, `access-repository.ts`, `SpecificationRepository`, `products/presentation/api.ts`, `contacts/presentation/api.ts`, `customers/presentation/api.ts`?**
-  _High betweenness centrality (0.024) - this node is a cross-community bridge._
+- **Why does `vitest` connect `specification-lifecycle.ts` to `package.json`, `openapi.ts`, `r1-route-data.ts`, `dependencies`, `AccessDeniedError`, `requestCorrelationId`, `product-service.ts`, `authorization.ts`, `auth-service.ts`, `Principal`, `workspace-shell.tsx`, `contact-create-drawer.tsx`, `customer-create-drawer.tsx`, `ref_node_fs`, `contact-repository.integration.test.ts`, `specification-measurements.ts`, `decimal.ts`, `specification-snapshot.ts`, `product-repository.integration.test.ts`, `audit-safe-diff.ts`, `next`, `specification-repository.integration.test.ts`?**
+  _High betweenness centrality (0.029) - this node is a cross-community bridge._
 - **Should `modern-screenshot.umd.js` be split into smaller, more focused modules?**
   _Cohesion score 0.08583959899749373 - nodes in this community are weakly interconnected._

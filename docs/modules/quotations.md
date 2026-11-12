@@ -16,6 +16,19 @@ Create, approve and issue immutable commercial offer versions.
 - PDF modes: English only, English–Vietnamese, English–Korean, Vietnamese–Korean (first language primary). Default comes from customer `preferred_doc_language`; Sale may override per quotation. Product/specification translations are snapshotted at submission; a missing translation blocks PDF generation and names the missing field. No machine translation. Each issued PDF stores language, version, SHA-256, creator and timestamp. Embed Noto Sans and Noto Sans KR.
 - Buyer-acceptance evidence follows the Sales Order evidence file rules in [R1 decisions §7](../business/r1-decisions.md#7-evidence-files-sales-order-confirmation-and-quotation-acceptance).
 
+## R1-09 implementation slice: Draft & Calculate
+
+The first M10 implementation task covers authorized quotation drafts, alternatives, draft revisions, lines, price selection, calculation and submission-readiness checks. It does not implement submission, approval/rejection/withdrawal, PDF issuance, buyer acceptance or Sales Order conversion; these remain specified above for later approved work.
+
+- Preserve original USD and VND totals separately. Never add original amounts across currencies; calculate the payable/display total in USD.
+- Convert VND inputs using the single positive `numeric(18,4)` VND-per-USD rate on that revision. Recalculate VND-derived values from original inputs when the draft rate changes; USD-native amounts remain unchanged.
+- Compute the final USD payable total from exact source amounts and rate, including explicit freight and insurance adjustments. Do not let finite-scale converted-line display/storage values affect the payable result. Round only the final aggregate to cents with `ROUND_HALF_EVEN`.
+- A new revision is an independent draft cloned from the latest revision of the same alternative. Edits never change the source revision or another alternative.
+- Drafts may be incomplete. Readiness requires each commercial line to have an eligible SKU and approved Specification Revision. Readiness validation does not submit or lock the draft.
+- Reuse the M08 eligible-price and selection contract when it is implemented and verified; do not duplicate its recommendation, reference, manual-price or override policy.
+
+The exact persisted representation and serialization of repeating VND/USD conversions must preserve exact payable-total calculation and be defined before schema changes. No finite display precision may silently become a rounding rule.
+
 ## Proposed fields
 
 - `Quotation`: `id`, `quote_number`, `rfq_id`, `customer_id`, `owner_id`, `status`, `current_version_id?`.

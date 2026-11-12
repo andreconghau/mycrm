@@ -117,9 +117,9 @@
     "semantic_hash": "57f62084e0f26746ee29275b50ec8439"
   },
   "next-env.d.ts": {
-    "mtime": 1794396474.2703035,
-    "seen": 1794396904.7994702,
-    "ast_hash": "8195d2c60ce847a459ae9d308d6a5724",
+    "mtime": 1794397030.8830945,
+    "seen": 1794397150.992503,
+    "ast_hash": "aa94238a90e7d04b7a47ecc3145ba6a0",
     "semantic_hash": ""
   },
   "next.config.ts": {
@@ -990,9 +990,9 @@
     "semantic_hash": ""
   },
   "docs/modules/product-specifications.md": {
-    "mtime": 1794396430.4498014,
-    "seen": 1794396472.9992309,
-    "ast_hash": "2d20b73346578c090541f13b0d5d78b0",
+    "mtime": 1794397109.9409833,
+    "seen": 1794397151.00526,
+    "ast_hash": "33403d52f1ae8d14facf179fca31bdd7",
     "semantic_hash": ""
   },
   "docs/modules/products.md": {
@@ -1368,15 +1368,15 @@
     "semantic_hash": ""
   },
   "e2e/global-setup.ts": {
-    "mtime": 1794053461.836176,
-    "seen": 1794053468.737948,
-    "ast_hash": "139986b067af31782a8a1a42b5a10ff2",
+    "mtime": 1794397109.4197044,
+    "seen": 1794397150.992453,
+    "ast_hash": "8f11f883e39a12b9516598c1d946f960",
     "semantic_hash": ""
   },
   "e2e/global-teardown.ts": {
-    "mtime": 1794053461.8366094,
-    "seen": 1794053468.737949,
-    "ast_hash": "757666d96dc60e1cd04181f749ee19d0",
+    "mtime": 1794397109.6802208,
+    "seen": 1794397150.992455,
+    "ast_hash": "69cfa537a5582a0e4431c92021516b56",
     "semantic_hash": ""
   },
   "nimbalyst-local/wiki/.nimbalyst-wiki.yaml": {
@@ -1614,9 +1614,9 @@
     "semantic_hash": ""
   },
   "nimbalyst-local/wiki/develop-process.md": {
-    "mtime": 1794396430.4803002,
-    "seen": 1794396473.0013518,
-    "ast_hash": "279520571760a927a25ce477808095b3",
+    "mtime": 1794397123.2845848,
+    "seen": 1794397151.007304,
+    "ast_hash": "2eae7aa7d0ac466b22a5bda044206e76",
     "semantic_hash": ""
   },
   "nimbalyst-local/wiki/spec-updating-v1.md": {
@@ -2784,9 +2784,9 @@
     "semantic_hash": ""
   },
   "src/modules/product-specifications/presentation/specification-workspace.tsx": {
-    "mtime": 1794396868.7193048,
-    "seen": 1794396904.809602,
-    "ast_hash": "c130d7055448833a80883464b2bc1bb2",
+    "mtime": 1794397010.055968,
+    "seen": 1794397150.999829,
+    "ast_hash": "79403057611e7b999b32004f5137d979",
     "semantic_hash": ""
   },
   "src/modules/products/application/contracts.test.ts": {
@@ -2868,15 +2868,15 @@
     "semantic_hash": ""
   },
   "src/modules/product-specifications/presentation/specification-detail.tsx": {
-    "mtime": 1794396846.933006,
-    "seen": 1794396904.809601,
-    "ast_hash": "8bcb9d72d5e80afa23f24cf0168771c9",
+    "mtime": 1794397010.0196512,
+    "seen": 1794397150.9998279,
+    "ast_hash": "1b4253f28a462f718bff3cbc197d87bb",
     "semantic_hash": ""
   },
   "e2e/product-specifications.spec.ts": {
-    "mtime": 1794395959.723917,
-    "seen": 1794396472.985204,
-    "ast_hash": "9c348ffe42a2ac2c98e5f9e4ed884a95",
+    "mtime": 1794397009.2635047,
+    "seen": 1794397150.992455,
+    "ast_hash": "513b407eb0e4299fa73ae08e13b02683",
     "semantic_hash": ""
   },
   "src/modules/product-specifications/application/specification-service.test.ts": {

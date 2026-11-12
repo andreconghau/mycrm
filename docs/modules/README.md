@@ -11,7 +11,7 @@
 | M05 | CRM | [Tasks Activities](tasks-activities.md) | R1 | Planned |
 | M06 | Product | [Products](products.md) | R1 | Core implemented |
 | M07 | Product | [Product Specifications](product-specifications.md) | R1 | In progress — backend and draft workspace implemented; revision/detail UI and full acceptance verification pending |
-| M08 | Product | [Price Lists](price-lists.md) | R1 | Planned |
+| M08 | Product | [Price Lists](price-lists.md) | R1 | Approved for implementation; not implemented |
 | M09 | Sales | [Rfqs](rfqs.md) | R1 | Planned |
 | M10 | Sales | [Quotations](quotations.md) | R1 | Planned |
 | M11 | Sales | [Samples](samples.md) | R1 | Planned |

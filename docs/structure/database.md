@@ -3922,6 +3922,18 @@ COMMENT ON COLUMN price_list_items.created_at IS 'System creation instant in UTC
 COMMENT ON COLUMN price_list_items.updated_at IS 'Last successful mutation; application must advance this timestamp.';
 COMMENT ON COLUMN price_list_items.version IS 'Optimistic concurrency token; increment atomically on mutation.';
 
+-- R1-08 approved extension contract; implemented by db/migrations/0005_price_lists.sql.
+-- The baseline DDL above remains a historical snapshot. Migration 0005 adds price_lists.created_by,
+-- approved_at, archived_at and archive_reason; constrains lifecycle to DRAFT/APPROVED/ARCHIVED,
+-- currency to USD/VND, and requires lifecycle metadata for approved/archived rows.
+-- It adds price_list_items.price_basis_note, supported unit/price-basis checks, and requires a
+-- non-empty note for OTHER. Approved/archived parent lists freeze item commercial columns.
+-- price_selections is append-only, uses AD_HOC with NULL context_id for standalone M08, and has
+-- no SQL foreign keys. It stores listed/selected amounts, actor, instant, reason and source metadata;
+-- reason/reference consistency is checked by both the application and database.
+-- Eligibility returns all matches: customer, market, general; then narrowest tier, latest valid_from,
+-- lowest item id. Currency and unit match exactly; no conversion or retroactive price mutation.
+
 COMMENT ON TABLE rfqs IS 'Buyer request; original requested terms stay separate from offered terms.';
 COMMENT ON COLUMN rfqs.id IS 'Generated INTEGER identity primary key; immutable and never recycled.';
 COMMENT ON COLUMN rfqs.market_id IS 'Logical reference; application validates existence, access, scope, lifecycle and concurrency.';

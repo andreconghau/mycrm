@@ -5,7 +5,6 @@ import opportunities from '@/constants/dummy/opportunities.json'
 import tasks from '@/constants/dummy/tasks-activities.json'
 import products from '@/constants/dummy/products.json'
 import specs from '@/constants/dummy/product-specifications.json'
-import prices from '@/constants/dummy/price-lists.json'
 import rfqs from '@/constants/dummy/rfqs.json'
 import quotes from '@/constants/dummy/quotations.json'
 import samples from '@/constants/dummy/samples.json'
@@ -101,15 +100,6 @@ export function routeRows(
         `${r.net_weight_per_pack} kg`,
         `v${r.version}`,
       ])
-    case '/price-lists':
-      return scoped(prices, marketId).map((r) => [
-        r.code,
-        market(r.market_id, locale),
-        r.currency,
-        r.valid_to,
-        String(r.items.length),
-        r.status,
-      ])
     case '/rfqs':
       return scoped(rfqs, marketId).map((r) => [
         r.rfq_number,
@@ -181,7 +171,6 @@ const searchableColumns: Record<string, number[]> = {
   '/tasks': [0, 1, 5],
   '/products': [0, 1, 4],
   '/products/specifications': [0, 1],
-  '/price-lists': [0, 5],
   '/rfqs': [0, 1, 5],
   '/quotations': [0, 1, 5],
   '/samples': [0, 1, 2, 5],

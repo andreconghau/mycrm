@@ -107,6 +107,37 @@ const positiveInteger = {
   minimum: 1,
 } as const
 
+const priceListPaths = {
+  '/api/v1/price-lists': {
+    get: { operationId: 'listPriceLists', tags: ['Price Lists'], summary: 'List market-scoped Price Lists', security: cookieSecurity, parameters: [marketParameter], responses: { '200': jsonResponse('Price List page.', dataEnvelope({ type: 'object' })), ...commonErrors } },
+    post: { operationId: 'createPriceList', tags: ['Price Lists'], summary: 'Create a DRAFT Price List', security: cookieSecurity, parameters: [marketParameter, csrfParameter], requestBody: { required: true, content: { 'application/json': { schema: { type: 'object' } } } }, responses: { '201': jsonResponse('Price List created.', dataEnvelope({ type: 'object' })), ...commonErrors } },
+  },
+  '/api/v1/price-lists/{id}': {
+    get: { operationId: 'getPriceList', tags: ['Price Lists'], summary: 'Read a Price List with items', security: cookieSecurity, parameters: [idParameter, marketParameter], responses: { '200': jsonResponse('Price List.', dataEnvelope({ type: 'object' })), ...commonErrors } },
+    patch: { operationId: 'updatePriceList', tags: ['Price Lists'], summary: 'Update a DRAFT Price List', security: cookieSecurity, parameters: [idParameter, marketParameter, csrfParameter], requestBody: { required: true, content: { 'application/json': { schema: { type: 'object' } } } }, responses: { '200': jsonResponse('Price List updated.', dataEnvelope({ type: 'object' })), ...commonErrors } },
+  },
+  '/api/v1/price-lists/{id}/items': {
+    get: { operationId: 'listPriceListItems', tags: ['Price Lists'], summary: 'List Price List items', security: cookieSecurity, parameters: [idParameter, marketParameter], responses: { '200': jsonResponse('Price List items.', dataEnvelope({ type: 'object' })), ...commonErrors } },
+    post: { operationId: 'createPriceListItem', tags: ['Price Lists'], summary: 'Add an item to a DRAFT Price List', security: cookieSecurity, parameters: [idParameter, marketParameter, csrfParameter], requestBody: { required: true, content: { 'application/json': { schema: { type: 'object' } } } }, responses: { '201': jsonResponse('Created item and overlaps warning.', dataEnvelope({ type: 'object' })), ...commonErrors } },
+  },
+  '/api/v1/price-lists/{id}/items/{itemId}': {
+    patch: { operationId: 'updatePriceListItem', tags: ['Price Lists'], summary: 'Update a draft item', security: cookieSecurity, parameters: [idParameter, { name: 'itemId', in: 'path', required: true, schema: positiveInteger }, marketParameter, csrfParameter], requestBody: { required: true, content: { 'application/json': { schema: { type: 'object' } } } }, responses: { '200': jsonResponse('Updated item and overlaps warning.', dataEnvelope({ type: 'object' })), ...commonErrors } },
+  },
+  '/api/v1/price-lists/{id}/approve': {
+    post: { operationId: 'approvePriceList', tags: ['Price Lists'], summary: 'Approve a DRAFT Price List', security: cookieSecurity, parameters: [idParameter, marketParameter, csrfParameter], requestBody: { required: true, content: { 'application/json': { schema: { type: 'object' } } } }, responses: { '200': jsonResponse('Price List approved.', dataEnvelope({ type: 'object' })), ...commonErrors } },
+  },
+  '/api/v1/price-lists/{id}/archive': {
+    post: { operationId: 'archivePriceList', tags: ['Price Lists'], summary: 'Archive a Price List with a reason', security: cookieSecurity, parameters: [idParameter, marketParameter, csrfParameter], requestBody: { required: true, content: { 'application/json': { schema: { type: 'object' } } } }, responses: { '200': jsonResponse('Price List archived.', dataEnvelope({ type: 'object' })), ...commonErrors } },
+  },
+  '/api/v1/price-lists/applicable': {
+    get: { operationId: 'applicablePrices', tags: ['Price Lists'], summary: 'Return all eligible reference prices and recommendation', security: cookieSecurity, parameters: [marketParameter], responses: { '200': jsonResponse('All eligible price options.', dataEnvelope({ type: 'object' })), ...commonErrors } },
+  },
+  '/api/v1/price-selections': {
+    get: { operationId: 'listPriceSelections', tags: ['Price Lists'], summary: 'Read market-scoped selection history', security: cookieSecurity, parameters: [marketParameter], responses: { '200': jsonResponse('Selection history.', dataEnvelope({ type: 'array', items: { type: 'object' } })), ...commonErrors } },
+    post: { operationId: 'recordPriceSelection', tags: ['Price Lists'], summary: 'Record a standalone AD_HOC selection', description: 'Selections are append-only and audited. Manual and override selections require a separate override grant and reason.', security: cookieSecurity, parameters: [marketParameter, csrfParameter], requestBody: { required: true, content: { 'application/json': { schema: { type: 'object' } } } }, responses: { '201': jsonResponse('Selection recorded.', dataEnvelope({ type: 'object' })), ...commonErrors } },
+  },
+} as const
+
 const paths = {
   '/api/v1/customers': {
     get: {
@@ -1009,6 +1040,7 @@ const paths = {
       },
     },
   },
+  ...priceListPaths,
 } as const
 
 const errorSchema = {
@@ -1034,7 +1066,7 @@ export const openApiDocument = {
     title: 'Seafood Export CRM API',
     version: '0.1.0',
     description:
-      'Implemented R1 access-control API. Planned module contracts are intentionally excluded.',
+      'Implemented R1 access-control and Price Lists APIs. Unimplemented module contracts are intentionally excluded.',
   },
   servers: [{ url: '/', description: 'Same-origin CRM application' }],
   tags: [
@@ -1045,6 +1077,7 @@ export const openApiDocument = {
     { name: 'Contacts' },
     { name: 'Products' },
     { name: 'Product specifications' },
+    { name: 'Price Lists' },
   ],
   paths,
   components: {

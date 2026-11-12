@@ -703,6 +703,124 @@ export const specificationVersions = pgTable(
   ],
 )
 
+export const priceLists = pgTable(
+  'price_lists',
+  {
+    id: identity(),
+    marketId: integer('market_id').notNull(),
+    code: text('code').notNull(),
+    customerId: integer('customer_id'),
+    tier: text('tier').notNull(),
+    currency: text('currency').notNull(),
+    validFrom: timestamp('valid_from', { withTimezone: true }).notNull(),
+    validTo: timestamp('valid_to', { withTimezone: true }),
+    status: text('status').notNull(),
+    approvedBy: integer('approved_by'),
+    createdBy: integer('created_by').notNull(),
+    approvedAt: timestamp('approved_at', { withTimezone: true }),
+    archivedAt: timestamp('archived_at', { withTimezone: true }),
+    archiveReason: text('archive_reason'),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    version: integer('version').notNull().default(1),
+  },
+  (table) => [
+    index('price_lists_eligibility_idx').on(
+      table.marketId,
+      table.status,
+      table.tier,
+      table.validFrom,
+      table.validTo,
+    ),
+  ],
+)
+
+export const priceListItems = pgTable(
+  'price_list_items',
+  {
+    id: identity(),
+    marketId: integer('market_id').notNull(),
+    priceListId: integer('price_list_id').notNull(),
+    productId: integer('product_id').notNull(),
+    specificationVersionId: integer('specification_version_id'),
+    unit: text('unit').notNull(),
+    priceBasis: text('price_basis').notNull(),
+    priceBasisNote: text('price_basis_note'),
+    unitPrice: numeric('unit_price').notNull(),
+    minQuantity: numeric('min_quantity'),
+    maxQuantity: numeric('max_quantity'),
+    validFrom: timestamp('valid_from', { withTimezone: true }).notNull(),
+    validTo: timestamp('valid_to', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    version: integer('version').notNull().default(1),
+  },
+  (table) => [
+    index('price_list_items_lookup_idx').on(
+      table.marketId,
+      table.productId,
+      table.unit,
+      table.validFrom,
+      table.validTo,
+    ),
+  ],
+)
+
+export const priceSelections = pgTable(
+  'price_selections',
+  {
+    id: identity(),
+    marketId: integer('market_id').notNull(),
+    contextType: text('context_type').notNull(),
+    contextId: integer('context_id'),
+    productId: integer('product_id').notNull(),
+    specificationVersionId: integer('specification_version_id'),
+    priceListId: integer('price_list_id'),
+    priceListItemId: integer('price_list_item_id'),
+    selectionType: text('selection_type').notNull(),
+    listedAmount: numeric('listed_amount'),
+    selectedAmount: numeric('selected_amount').notNull(),
+    currency: text('currency').notNull(),
+    unit: text('unit').notNull(),
+    priceBasis: text('price_basis').notNull(),
+    quantity: numeric('quantity').notNull(),
+    reason: text('reason'),
+    sourceMetadata: jsonb('source_metadata').notNull().default({}),
+    selectedBy: integer('selected_by').notNull(),
+    selectedAt: timestamp('selected_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    requestId: uuid('request_id').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index('price_selections_context_idx').on(
+      table.marketId,
+      table.contextType,
+      table.contextId,
+    ),
+    index('price_selections_product_time_idx').on(
+      table.marketId,
+      table.productId,
+      table.selectedAt,
+    ),
+    index('price_selections_item_idx').on(
+      table.marketId,
+      table.priceListItemId,
+    ),
+  ],
+)
+
 export const authRateLimits = pgTable(
   'auth_rate_limits',
   {
