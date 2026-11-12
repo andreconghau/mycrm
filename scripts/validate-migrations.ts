@@ -69,6 +69,14 @@ async function main() {
     path.join(root, 'db/migrations/0005_price_lists.down.sql'),
     'utf8',
   )
+  const quotations = await readFile(
+    path.join(root, 'db/migrations/0006_quotations.sql'),
+    'utf8',
+  )
+  const quotationsDown = await readFile(
+    path.join(root, 'db/migrations/0006_quotations.down.sql'),
+    'utf8',
+  )
   await admin.unsafe(`CREATE SCHEMA "${schema}"`)
   try {
     await isolated.unsafe(baseline)
@@ -135,6 +143,69 @@ async function main() {
     await isolated.unsafe(productsCatalog)
     await isolated.unsafe(productSpecifications)
     await isolated.unsafe(priceLists)
+    await isolated.unsafe(quotations)
+
+    const [quoteProbe] = await isolated<{ id: number }[]>`
+      INSERT INTO quotations (market_id, rfq_id, number, owner_id)
+      VALUES (1, 1, 'QT-MIGRATION-PROBE', 1)
+      RETURNING id
+    `
+    const [versionProbe] = await isolated<{ id: number }[]>`
+      INSERT INTO quotation_versions (market_id, quotation_id, rfq_id, revision_no, state, created_by)
+      VALUES (1, ${quoteProbe.id}, 1, 1, 'DRAFT', 1)
+      RETURNING id
+    `
+    const [incompleteLine] = await isolated<{ id: number }[]>`
+      INSERT INTO quotation_lines (market_id, quotation_version_id, rfq_id, line_no)
+      VALUES (1, ${versionProbe.id}, 1, 1)
+      RETURNING id
+    `
+    let draftTransitionBlocked = false
+    try {
+      await isolated`UPDATE quotation_versions SET state = 'SUBMITTED' WHERE id = ${versionProbe.id}`
+    } catch (error) {
+      draftTransitionBlocked = postgresErrorCode(error) === '55000'
+    }
+    let versionDeleteBlocked = false
+    try {
+      await isolated`DELETE FROM quotation_versions WHERE id = ${versionProbe.id}`
+    } catch (error) {
+      versionDeleteBlocked = postgresErrorCode(error) === '55000'
+    }
+    let invalidRateBlocked = false
+    try {
+      await isolated`UPDATE quotation_versions SET vnd_per_usd = 0.00001 WHERE id = ${versionProbe.id}`
+    } catch {
+      invalidRateBlocked = true
+    }
+    let invalidExactTotalBlocked = false
+    try {
+      await isolated`UPDATE quotation_versions SET unrounded_usd_numerator = '1', unrounded_usd_denominator = NULL WHERE id = ${versionProbe.id}`
+    } catch {
+      invalidExactTotalBlocked = true
+    }
+    const [quotationForeignKeys] = await isolated<{ count: number }[]>`
+      SELECT COUNT(*)::integer AS count
+      FROM information_schema.table_constraints
+      WHERE table_schema = ${schema}
+        AND table_name IN ('quotations', 'quotation_versions', 'quotation_lines', 'quotation_adjustments')
+        AND constraint_type = 'FOREIGN KEY'
+    `
+    if (!draftTransitionBlocked || !versionDeleteBlocked || !invalidRateBlocked || !invalidExactTotalBlocked || quotationForeignKeys.count) {
+      throw new Error('Quotation migration did not enforce its draft, FX, exact-total and no-foreign-key contracts')
+    }
+    await isolated`DELETE FROM quotation_lines WHERE id = ${incompleteLine.id}`
+    await isolated.unsafe(quotationsDown)
+    const [quotationDown] = await isolated<{ numeratorColumn: number; linePriceBasisColumn: number; versionTrigger: number; childTrigger: number }[]>`
+      SELECT
+        (SELECT COUNT(*)::integer FROM information_schema.columns WHERE table_schema = ${schema} AND table_name = 'quotation_versions' AND column_name = 'unrounded_usd_numerator') AS "numeratorColumn",
+        (SELECT COUNT(*)::integer FROM information_schema.columns WHERE table_schema = ${schema} AND table_name = 'quotation_lines' AND column_name IN ('price_basis', 'price_basis_note', 'price_selection_id')) AS "linePriceBasisColumn",
+        (SELECT COUNT(*)::integer FROM information_schema.triggers WHERE trigger_schema = ${schema} AND trigger_name = 'quotation_versions_draft_only') AS "versionTrigger",
+        (SELECT COUNT(*)::integer FROM information_schema.triggers WHERE trigger_schema = ${schema} AND trigger_name IN ('quotation_lines_draft_only', 'quotation_adjustments_draft_only')) AS "childTrigger"
+    `
+    if (quotationDown.numeratorColumn || quotationDown.linePriceBasisColumn || quotationDown.versionTrigger || quotationDown.childTrigger) {
+      throw new Error('Quotation down migration left M10 schema objects behind')
+    }
 
     const [priceGuards] = await isolated<
       { selectionTable: number; appendOnlyTrigger: number; itemGuard: number; itemDeleteGuard: number; hasForeignKey: number }[]

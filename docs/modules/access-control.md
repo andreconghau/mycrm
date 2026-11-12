@@ -24,13 +24,13 @@ Manage identity, role membership, team ownership and action-level policies.
 
 ## Approved administrator account policy
 
-- Admin users receive all active application permissions, including access-administration permissions. For each approved module policy, the Admin grant uses `ALL` record scope and the module's full writable field set; currently implemented for Customers. Admins may manage roles/permissions for non-admin users.
+- Admin users receive the explicit, audited permissions for every approved active module policy, including access-administration permissions. Each module's Admin grant uses `ALL` record scope within current market memberships and that module's approved read/write field allowlists. This is not a runtime `isAdmin` wildcard: unknown or unapproved actions remain denied, and approval, payment-posting and other restricted actions retain their separate policy and SoD checks. Credential and token secrets are never exposed through business APIs. Admins may manage roles/permissions for non-admin users.
 - An Admin may edit only their own profile, limited to `displayName`. Email changes are not available through the self-service profile API.
 - Admin accounts are protected from application-level disable and role changes. The application cannot grant the Admin role or change any role assignment on an Admin account; those account lifecycle changes require a manual database operation.
 - These rules apply even when multiple Admin users exist. They do not grant one Admin authority to disable or demote another Admin.
 - `PATCH /api/v1/me` persists the authenticated user's display name only. Email and role fields are rejected; the update and audit event share a transaction.
 - Admin account protections are enforced in the repository transaction for role assignment and account disable, including prevention of concurrent changes while the target user row is locked.
-- Admin bootstrap seeds the M29 administration grants and the approved M01 Customer `ALL` grants; the shared Customer policy is also used by the operator grant command.
+- Admin bootstrap seeds the M29 administration grants. Approved business-module Admin grants are activated through the module's reviewed grant tooling and audited like other role grants; bootstrap does not enable unapproved business actions. The M01 Customer `ALL` policy is also used by the operator grant command.
 
 ## Implemented R1-01 boundary
 

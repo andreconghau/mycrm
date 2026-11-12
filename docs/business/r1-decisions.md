@@ -96,7 +96,7 @@ Unchanged from the approved rule: sum exact (unrounded) line decimals, then appl
 ## 10. Teams and data scope
 
 - One internal team (~5 people); each user belongs to one team. Team is used for **broadcast, notification and support**, not as a data scope in R1.
-- R1 record scopes: Sale `OWN`; peer support through time-bounded, audited `ASSIGNED`; Manager `ALL`; Admin per explicit grants.
+- R1 record scopes: Sale `OWN`; peer support through time-bounded, audited `ASSIGNED`; Manager `ALL`; Admin receives explicit, audited grants for each approved active module policy, using `ALL` within current market memberships and the approved field allowlists. This does not bypass action/state policy or create approval and finance grants that are not separately approved.
 - The existing `teams` and `team_memberships` tables are reused (`starts_at`/`ends_at` cover join/leave; memberships are ended, never hard-deleted). A team-lead marker is a future approved migration; `users.direct_manager_id` already exists.
 - Duplicate customers: warn on similar customers without exposing other owners' details; never auto-merge.
 - **Implementation gap:** M01 Customers currently implements Manager `TEAM` scope. Aligning it to `ALL` requires a separate approved task.

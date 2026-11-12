@@ -18,7 +18,7 @@ import {
 import { priceListReadFields, priceListWriteFields } from '../domain/price-list-grants'
 import { effectivePriceListState } from '../domain/price-list-lifecycle'
 import { classifyPriceSelection } from '../domain/price-list-selection'
-import { PriceListRepository } from '../infrastructure/price-list-repository'
+import { PriceListRepository, type PriceListTransaction } from '../infrastructure/price-list-repository'
 
 const controlKeys = new Set(['version', 'reason'])
 
@@ -130,6 +130,23 @@ export class PriceListService {
     if (classification.requiresOverrideGrant) requireGrant(grants, 'price_lists', 'override')
     const selected = await this.repository.recordSelection({ actor, requestId, marketId, values: value as unknown as Record<string, unknown> })
     return selected
+  }
+
+  async recordQuotationLineSelection(actor: Principal, grants: EffectiveGrant[], marketId: number, quotationLineId: number, raw: unknown, requestId: string, executor: PriceListTransaction) {
+    const value = createSelectionSchema.parse(raw)
+    requireGrant(grants, 'price_lists', 'select')
+    const eligibility = await this.repository.eligible({ actor, executor, criteria: {
+      marketId, productId: value.productId, specificationVersionId: value.specificationVersionId,
+      customerId: value.customerId, quantity: value.quantity, unit: value.unit,
+      currency: value.currency, priceBasis: value.priceBasis,
+    } })
+    const classification = classifyPriceSelection(value, eligibility.options)
+    if (classification.requiresOverrideGrant) requireGrant(grants, 'price_lists', 'override')
+    const canOverride = grants.some((grant) => grant.resource === 'price_lists' && grant.action === 'override')
+    return this.repository.recordQuotationLineSelection({
+      actor, requestId, marketId, quotationLineId,
+      values: value as unknown as Record<string, unknown>, executor, canOverride,
+    })
   }
 
   async history(actor: Principal, grants: EffectiveGrant[], marketId: number, raw: unknown) {

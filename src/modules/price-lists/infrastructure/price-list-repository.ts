@@ -18,7 +18,8 @@ import { canTransitionPriceList } from '../domain/price-list-lifecycle'
 import { classifyPriceSelection, PriceSelectionBusinessRuleError } from '../domain/price-list-selection'
 
 type Database = ReturnType<typeof getDatabase>
-type Transaction = Parameters<Parameters<Database['transaction']>[0]>[0]
+export type PriceListTransaction = Parameters<Parameters<Database['transaction']>[0]>[0]
+type Transaction = PriceListTransaction
 
 export class PriceListNotFoundError extends Error {}
 export class PriceListConflictError extends Error {}
@@ -237,7 +238,7 @@ export class PriceListRepository {
     await this.requireProduct(executor, criteria.productId)
     if (criteria.customerId != null) await this.requireCustomer(executor, criteria.marketId, criteria.customerId)
     if (criteria.specificationVersionId != null) await this.requireSpecification(executor, criteria.marketId, criteria.specificationVersionId, criteria.productId)
-    const rows = await this.database.select({
+    const rows = await executor.select({
       id: priceListItems.id, priceListId: priceListItems.priceListId, marketId: priceListItems.marketId,
       productId: priceListItems.productId, specificationVersionId: priceListItems.specificationVersionId,
       unit: priceListItems.unit, priceBasis: priceListItems.priceBasis, unitPrice: priceListItems.unitPrice,
@@ -289,6 +290,44 @@ export class PriceListRepository {
       await this.audit(tx, { actor: input.actor, requestId: input.requestId, marketId: input.marketId, action: 'price_selection.recorded', resourceId: row.id, resourceVersion: 1, reason: classification.reason ?? undefined, safeDiff: { productId: row.productId, priceListItemId: row.priceListItemId, selectionType: row.selectionType, unit: row.unit } })
       return row
     })
+  }
+
+  async recordQuotationLineSelection(input: {
+    actor: Principal
+    requestId: string
+    marketId: number
+    quotationLineId: number
+    values: Record<string, unknown>
+    executor: PriceListTransaction
+    canOverride: boolean
+  }) {
+    this.assertMarketAccess(input.actor, input.marketId)
+    const values = input.values as {
+      productId: number; specificationVersionId?: number | null; priceListItemId?: number | null;
+      selectedAmount: string; currency: string; unit: string; priceBasis: string; quantity: string;
+      reason?: string | null; priceBasisNote?: string | null; customerId?: number | null
+    }
+    const eligibility = await this.eligible({ actor: input.actor, executor: input.executor, criteria: {
+      marketId: input.marketId, productId: values.productId,
+      specificationVersionId: values.specificationVersionId, customerId: values.customerId,
+      quantity: values.quantity, unit: values.unit, currency: values.currency, priceBasis: values.priceBasis,
+    } })
+    const classification = classifyPriceSelection(values, eligibility.options)
+    if (classification.requiresOverrideGrant && !input.canOverride) throw new AccessDeniedError()
+    if (values.priceBasis === 'OTHER' && !values.priceBasisNote?.trim()) throw new PriceListBusinessRuleError('OTHER price basis requires a note')
+    const selectedItem = values.priceListItemId == null ? null : eligibility.options.find((option) => option.id === values.priceListItemId)!
+    const [row] = await input.executor.insert(priceSelections).values({
+      marketId: input.marketId, contextType: 'QUOTATION_LINE', contextId: input.quotationLineId,
+      productId: values.productId, specificationVersionId: values.specificationVersionId ?? null,
+      priceListId: selectedItem?.priceListId ?? null, priceListItemId: selectedItem?.id ?? null,
+      selectionType: classification.selectionType, listedAmount: classification.listedAmount,
+      selectedAmount: values.selectedAmount, currency: values.currency, unit: values.unit,
+      priceBasis: values.priceBasis, quantity: values.quantity, reason: classification.reason,
+      sourceMetadata: { tier: selectedItem?.tier ?? null, listPriceCode: selectedItem?.code ?? null, priceBasisNote: values.priceBasisNote ?? null, eligibleAt: new Date().toISOString() },
+      selectedBy: input.actor.userId, requestId: input.requestId,
+    }).returning()
+    await this.audit(input.executor, { actor: input.actor, requestId: input.requestId, marketId: input.marketId, action: 'price_selection.recorded', resourceId: row.id, resourceVersion: 1, reason: classification.reason ?? undefined, safeDiff: { productId: row.productId, priceListItemId: row.priceListItemId, selectionType: row.selectionType, unit: row.unit } })
+    return { row, classification }
   }
 
   async history(actor: Principal, marketId: number, query: { contextType?: string; contextId?: number; productId?: number; priceListId?: number; limit: number }) {

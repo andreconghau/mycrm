@@ -1,8 +1,8 @@
-import { R1RoutePage } from '@/modules/routing/r1-route-page'
+import { currentPrincipal } from '@/modules/access-control/application/request-auth'
+import { QuotationWorkspace } from '@/modules/quotations/presentation/quotation-workspace'
 
-export default async function ModulePage({
-  params,
-}: Readonly<{ params: Promise<{ locale: string }> }>) {
+export default async function ModulePage({ params }: Readonly<{ params: Promise<{ locale: string }> }>) {
+  await currentPrincipal()
   const { locale } = await params
-  return <R1RoutePage href="/quotations" locale={locale as 'en' | 'vi'} />
+  return <QuotationWorkspace locale={locale === 'en' ? 'en' : 'vi'} />
 }

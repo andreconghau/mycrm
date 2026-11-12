@@ -138,6 +138,37 @@ const priceListPaths = {
   },
 } as const
 
+const quotationPaths = {
+  '/api/v1/quotations': {
+    get: { operationId: 'listQuotations', tags: ['Quotations'], summary: 'List authorized quotation alternatives or RFQ options', description: 'Set resource=rfqs to list authorized RFQs available for a new alternative.', security: cookieSecurity, parameters: [{ name: 'resource', in: 'query', schema: { type: 'string', enum: ['rfqs'] } }, marketParameter], responses: { '200': jsonResponse('Quotation page or authorized RFQ options.', dataEnvelope({ type: 'array', items: { type: 'object' } })), ...commonErrors } },
+    post: { operationId: 'createQuotation', tags: ['Quotations'], summary: 'Create a draft alternative for an authorized RFQ', security: cookieSecurity, parameters: [marketParameter, csrfParameter], requestBody: { required: true, content: { 'application/json': { schema: { type: 'object', required: ['rfqId'], properties: { rfqId: positiveInteger }, additionalProperties: false } } } }, responses: { '201': jsonResponse('Draft quotation alternative.', dataEnvelope({ type: 'object' })), ...commonErrors } },
+  },
+  '/api/v1/quotations/{id}': {
+    get: { operationId: 'getQuotation', tags: ['Quotations'], summary: 'Read authorized quotation alternatives and revisions', security: cookieSecurity, parameters: [idParameter, marketParameter], responses: { '200': jsonResponse('Quotation revisions and draft lines.', dataEnvelope({ type: 'object' })), ...commonErrors } },
+  },
+  '/api/v1/quotations/{id}/revisions': {
+    post: { operationId: 'cloneQuotationRevision', tags: ['Quotations'], summary: 'Clone the latest revision as a new draft', security: cookieSecurity, parameters: [idParameter, marketParameter, csrfParameter], requestBody: { required: true, content: { 'application/json': { schema: { type: 'object', required: ['version'], properties: { version: positiveInteger }, additionalProperties: false } } } }, responses: { '201': jsonResponse('New isolated draft revision.', dataEnvelope({ type: 'object' })), ...commonErrors } },
+  },
+  '/api/v1/quotation-versions/{id}': {
+    patch: { operationId: 'updateQuotationVersion', tags: ['Quotations'], summary: 'Update draft commercial terms and FX', security: cookieSecurity, parameters: [idParameter, marketParameter, csrfParameter], requestBody: { required: true, content: { 'application/json': { schema: { type: 'object', required: ['version'], additionalProperties: false } } } }, responses: { '200': jsonResponse('Updated draft and exact calculation.', dataEnvelope({ type: 'object' })), ...commonErrors } },
+  },
+  '/api/v1/quotation-versions/{id}/lines': {
+    post: { operationId: 'createQuotationLine', tags: ['Quotations'], summary: 'Add a draft commercial line', security: cookieSecurity, parameters: [idParameter, marketParameter, csrfParameter], requestBody: { required: true, content: { 'application/json': { schema: { type: 'object', required: ['version'], additionalProperties: true } } } }, responses: { '201': jsonResponse('Added draft line and recalculated totals.', dataEnvelope({ type: 'object' })), ...commonErrors } },
+  },
+  '/api/v1/quotation-versions/{id}/lines/{lineId}': {
+    patch: { operationId: 'updateQuotationLine', tags: ['Quotations'], summary: 'Update a draft commercial line', security: cookieSecurity, parameters: [idParameter, { name: 'lineId', in: 'path', required: true, schema: positiveInteger }, marketParameter, csrfParameter], requestBody: { required: true, content: { 'application/json': { schema: { type: 'object', required: ['version'], additionalProperties: true } } } }, responses: { '200': jsonResponse('Updated draft line and recalculated totals.', dataEnvelope({ type: 'object' })), ...commonErrors } },
+  },
+  '/api/v1/quotation-versions/{id}/adjustments/{kind}': {
+    put: { operationId: 'setQuotationAdjustment', tags: ['Quotations'], summary: 'Set or clear freight or insurance adjustment', security: cookieSecurity, parameters: [idParameter, { name: 'kind', in: 'path', required: true, schema: { type: 'string', enum: ['freight', 'insurance'] } }, marketParameter, csrfParameter], requestBody: { required: true, content: { 'application/json': { schema: { type: 'object', required: ['version', 'amount'], additionalProperties: false } } } }, responses: { '200': jsonResponse('Updated adjustment and recalculated totals.', dataEnvelope({ type: 'object' })), ...commonErrors } },
+  },
+  '/api/v1/quotation-versions/{id}/calculate': {
+    post: { operationId: 'calculateQuotation', tags: ['Quotations'], summary: 'Recalculate exact payable total', security: cookieSecurity, parameters: [idParameter, marketParameter, csrfParameter], requestBody: { required: true, content: { 'application/json': { schema: { type: 'object', required: ['version'], properties: { version: positiveInteger }, additionalProperties: false } } } }, responses: { '200': jsonResponse('Exact aggregate calculation.', dataEnvelope({ type: 'object' })), ...commonErrors } },
+  },
+  '/api/v1/quotation-versions/{id}/readiness': {
+    get: { operationId: 'checkQuotationReadiness', tags: ['Quotations'], summary: 'Check SKU and approved specification readiness', security: cookieSecurity, parameters: [idParameter, marketParameter], responses: { '200': jsonResponse('Readiness result and actionable issues.', dataEnvelope({ type: 'object' })), ...commonErrors } },
+  },
+} as const
+
 const paths = {
   '/api/v1/customers': {
     get: {
@@ -1041,6 +1072,7 @@ const paths = {
     },
   },
   ...priceListPaths,
+  ...quotationPaths,
 } as const
 
 const errorSchema = {

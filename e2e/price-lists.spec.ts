@@ -77,9 +77,21 @@ test('sale may read Price Lists but cannot mutate them', async ({ page }) => {
   const market = process.env.E2E_MARKET_CODE
   if (!email || !password || !market) throw new Error('Browser sale market fixture is missing')
   await signIn(page, email, password)
+  await page.goto('/en/price-lists')
+  await expect(page.getByRole('heading', { name: 'Price Lists' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'New Price List' })).toHaveCount(0)
   expect((await page.request.get(`/api/v1/price-lists?market=${encodeURIComponent(market)}`)).status()).toBe(200)
   const response = await page.request.post(`/api/v1/price-lists?market=${encodeURIComponent(market)}`, {
     data: { code: `SALE-${randomUUID()}`, tier: 'GENERAL', currency: 'USD', validFrom: '2026-01-01T00:00:00.000Z', validTo: null },
   })
   expect(response.status()).toBe(403)
+  await page.route('**/api/v1/price-lists?*', (route) => route.fulfill({
+    status: 403,
+    contentType: 'application/json',
+    body: JSON.stringify({ error: { code: 'ACTION_FORBIDDEN', message: 'Action forbidden' } }),
+  }))
+  await page.goto('/en/price-lists')
+  await expect(page.locator('main [role="alert"]')).toContainText('You do not have permission to view Price Lists in this market.')
+  await expect(page.getByRole('button', { name: 'New Price List' })).toHaveCount(0)
+  await expect(page.getByLabel('Search Price Lists')).toHaveCount(0)
 })

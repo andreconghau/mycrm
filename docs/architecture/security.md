@@ -26,9 +26,9 @@ Unsafe authenticated requests require both an exact trusted `Origin`/`Referer` o
 
 ## Authorization
 
-Effective access is the intersection of active account/session, active role grant, current team/market membership, resource/action, record scope and explicit field lists. Unknown resources, actions, roles, scopes and empty grants deny access. `ALL` is explicit. Browser controls and market selection never grant access.
+Effective access is the intersection of active account/session, active role grant, current market membership, resource/action, record scope and explicit field lists. Unknown resources, actions, roles, scopes and empty grants deny access. `ALL` is explicit. Browser controls and market selection never grant access. Admin's broad access is composed from explicit, audited grants for each approved active module policy; there is no runtime role bypass. Approval, posting, reversal and other restricted actions retain their separate grants, state rules and SoD checks. Credential and token secrets are never exposed through business APIs.
 
-The bootstrap policy grants `admin` only M29 resources (`access.users`, `access.roles`, `access.grants`, `access.teams`, `access.markets`). No customer, commercial, document or finance grant is activated by this task. Role-grant mutation endpoints remain intentionally absent until module policies are approved.
+The Admin bootstrap grants M29 resources (`access.users`, `access.roles`, `access.grants`, `access.teams`, `access.markets`). Approved business-module grants are activated through the reviewed grant tooling for each module and audited; bootstrap does not activate unapproved business actions. Role-grant mutation endpoints remain intentionally absent until module policies are approved.
 
 ## Evidence file uploads (approved, not implemented)
 

@@ -27,6 +27,8 @@ Apply [employee sessions and application authorization](../architecture/security
 > - Accountant is not activated in R1 (default deny).
 > - These rules supersede the matching cells in the §5 proposal matrix for R1; the remaining matrix stays unapproved.
 
+> **Admin module-access clarification (owner, 2026-11-12):** Admin receives explicit, audited grants for every R1 module whose action and field policy is approved and active. These grants use `ALL` record scope within the Admin's current market memberships and the module's approved field allowlists. This is an enumerated grant set, not an `isAdmin` bypass. It does not activate unapproved modules or add approval, payment-posting, reversal or other restricted actions beyond their separately approved policy. Credential and token secrets remain unavailable through business APIs.
+
 ## 2. Authorization model
 
 A business permission decision should consider:
@@ -34,6 +36,7 @@ A business permission decision should consider:
 `actor + role/permission + resource + action + record scope + state/approval policy + field sensitivity`.
 
 - **RBAC:** permissions attached to roles rather than uncontrolled `isAdmin` flags.
+- **Administrator coverage:** broad module coverage is composed from explicit module grants; it does not bypass resource/action checks, current market membership, field allowlists or state/approval policy.
 - **Record-level scope:** `OWN`, `TEAM`, `ASSIGNED`, `ALL` or `NONE`. `ALL` is an explicit grant, not the absence of a filter.
 - **Action-level grants:** view/list/create/edit/approve/confirm/cancel/allocate/export/download/post/reverse/manage-users are distinct.
 - **Field-level restrictions:** supplier cost, margin, bank account and contact personal information require narrow disclosure.
@@ -53,7 +56,7 @@ User interface hiding is not authorization. Every Server Action, API route, serv
 | `FINANCE` | L/C review, receivables, payment posting and reconciliation |
 | `PROCUREMENT_QC` | Suppliers, purchase orders, batches and inspections |
 | `MANAGEMENT` | Strategic reports, approved elevated actions and oversight |
-| `ADMIN` | Identity, roles, system configuration; business approvals only if separately granted |
+| `ADMIN` | Organization-wide access to approved active module policies through explicit grants; restricted business actions remain separately granted |
 | `AUDITOR` (optional) | Read-only scoped access to audit and relevant records |
 | `INTEGRATION_SERVICE` | Narrow machine identity for a particular provider/operation |
 

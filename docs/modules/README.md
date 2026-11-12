@@ -13,7 +13,7 @@
 | M07 | Product | [Product Specifications](product-specifications.md) | R1 | In progress — backend and draft workspace implemented; revision/detail UI and full acceptance verification pending |
 | M08 | Product | [Price Lists](price-lists.md) | R1 | Approved for implementation; not implemented |
 | M09 | Sales | [Rfqs](rfqs.md) | R1 | Planned |
-| M10 | Sales | [Quotations](quotations.md) | R1 | Planned |
+| M10 | Sales | [Quotations](quotations.md) | R1 | In progress — R1-09 Draft & Calculate implementation; approval and issuance remain out of scope |
 | M11 | Sales | [Samples](samples.md) | R1 | Planned |
 | M12 | Sales | [Sales Orders](sales-orders.md) | R1 | Planned |
 | M13 | Supply & Quality | [Suppliers](suppliers.md) | R3 | Planned |

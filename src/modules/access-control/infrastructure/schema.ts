@@ -1,4 +1,4 @@
-import { sql } from 'drizzle-orm'
+import { desc, sql } from 'drizzle-orm'
 import {
   bigint,
   boolean,
@@ -590,6 +590,27 @@ export const productAliases = pgTable(
   ],
 )
 
+export const marketProducts = pgTable(
+  'market_products',
+  {
+    id: identity(),
+    marketId: integer('market_id').notNull(),
+    productId: integer('product_id').notNull(),
+    eligible: boolean('eligible').notNull().default(true),
+    availability: text('availability'),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    version: integer('version').notNull().default(1),
+  },
+  (table) => [
+    uniqueIndex('market_products_market_id_product_id_key').on(table.marketId, table.productId),
+  ],
+)
+
 /**
  * M07 Product Specifications. The physical tables come from the R1 baseline
  * initializer; `customer_id` and the revision content columns are added by
@@ -818,6 +839,181 @@ export const priceSelections = pgTable(
       table.marketId,
       table.priceListItemId,
     ),
+  ],
+)
+
+export const rfqs = pgTable(
+  'rfqs',
+  {
+    id: identity(),
+    marketId: integer('market_id').notNull(),
+    number: text('number').notNull(),
+    customerId: integer('customer_id').notNull(),
+    contactId: integer('contact_id'),
+    opportunityId: integer('opportunity_id'),
+    source: text('source').notNull(),
+    receivedAt: timestamp('received_at', { withTimezone: true }).notNull(),
+    responseDueAt: timestamp('response_due_at', { withTimezone: true }),
+    destinationCountry: text('destination_country'),
+    status: text('status').notNull(),
+    ownerId: integer('owner_id').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    version: integer('version').notNull().default(1),
+  },
+  (table) => [
+    index('rfqs_owner_page').on(table.marketId, table.ownerId, desc(table.createdAt), desc(table.id)),
+    index('idx_rfqs_market_id_customer_id_contact_id').on(table.marketId, table.customerId, table.contactId),
+  ],
+)
+
+export const rfqLines = pgTable(
+  'rfq_lines',
+  {
+    id: identity(),
+    marketId: integer('market_id').notNull(),
+    rfqId: integer('rfq_id').notNull(),
+    lineNo: integer('line_no').notNull(),
+    productId: integer('product_id'),
+    freeTextRequest: text('free_text_request'),
+    requirements: jsonb('requirements').notNull().default({}),
+    quantity: numeric('quantity'),
+    unit: text('unit'),
+    targetPrice: numeric('target_price'),
+    currency: text('currency'),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    version: integer('version').notNull().default(1),
+  },
+  (table) => [
+    index('idx_rfq_lines_market_id_rfq_id').on(table.marketId, table.rfqId),
+  ],
+)
+
+export const quotations = pgTable(
+  'quotations',
+  {
+    id: identity(),
+    marketId: integer('market_id').notNull(),
+    rfqId: integer('rfq_id').notNull(),
+    number: text('number').notNull(),
+    ownerId: integer('owner_id').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    version: integer('version').notNull().default(1),
+  },
+  (table) => [
+    index('quotations_owner_page').on(table.marketId, table.ownerId, desc(table.createdAt), desc(table.id)),
+    index('idx_quotations_market_id_rfq_id').on(table.marketId, table.rfqId),
+  ],
+)
+
+export const quotationVersions = pgTable(
+  'quotation_versions',
+  {
+    id: identity(),
+    marketId: integer('market_id').notNull(),
+    quotationId: integer('quotation_id').notNull(),
+    rfqId: integer('rfq_id').notNull(),
+    revisionNo: integer('revision_no').notNull(),
+    state: text('state').notNull(),
+    currency: text('currency').notNull().default('USD'),
+    vndPerUsd: numeric('vnd_per_usd', { precision: 18, scale: 4 }),
+    fxSource: text('fx_source'),
+    fxAt: timestamp('fx_at', { withTimezone: true }),
+    incoterm: text('incoterm'),
+    incotermPlace: text('incoterm_place'),
+    incotermYear: integer('incoterm_year'),
+    paymentTerms: text('payment_terms'),
+    validUntil: timestamp('valid_until', { withTimezone: true }),
+    originalUsdTotal: numeric('original_usd_total'),
+    originalVndTotal: numeric('original_vnd_total'),
+    unroundedUsdTotal: numeric('unrounded_usd_total'),
+    unroundedUsdNumerator: text('unrounded_usd_numerator'),
+    unroundedUsdDenominator: text('unrounded_usd_denominator'),
+    roundedUsdTotal: numeric('rounded_usd_total'),
+    submittedAt: timestamp('submitted_at', { withTimezone: true }),
+    issuedAt: timestamp('issued_at', { withTimezone: true }),
+    pdfFileId: integer('pdf_file_id'),
+    createdBy: integer('created_by').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    version: integer('version').notNull().default(1),
+  },
+  (table) => [
+    index('quotation_versions_draft_idx').on(table.marketId, table.quotationId, desc(table.revisionNo), table.id),
+  ],
+)
+
+export const quotationLines = pgTable(
+  'quotation_lines',
+  {
+    id: identity(),
+    marketId: integer('market_id').notNull(),
+    quotationVersionId: integer('quotation_version_id').notNull(),
+    rfqId: integer('rfq_id').notNull(),
+    rfqLineId: integer('rfq_line_id'),
+    lineNo: integer('line_no').notNull(),
+    productId: integer('product_id'),
+    specificationVersionId: integer('specification_version_id'),
+    quantity: numeric('quantity'),
+    unit: text('unit'),
+    inputCurrency: text('input_currency'),
+    inputUnitPrice: numeric('input_unit_price'),
+    originalLineAmount: numeric('original_line_amount'),
+    convertedUsdAmount: numeric('converted_usd_amount'),
+    priceListItemId: integer('price_list_item_id'),
+    priceSelectionId: integer('price_selection_id'),
+    referencePrice: numeric('reference_price'),
+    referenceCurrency: text('reference_currency'),
+    priceReason: text('price_reason'),
+    priceBasis: text('price_basis'),
+    priceBasisNote: text('price_basis_note'),
+    productSnapshot: jsonb('product_snapshot'),
+    specificationSnapshot: jsonb('specification_snapshot'),
+    selectedBy: integer('selected_by'),
+    selectedAt: timestamp('selected_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('quotation_lines_market_id_quotation_version_id_line_no_key').on(table.marketId, table.quotationVersionId, table.lineNo),
+  ],
+)
+
+export const quotationAdjustments = pgTable(
+  'quotation_adjustments',
+  {
+    id: identity(),
+    marketId: integer('market_id').notNull(),
+    quotationVersionId: integer('quotation_version_id').notNull(),
+    kind: text('kind').notNull(),
+    inputCurrency: text('input_currency').notNull(),
+    originalAmount: numeric('original_amount').notNull(),
+    convertedUsdAmount: numeric('converted_usd_amount').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index('idx_quotation_adjustments_market_id_quotation_version_id').on(table.marketId, table.quotationVersionId),
   ],
 )
 

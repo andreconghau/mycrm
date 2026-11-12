@@ -19,6 +19,11 @@ export type Decimal = {
   readonly scale: number
 }
 
+export type Rational = {
+  readonly numerator: bigint
+  readonly denominator: bigint
+}
+
 /** Guards against absurd input before any bigint work happens. */
 const MAX_INPUT_LENGTH = 64
 const MAX_SCALE = 18
@@ -33,6 +38,91 @@ export class DecimalFormatError extends Error {
 
 function pow10(exponent: number): bigint {
   return BigInt(10) ** BigInt(exponent)
+}
+
+function greatestCommonDivisor(left: bigint, right: bigint): bigint {
+  let a = left < BigInt(0) ? -left : left
+  let b = right < BigInt(0) ? -right : right
+  while (b !== BigInt(0)) {
+    const remainder = a % b
+    a = b
+    b = remainder
+  }
+  return a
+}
+
+export function rational(numerator: bigint, denominator = BigInt(1)): Rational {
+  if (denominator === BigInt(0)) {
+    throw new DecimalFormatError('Rational denominator cannot be zero')
+  }
+  const sign = denominator < BigInt(0) ? BigInt(-1) : BigInt(1)
+  const divisor = greatestCommonDivisor(numerator, denominator)
+  return {
+    numerator: (numerator / divisor) * sign,
+    denominator: (denominator / divisor) * sign,
+  }
+}
+
+export function toRational(value: Decimal): Rational {
+  return rational(value.units, pow10(value.scale))
+}
+
+export function addRational(left: Rational, right: Rational): Rational {
+  return rational(
+    left.numerator * right.denominator + right.numerator * left.denominator,
+    left.denominator * right.denominator,
+  )
+}
+
+export function multiplyRational(left: Rational, right: Rational): Rational {
+  return rational(left.numerator * right.numerator, left.denominator * right.denominator)
+}
+
+export function divideRational(left: Rational, right: Rational): Rational {
+  if (right.numerator === BigInt(0)) {
+    throw new DecimalFormatError('Cannot divide by zero')
+  }
+  return rational(left.numerator * right.denominator, left.denominator * right.numerator)
+}
+
+export function roundRationalHalfEven(value: Rational, scale: number): Decimal {
+  assertScale(scale)
+  const negative = value.numerator < BigInt(0)
+  const numerator = (negative ? -value.numerator : value.numerator) * pow10(scale)
+  const quotient = numerator / value.denominator
+  const remainder = numerator % value.denominator
+  const doubled = remainder * BigInt(2)
+  const rounded = doubled > value.denominator ||
+    (doubled === value.denominator && quotient % BigInt(2) === BigInt(1))
+    ? quotient + BigInt(1)
+    : quotient
+  return { units: negative ? -rounded : rounded, scale }
+}
+
+export function rationalToRoundedString(value: Rational, scale: number): string {
+  return toString(roundRationalHalfEven(value, scale))
+}
+
+export function rationalToExactDecimalString(value: Rational): string {
+  let denominator = value.denominator
+  let twos = 0
+  let fives = 0
+  while (denominator % BigInt(2) === BigInt(0)) {
+    denominator /= BigInt(2)
+    twos += 1
+  }
+  while (denominator % BigInt(5) === BigInt(0)) {
+    denominator /= BigInt(5)
+    fives += 1
+  }
+  if (denominator !== BigInt(1)) {
+    throw new DecimalFormatError('Rational value has no finite decimal representation')
+  }
+  const scale = Math.max(twos, fives)
+  const units = value.numerator *
+    (BigInt(2) ** BigInt(scale - twos)) *
+    (BigInt(5) ** BigInt(scale - fives))
+  return toString({ units, scale })
 }
 
 function assertScale(scale: number) {

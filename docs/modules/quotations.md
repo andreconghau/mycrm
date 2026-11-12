@@ -1,6 +1,6 @@
 # M10 — Quotations
 
-> **Status: PLANNED — NOT IMPLEMENTED**  
+> **Status: IN PROGRESS — R1-09 Draft & Calculate implementation**
 > **Area:** Sales · **Release:** R1 · **Reference:** [`docs/context.md`](../context.md)
 
 ## Purpose
@@ -20,14 +20,47 @@ Create, approve and issue immutable commercial offer versions.
 
 The first M10 implementation task covers authorized quotation drafts, alternatives, draft revisions, lines, price selection, calculation and submission-readiness checks. It does not implement submission, approval/rejection/withdrawal, PDF issuance, buyer acceptance or Sales Order conversion; these remain specified above for later approved work.
 
+Admin draft access is provided through explicit, audited `quotations` action grants for the approved R1-09 slice. `ALL` record scope remains bounded by current market membership and the module's field allowlists. It does not add submission, approval, issue, acceptance or order-conversion actions, and it does not bypass RFQ, Customer, Product, Specification or Price List authorization.
+
 - Preserve original USD and VND totals separately. Never add original amounts across currencies; calculate the payable/display total in USD.
 - Convert VND inputs using the single positive `numeric(18,4)` VND-per-USD rate on that revision. Recalculate VND-derived values from original inputs when the draft rate changes; USD-native amounts remain unchanged.
 - Compute the final USD payable total from exact source amounts and rate, including explicit freight and insurance adjustments. Do not let finite-scale converted-line display/storage values affect the payable result. Round only the final aggregate to cents with `ROUND_HALF_EVEN`.
 - A new revision is an independent draft cloned from the latest revision of the same alternative. Edits never change the source revision or another alternative.
 - Drafts may be incomplete. Readiness requires each commercial line to have an eligible SKU and approved Specification Revision. Readiness validation does not submit or lock the draft.
-- Reuse the M08 eligible-price and selection contract when it is implemented and verified; do not duplicate its recommendation, reference, manual-price or override policy.
+- Reuse the M08 eligible-price and selection contract; preserve the immutable selection record, listed reference, reason, actor and time on each quotation line. Do not duplicate its recommendation, reference, manual-price or override policy.
 
-The exact persisted representation and serialization of repeating VND/USD conversions must preserve exact payable-total calculation and be defined before schema changes. No finite display precision may silently become a rounding rule.
+Persist the exact unrounded USD aggregate as a reduced integer numerator and positive denominator. The finite 18-place converted line, adjustment and aggregate fields are display/storage approximations only; the payable amount is calculated directly from original inputs and the exact FX rate, then rounded once to cents. API decimal values are serialized as strings.
+
+Implemented API surface for this slice: `GET/POST /api/v1/quotations`, `GET /api/v1/quotations/{id}`, `POST /api/v1/quotations/{id}/revisions`, `PATCH /api/v1/quotation-versions/{id}`, line `POST/PATCH`, adjustment `PUT`, calculation `POST`, and readiness `GET`. All mutation operations require the existing CSRF proof and optimistic version token.
+
+## R1-10 implementation slice: Approval & Issue
+
+Planned, not implemented. Blocked on R1-09, which is itself blocked on R1-07 — neither exists as code as of 2026-11-12. Plan: `nimbalyst-local/plans/r1-10-quotations-approval-issue.md`. Owner decisions below are confirmed and supersede the earlier proposals where they conflict.
+
+### Confirmed state transitions
+
+`DRAFT → SUBMITTED → APPROVED → ISSUED → ACCEPTED`, with `SUBMITTED → REJECTED`, `SUBMITTED → WITHDRAWN`, and `APPROVED|ISSUED → SUPERSEDED`. `REJECTED`, `WITHDRAWN` and `SUPERSEDED` are terminal; `REJECTED` and `WITHDRAWN` are copyable into a new draft revision.
+
+- **Sales withdrawal is allowed only from `SUBMITTED`.** Not after approval and not after issuance; changing approved terms requires a new draft revision.
+- **Supersession happens when the successor revision is approved**, in the same transaction — not when a draft revision is created and not at submission. If the successor is rejected, the alternative keeps its previously approved terms. At most one in-force revision (`APPROVED`, `ISSUED` or `ACCEPTED`) exists per alternative.
+
+### Confirmed self-approval definition
+
+A decision is `self_approved` when the approver is the version's `created_by` **or** the quotation's `owner_id`. When `self_approved` is true, a comment of at least 10 characters after trimming is mandatory; otherwise the comment is optional. The request body keeps `comment` optional and the rule is enforced conditionally in the application service plus a database CHECK.
+
+Admin holds the approve grant on the same terms as Manager and has no bypass: no code path may mark a version approved without appending an `approve` decision row.
+
+### Confirmed decision-record and concurrency contract
+
+`quotation_decisions` is append-only and gains `comment`, `self_approved`, `decided_version`, `version_state_before`, `version_state_after`, `rounded_usd_total_at_decision`, `vnd_per_usd_at_decision` and `request_id`. Partial unique indexes allow at most one `approve`/`reject`/`withdraw` decision, one `issue` and one `submit` per version, so concurrent approve-versus-withdraw has exactly one winner at the database level and the loser receives a conflict.
+
+Every decision runs in one transaction: lock the parent quotation, lock the version, check the version token, validate the transition, compute `self_approved` from the locked row, apply a conditional state update, append the decision, then append the mandatory audit event last so an audit failure rolls the decision back.
+
+Retries rely on the conditional transition and these indexes; `idempotency_records` is not used by this slice.
+
+### Deferred out of this slice
+
+PDF issuance, private PDF download and the storage adapter remain blocked by gate G08 — no PDF library, templating engine, object-storage adapter or Noto font asset exists yet. The append-only `rate_history` table, quotation document language, translation snapshot and PDF issue metadata (language, SHA-256) are deferred to their own approved tasks, as are notifications (gate G03), buyer acceptance, partial acceptance and Sales Order conversion.
 
 ## Proposed fields
 
