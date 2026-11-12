@@ -6,35 +6,107 @@
   "conflict_policy": "prefer-live-and-preserve-local-snapshot",
   "tasks": [
     {
-      "tracker_id": "tsk_mwbswy4ml5i41o",
-      "path": "/Users/andre/www/codex/ccc/nimbalyst-local/tracker/tasks/tsk_mwbswy4ml5i41o.md",
-      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "source_updated_at": "2026-11-11T07:32:19.275Z",
-      "exported_at": "2026-11-11T07:33:19.775Z",
+      "tracker_id": "task_1794403118796_wgxj7o",
+      "path": "/Users/andre/www/codex/ccc/nimbalyst-local/tracker/tasks/task_1794403118796_wgxj7o.md",
+      "content_hash": "cde0cc4431092d30665aeb01345c759fc705becaa50be81d55416c53a209a001",
+      "source_updated_at": "2026-11-11T13:12:35.928Z",
+      "exported_at": "2026-11-12T00:33:15.293Z",
       "schema_version": 1
     },
     {
       "tracker_id": "tsk_mwbf98k854m21t",
       "path": "/Users/andre/www/codex/ccc/nimbalyst-local/tracker/tasks/tsk_mwbf98k854m21t.md",
-      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "source_updated_at": "2026-11-11T03:01:45.697Z",
-      "exported_at": "2026-11-11T07:33:19.849Z",
-      "schema_version": 1
-    },
-    {
-      "tracker_id": "pln_mwa17uujian357",
-      "path": "/Users/andre/www/codex/ccc/nimbalyst-local/tracker/tasks/pln_mwa17uujian357.md",
-      "content_hash": "dcc401150dbd630f5aa3551fb25b630b147145c16f6d4668807bb254a57cf4d2",
-      "source_updated_at": "2026-11-11T00:47:46.483Z",
-      "exported_at": "2026-11-11T07:33:19.927Z",
+      "content_hash": "0469eaaffce813751c259d37b1b967837e8777d11b3d4d7377e19ea81d8d6cfa",
+      "source_updated_at": "2026-11-12T00:29:37.064Z",
+      "exported_at": "2026-11-12T00:33:15.358Z",
       "schema_version": 1
     },
     {
       "tracker_id": "tsk_mw8nm06oxowxdv",
       "path": "/Users/andre/www/codex/ccc/nimbalyst-local/tracker/tasks/tsk_mw8nm06oxowxdv.md",
       "content_hash": "41328a1811b476318933a536580ab3cd874e718d3a29b73ad0bcfc33f3265891",
-      "source_updated_at": "2026-11-10T01:55:29.781Z",
-      "exported_at": "2026-11-11T07:33:19.997Z",
+      "source_updated_at": "2026-11-12T00:29:34.779Z",
+      "exported_at": "2026-11-12T00:33:15.420Z",
+      "schema_version": 1
+    },
+    {
+      "tracker_id": "tsk_mw6b36jpb923xl",
+      "path": "/Users/andre/www/codex/ccc/nimbalyst-local/tracker/tasks/tsk_mw6b36jpb923xl.md",
+      "content_hash": "5a92a011442e56204da3f5125f9e499cf1d1e324ce211590d3b0e9115c8d0e65",
+      "source_updated_at": "2026-11-12T00:29:31.545Z",
+      "exported_at": "2026-11-12T00:33:15.483Z",
+      "schema_version": 1
+    },
+    {
+      "tracker_id": "tsk_mwbzea0yykrdcx",
+      "path": "/Users/andre/www/codex/ccc/nimbalyst-local/tracker/tasks/tsk_mwbzea0yykrdcx.md",
+      "content_hash": "9c2e3a5e984dbd7a53506cedc8c98a1f5ec699cdfad14c413fd7a04fc1e5cffd",
+      "source_updated_at": "2026-11-12T00:29:30.264Z",
+      "exported_at": "2026-11-12T00:33:15.546Z",
+      "schema_version": 1
+    },
+    {
+      "tracker_id": "task_1794400137448_xhz8ke",
+      "path": "/Users/andre/www/codex/ccc/nimbalyst-local/tracker/tasks/task_1794400137448_xhz8ke.md",
+      "content_hash": "1557f393c12c331f47eaefac2ece95a0139e9367fcbe875d7cb79d9818292468",
+      "source_updated_at": "2026-11-12T00:29:25.415Z",
+      "exported_at": "2026-11-12T00:33:15.609Z",
+      "schema_version": 1
+    },
+    {
+      "tracker_id": "task_1794402402004_2pexdp",
+      "path": "/Users/andre/www/codex/ccc/nimbalyst-local/tracker/tasks/task_1794402402004_2pexdp.md",
+      "content_hash": "43034255c721dc010cb9e40a82efac1d2acc1c35b727aba6705acc7092f402f1",
+      "source_updated_at": "2026-11-12T00:29:23.845Z",
+      "exported_at": "2026-11-12T00:33:15.672Z",
+      "schema_version": 1
+    },
+    {
+      "tracker_id": "pln_mwc3rbvujptd4k",
+      "path": "/Users/andre/www/codex/ccc/nimbalyst-local/tracker/tasks/pln_mwc3rbvujptd4k.md",
+      "content_hash": "6b573a4885e747ca382d57424632cbd58f7126326a320aadf3c5ae4318d42d01",
+      "source_updated_at": "2026-11-11T13:12:35.928Z",
+      "exported_at": "2026-11-12T00:33:15.736Z",
+      "schema_version": 1
+    },
+    {
+      "tracker_id": "pln_mwc3wlise7obf2",
+      "path": "/Users/andre/www/codex/ccc/nimbalyst-local/tracker/tasks/pln_mwc3wlise7obf2.md",
+      "content_hash": "112b0aee8c3f2188655a838af6a0b28af01a25ac43b9a52a58b748936c069293",
+      "source_updated_at": "2026-11-11T13:05:08.227Z",
+      "exported_at": "2026-11-12T00:33:15.799Z",
+      "schema_version": 1
+    },
+    {
+      "tracker_id": "mst_mwc3ror42gdmll",
+      "path": "/Users/andre/www/codex/ccc/nimbalyst-local/tracker/tasks/mst_mwc3ror42gdmll.md",
+      "content_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_updated_at": "2026-11-11T12:36:12.673Z",
+      "exported_at": "2026-11-12T00:33:15.861Z",
+      "schema_version": 1
+    },
+    {
+      "tracker_id": "pln_mwc2s7mtq6yht5",
+      "path": "/Users/andre/www/codex/ccc/nimbalyst-local/tracker/tasks/pln_mwc2s7mtq6yht5.md",
+      "content_hash": "8ba376ef3a7e070d799249040c91e98dbafb4ef0de729b01a739ddd6c0210d6a",
+      "source_updated_at": "2026-11-11T12:36:12.668Z",
+      "exported_at": "2026-11-12T00:33:15.924Z",
+      "schema_version": 1
+    },
+    {
+      "tracker_id": "pln_mwa17uujian357",
+      "path": "/Users/andre/www/codex/ccc/nimbalyst-local/tracker/tasks/pln_mwa17uujian357.md",
+      "content_hash": "dcc401150dbd630f5aa3551fb25b630b147145c16f6d4668807bb254a57cf4d2",
+      "source_updated_at": "2026-11-11T12:08:04.355Z",
+      "exported_at": "2026-11-12T00:33:15.986Z",
+      "schema_version": 1
+    },
+    {
+      "tracker_id": "tsk_mwbswy4ml5i41o",
+      "path": "/Users/andre/www/codex/ccc/nimbalyst-local/tracker/tasks/tsk_mwbswy4ml5i41o.md",
+      "content_hash": "7e5b8a98b824b9ea407ad74e92e686528099314424d312fc54b14b0f6fea85fb",
+      "source_updated_at": "2026-11-11T09:02:53.491Z",
+      "exported_at": "2026-11-12T00:33:16.051Z",
       "schema_version": 1
     },
     {
@@ -42,15 +114,7 @@
       "path": "/Users/andre/www/codex/ccc/nimbalyst-local/tracker/tasks/tsk_mw4huorcafqjax.md",
       "content_hash": "eb8153b90ab9fc07b648a8587979541ca5150f3ef05a42d19148b05cbddfb88b",
       "source_updated_at": "2026-11-09T06:38:31.813Z",
-      "exported_at": "2026-11-11T07:33:20.107Z",
-      "schema_version": 1
-    },
-    {
-      "tracker_id": "tsk_mw6b36jpb923xl",
-      "path": "/Users/andre/www/codex/ccc/nimbalyst-local/tracker/tasks/tsk_mw6b36jpb923xl.md",
-      "content_hash": "5a92a011442e56204da3f5125f9e499cf1d1e324ce211590d3b0e9115c8d0e65",
-      "source_updated_at": "2026-11-09T06:38:05.768Z",
-      "exported_at": "2026-11-11T07:33:20.177Z",
+      "exported_at": "2026-11-12T00:33:16.114Z",
       "schema_version": 1
     },
     {
@@ -58,7 +122,7 @@
       "path": "/Users/andre/www/codex/ccc/nimbalyst-local/tracker/tasks/tsk_mw5x2mq5wanj82.md",
       "content_hash": "8e23060a11809cfdae32a508a9197ee31c014f184731f2b55ffc98242864d23b",
       "source_updated_at": "2026-11-07T12:17:36.529Z",
-      "exported_at": "2026-11-11T07:33:20.250Z",
+      "exported_at": "2026-11-12T00:33:16.177Z",
       "schema_version": 1
     },
     {
@@ -66,7 +130,7 @@
       "path": "/Users/andre/www/codex/ccc/nimbalyst-local/tracker/tasks/tsk_mw4c5l55k09fz3.md",
       "content_hash": "975aa529dfe5710ecfa0602ed1dd15d3906d0e383711bedd8e408377a02918f8",
       "source_updated_at": "2026-11-06T04:25:15.157Z",
-      "exported_at": "2026-11-11T07:33:20.322Z",
+      "exported_at": "2026-11-12T00:33:16.243Z",
       "schema_version": 1
     },
     {
@@ -74,7 +138,7 @@
       "path": "/Users/andre/www/codex/ccc/nimbalyst-local/tracker/tasks/tsk_mw3ao3fzsjwy5i.md",
       "content_hash": "35b050bcd7777d4b64aa5c3aadc97f90d5e9a6643ef2484bb5c04e64d89ae603",
       "source_updated_at": "2026-11-06T02:08:22.241Z",
-      "exported_at": "2026-11-11T07:33:20.394Z",
+      "exported_at": "2026-11-12T00:33:16.305Z",
       "schema_version": 1
     },
     {
@@ -82,7 +146,7 @@
       "path": "/Users/andre/www/codex/ccc/nimbalyst-local/tracker/tasks/tsk_mw4aodxpvac4ud.md",
       "content_hash": "8fc5f10782553773dd623447409d52a7fe49ae94949e6c2d5d4d16761344c3c8",
       "source_updated_at": "2026-11-06T01:47:02.265Z",
-      "exported_at": "2026-11-11T07:33:20.483Z",
+      "exported_at": "2026-11-12T00:33:16.368Z",
       "schema_version": 1
     }
   ]
